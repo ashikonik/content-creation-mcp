@@ -9,7 +9,7 @@
 | AudioGen | 10s | SFX only | CC-BY-NC | Sound design |
 | ACE-Step 1.5 | 4 min | Yes | MIT | Full songs, structure |
 | YuE | 5 min | Yes | Apache-2.0 | Lyrics to song |
-| Stable Audio Open | 47s | No | Non-commercial | Cinematic fidelity |
+| Stable Audio Open | 47s | No | Non-commercial (code MIT) | Cinematic fidelity |
 
 ## Prompt formula
 

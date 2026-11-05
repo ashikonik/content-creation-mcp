@@ -10,16 +10,23 @@
 | Qwen3-TTS | 8 GB | 10+ | Yes | Fast | Very good |
 | Dia | 4 GB | en | No | Slow | Excellent, chatty |
 | Bark | 4 GB | 10+ | Yes | Slow | Good, dramatic |
-| Supertonic | 2 GB | en | Yes | Real-time | Very good |
+| Supertonic | CPU (~99M params) | 31 (v3) | No (fixed voices) | Real-time | Very good |
+
+> **Supertonic and Piper's old repo are archived.** Supertonic 3 is a 99M-
+> parameter ONNX model that runs on CPU with no GPU, has expression tags
+> (`<laugh>`, `<breath>`, `<sigh>`), and ships **fixed voices only** — there is
+> no official voice-cloning pipeline.
 
 ## Piper — the workhorse
 
 ```bash
 pip install piper-tts
-echo "Text" | piper --model en_US-lessac-medium --output_file out.wav
+python3 -m piper.download_voices en_US-lessac-medium
+python3 -m piper -m en_US-lessac-medium -f out.wav -- 'Text'
 ```
 
-Models: `en_US-lessac-*` (low/medium/high), plus ~40 languages.
+Models: `en_US-lessac-*` (low/medium/high), plus ~40 languages. Repo:
+`OHF-Voice/piper1-gpl` (GPL-3.0; the old `rhasspy/piper` is archived).
 
 ## Kokoro — best small model
 

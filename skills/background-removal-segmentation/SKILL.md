@@ -38,18 +38,24 @@ clean edge**. Most bad results are an edge problem, not a detection problem.
 pip install rembg[gpu]
 ```
 
+The CLI is `rembg <command> <input> <output>` — input and output are positional
+arguments, and the subcommand selects the mode.
+
 ```bash
-# default model
-rembg -i input.jpg -o output.png
+# single file, default model
+rembg i input.jpg output.png
 
 # best edge quality
-rembg -i input.jpg -o output.png -m birefnet-general
+rembg i -m birefnet-general input.jpg output.png
 
 # people specifically
-rembg -i portrait.jpg -o portrait.png -m u2net_human_seg
+rembg i -m u2net_human_seg portrait.jpg portrait.png
 
 # batch a directory
-rembg -p input_dir/ output_dir/
+rembg p input_dir/ output_dir/
+
+# keep the alpha channel clean on hair
+rembg i -a input.jpg output.png
 ```
 
 **Model choice matters more than any setting:**
@@ -58,6 +64,7 @@ rembg -p input_dir/ output_dir/
 |---|---|
 | `birefnet-general` | Best overall edge quality. Try this first. |
 | `birefnet-general-lite` | Faster, slightly softer edges |
+| `bria-rmbg` | The default; fast and good, licence-free for non-commercial use |
 | `u2net_human_seg` | People, portraits |
 | `u2net` | General objects |
 | `isnet-general-use` | Alternative general model, good with clutter |
@@ -115,17 +122,35 @@ background.
 
 ```bash
 pip install iopaint
-iopaint start --model=lama --device=cuda --port=8080
+iopaint start --model=lama --device=cuda --port=8080   # web UI on :8080
 ```
+
+Headless batch mode — `run` takes `--image`, `--mask`, and `--output`, all of
+which accept **either a single file or a directory**:
 
 ```bash
 # remove an object using a mask
-iopaint start --model=lama --device=cuda \
-  --mask-path=mask.png --image-path=input.jpg --output-path=clean.jpg
+iopaint run --model=lama --device=cuda \
+  --image=input.jpg --mask=mask.png --output=clean.jpg
+
+# batch: one mask per image, matching filenames in the same folder
+iopaint run --model=lama --device=cuda \
+  --image=images/ --mask=masks/ --output=results/
 ```
 
+`--concat` writes a side-by-side of original, mask, and result — useful for
+spot-checking a batch. Other subcommands: `iopaint list` (models already
+downloaded), `iopaint download <hf-model-id>`, and
+`iopaint install-plugins-packages`.
+
 Models: `lama` (fast, general), `lama_fp16` (faster), `sd2` (Stable Diffusion
-inpainting), `migan`, `aot`.
+inpainting), `migan`, `aot`. Any SD/SDXL inpainting model on Hugging Face
+also works — pass the repo id to `--model`.
+
+> **Note:** `Sanster/IOPaint` was archived in April 2025. The package still
+> installs and works, but it no longer receives upstream fixes. For new
+> projects prefer `rembg` for cutouts and `diffusers`' inpainting pipelines
+> for fills.
 
 ## Alpha matting by hand
 

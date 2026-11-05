@@ -84,7 +84,7 @@
         "references/model-chooser.md"
       ],
       "scripts": [],
-      "body_chars": 5985
+      "body_chars": 6162
     },
     {
       "id": "background-removal-segmentation",
@@ -113,7 +113,7 @@
         "references/rembg-models.md"
       ],
       "scripts": [],
-      "body_chars": 5324
+      "body_chars": 6466
     },
     {
       "id": "batch-draft-writer",
@@ -155,7 +155,7 @@
         "references/product-render-recipe.md"
       ],
       "scripts": [],
-      "body_chars": 8104
+      "body_chars": 8762
     },
     {
       "id": "blender-motion-state-inspection",
@@ -761,7 +761,7 @@
         "references/model-comparison.md"
       ],
       "scripts": [],
-      "body_chars": 6195
+      "body_chars": 8589
     },
     {
       "id": "local-diffusion-suite",
@@ -790,7 +790,7 @@
         "references/tool-comparison.md"
       ],
       "scripts": [],
-      "body_chars": 6065
+      "body_chars": 6682
     },
     {
       "id": "local-tts-engines",
@@ -820,7 +820,7 @@
         "references/engine-comparison.md"
       ],
       "scripts": [],
-      "body_chars": 6434
+      "body_chars": 15353
     },
     {
       "id": "long-to-short-repurpose",
@@ -850,7 +850,7 @@
       "scripts": [
         "scripts/score_segments.py"
       ],
-      "body_chars": 7578
+      "body_chars": 8076
     },
     {
       "id": "manim-video",
@@ -942,7 +942,7 @@
         "references/model-comparison.md"
       ],
       "scripts": [],
-      "body_chars": 7211
+      "body_chars": 10550
     },
     {
       "id": "netlify-image-cdn",
@@ -1250,7 +1250,7 @@
         "references/api-reference.md"
       ],
       "scripts": [],
-      "body_chars": 7246
+      "body_chars": 7528
     },
     {
       "id": "subtitle-generation",
@@ -1281,7 +1281,7 @@
       "scripts": [
         "scripts/generate_srt.py"
       ],
-      "body_chars": 7263
+      "body_chars": 7650
     },
     {
       "id": "taste",
@@ -1332,7 +1332,7 @@
         "references/model-requirements.md"
       ],
       "scripts": [],
-      "body_chars": 5013
+      "body_chars": 7013
     },
     {
       "id": "thumbnail-generator",
@@ -1359,7 +1359,7 @@
         "references/platform-specs.md"
       ],
       "scripts": [],
-      "body_chars": 5853
+      "body_chars": 6701
     },
     {
       "id": "tts-to-video",
@@ -1509,7 +1509,7 @@
         "references/tool-comparison.md"
       ],
       "scripts": [],
-      "body_chars": 5294
+      "body_chars": 8902
     },
     {
       "id": "videodb",
@@ -1577,7 +1577,7 @@
         "references/rvc-parameters.md"
       ],
       "scripts": [],
-      "body_chars": 7768
+      "body_chars": 10503
     },
     {
       "id": "web-3d-asset-pipeline",

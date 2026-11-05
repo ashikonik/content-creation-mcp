@@ -35,60 +35,100 @@ for your VRAM and picking settings that don't produce garbage.
 | 8–16GB | LTX-Video / LTX-2 | `Lightricks/LTX-Video` | Fastest. Good for iteration. |
 | 8–16GB | CogVideoX | `zai-org/CogVideo` | Mature, many distilled variants. |
 | 6–8GB | AnimateDiff + SD1.5 | `guoyww/AnimateDiff` | Old but tiny. LoRA ecosystem. |
-| 24GB+ | Mochi 1 | `genmoai/models` | Strong motion coherence. |
+| 24GB+ | Mochi 1 | `genmoai/mochi` | Strong motion coherence. |
 
 **Start with LTX-Video on ≤16GB.** It generates in seconds, so you can iterate on
 the prompt instead of waiting 10 minutes per take.
 
 ## Installation
 
+LTX-Video:
+
 ```bash
 git clone https://github.com/Lightricks/LTX-Video.git
 cd LTX-Video
-pip install -e '.[torch]'
+python -m pip install -e '.[inference]'
 ```
 
-Models download from HuggingFace. For Wan2.2:
+Wan2.2 — checkpoints come from HuggingFace or ModelScope:
 
 ```bash
 git clone https://github.com/Wan-Video/Wan2.2.git
 cd Wan2.2
-pip install -e '.[torch]'
+pip install -r requirements.txt
+
+pip install "huggingface_hub[cli]"
+huggingface-cli download Wan-AI/Wan2.2-T2V-A14B --local-dir ./Wan2.2-T2V-A14B
 ```
 
 ## Generating a clip
 
-LTX-Video — text to video:
+LTX-Video — text to video. The CLI is driven by a dataclass-backed argument
+parser, so the flags are the config field names:
 
 ```bash
 python inference.py \
   --prompt "A slow push-in on a rusted lighthouse at dusk, waves breaking, volumetric light" \
-  --output_file out/ltx.mp4 \
-  --num_frames 97 \
-  --height 704 --width 1280 \
-  --decode_timestep 0.05 \
-  --decode_noise_scale 0.025
+  --output_path outputs/lighthouse \
+  --pipeline_config configs/ltxv-13b-0.9.8-distilled.yaml \
+  --height 704 --width 1216 \
+  --num_frames 121 --frame_rate 30 \
+  --seed 171198
 ```
 
-Wan2.2 — text to video:
+`--output_path` is a **directory**, not a file — the pipeline names the output
+file itself. `--pipeline_config` selects the model checkpoint and sampling
+setup; the `configs/` directory holds the shipped variants (13B dev, 13B
+distilled, and smaller ones). Step count and guidance live inside that YAML,
+not on the command line.
 
-```bash
-python generate.py \
-  --task t2v \
-  --prompt "A slow push-in on a rusted lighthouse at dusk, waves breaking" \
-  --size 1280*704 \
-  --sample_steps 50 \
-  --sample_guide_scale 6.0
-```
-
-Image to video — give the model a first frame for far better control:
+Image or video to video — condition on a first frame:
 
 ```bash
 python inference.py \
-  --input_image first_frame.png \
   --prompt "The camera pushes in, waves begin breaking against the rocks" \
-  --output_file out/i2v.mp4
+  --conditioning_media_paths first_frame.png \
+  --conditioning_start_frames 0 \
+  --conditioning_strengths 1.0 \
+  --height 704 --width 1216 --num_frames 121 \
+  --pipeline_config configs/ltxv-13b-0.9.8-distilled.yaml
 ```
+
+`--conditioning_media_paths` takes one or more paths, and
+`--conditioning_start_frames` takes one frame index per path.
+
+Wan2.2 — text to video. `--task` selects the variant; `t2v-A14B` is the
+14B text-to-video model and `ti2v-5B` is the smaller combined one:
+
+```bash
+python generate.py \
+  --task t2v-A14B \
+  --ckpt_dir ./Wan2.2-T2V-A14B \
+  --size 1280*720 \
+  --prompt "A slow push-in on a rusted lighthouse at dusk, waves breaking" \
+  --sample_steps 50 \
+  --sample_guide_scale 6.0 \
+  --offload_model True \
+  --convert_model_dtype
+```
+
+Image to video adds `--image`:
+
+```bash
+python generate.py \
+  --task i2v-A14B \
+  --ckpt_dir ./Wan2.2-I2V-A14B \
+  --size 1280*720 \
+  --image examples/i2v_input.JPG \
+  --prompt "A white cat in sunglasses sits on a surfboard, shallow focus"
+```
+
+If you OOM, `--offload_model True`, `--convert_model_dtype` and `--t5_cpu`
+reduce GPU memory. For multi-GPU, run the same script under `torchrun` with
+`--dit_fsdp --t5_fsdp --ulysses_size N`.
+
+Wan2.2 also has an **s2v** task that drives a face from an audio track, and
+`--enable_tts` synthesises the audio with CosyVoice in the same run.
 
 ## Prompt structure for video
 
@@ -117,13 +157,14 @@ Camera vocabulary that models understand: `static`, `pan left/right`,
 
 ## Settings that matter
 
-**Frame count** — most models are trained on 16fps with 49–97 frames (3–6
-seconds). Asking for more does not extend the clip; it degrades it. Generate
-short, then extend or concatenate.
+**Frame count** — models are trained on a fixed window, and asking for more
+frames than that does not extend the clip; it degrades it. LTX-Video defaults
+to 121 frames at 30fps (about 4 seconds) and Wan2.2 wants `4n+1` frames.
+Generate short, then extend or concatenate.
 
 **Resolution** — native training resolutions are safest:
-- LTX-Video: 704×1280, 768×1344
-- Wan2.2: 1280×704
+- LTX-Video: 704×1216 (the default), 768×1344
+- Wan2.2: 1280×720, 1280×704
 - HunyuanVideo: 1280×720
 
 Going above native causes artifacts. Generate small, upscale with
@@ -132,7 +173,10 @@ Going above native causes artifacts. Generate small, upscale with
 **Guidance scale** — 5–7 for most. Above 9 oversaturates and freezes motion;
 below 4 loses prompt adherence.
 
-**Negative prompts** — for Wan/LTX:
+**Negative prompts** — LTX-Video takes `--negative_prompt` directly (it
+defaults to `"worst quality, inconsistent motion, blurry, jittery,
+distorted"`). Wan2.2 has no negative-prompt flag; steer away from unwanted
+content in the prompt instead.
 ```
 blur, watermark, text, deformed, extra limbs, low quality, jpeg artifacts, static image
 ```

@@ -131,14 +131,21 @@ Faster and lighter than Demucs, but vocals leak more.
 
 ```bash
 demucs --two-stems=vocals song.mp3
-ffmpeg -i "separated/htdemucs/song/instrumental.wav" \
-  -i "separated/htdemucs/song/vocals.wav" \
-  -filter_complex "[0:a]volume=1.0[instr];[1:a]volume=0.0[mute]" \
-  -map "[instr]" -map "[mute]" karaoke.wav
 ```
 
-Simpler — Demucs already writes the instrumental as `no_vocals.wav` when you
-use `--two-stems=vocals`.
+With `--two-stems=vocals`, Demucs writes two files: `vocals.wav` and
+`no_vocals.wav`. The latter is the karaoke track — no mixing needed.
+
+To build a karaoke track from the full 4-stem separation instead, sum the
+accompaniment stems:
+
+```bash
+ffmpeg -i "separated/htdemucs/song/drums.wav" \
+  -i "separated/htdemucs/song/bass.wav" \
+  -i "separated/htdemucs/song/other.wav" \
+  -filter_complex "[0:a][1:a][2:a]amix=inputs=3:duration=longest:normalize=0" \
+  -c:a pcm_s16le karaoke.wav
+```
 
 ## Vocal isolation (karaoke-quality)
 

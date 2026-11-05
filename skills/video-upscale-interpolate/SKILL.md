@@ -34,7 +34,7 @@ frames to interpolate between.
 | [video2x](https://github.com/k4yt3x/video2x) | ✅ | ✅ (RIFE) | Wraps both. Simplest combined path. AGPL-3.0. |
 | [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN) | ✅ | ❌ | Best photo/detail quality. BSD-3-Clause. |
 | [Waifu2x](https://github.com/AaronFeng753/Waifu2x-Extension-GUI) | ✅ | ✅ | Strong on anime/illustration. |
-| [RIFE](https://github.com/hzwer/ECVF-RIFE) | ❌ | ✅ | Best interpolation quality. |
+| [RIFE](https://github.com/hzwer/ECCV2022-RIFE) | ❌ | ✅ | Best interpolation quality. MIT. |
 | [Real-ESRGAN-ncnn](https://github.com/xinntao/Real-ESRGAN-ncnn-vulkan) | ✅ | ❌ | Single binary, no Python. Easiest install. |
 
 **Use the ncnn Vulkan build if you just need results** — no Python environment,
@@ -44,60 +44,143 @@ no CUDA setup.
 
 ```bash
 # download the release binary for your platform, then:
-realesrgan-ncnn-vulkan -i input.mp4 -o output_4k.mp4 \
-  -s 4 -n realesrgan-x4plus -f video
+realesrgan-ncnn-vulkan -i input.jpg -o output.png -s 4 -n realesrgan-x4plus
 ```
 
-Frame extraction and reassembly happen automatically for video input.
+The ncnn build takes **images or directories of images** — not video. `-f`
+selects the output *image* format (`jpg`/`png`/`webp`), not a video codec.
+For video, extract frames first and reassemble after:
+
+```bash
+ffmpeg -i input.mp4 -vsync 0 frames/%05d.png
+realesrgan-ncnn-vulkan -i frames -o out_frames -s 4 -n realesrgan-x4plus
+ffmpeg -framerate 24 -i out_frames/%05d.png -c:v libx264 -crf 16 -pix_fmt yuv420p out_4k.mp4
+```
+
+| Flag | Meaning |
+|---|---|
+| `-s` | Scale factor: 2, 3, or 4. Default 4. |
+| `-n` | Model name: `realesr-animevideov3`, `realesrgan-x4plus`, `realesrgan-x4plus-anime`, `realesrnet-x4plus`. |
+| `-t` | Tile size (≥32). `0` = auto. Smaller uses less VRAM. |
+| `-m` | Folder holding the model weights. Default `models`. |
+| `-g` | GPU id. Default auto. |
+| `-j` | Thread counts as `load:proc:save`, e.g. `2:2:2`. |
+| `-x` | Enable test-time augmentation (slower, cleaner). |
 
 ## video2x (upscale + interpolate together)
 
+Video2X 6.0 is a complete C/C++ rewrite — it is no longer a Python package.
+Install the prebuilt binary or GUI installer from the releases page (Windows
+and Linux). It needs a **Vulkan**-capable GPU and a CPU with AVX2.
+
+There are no subcommands. You pick a processor with `-p`:
+
 ```bash
-pip install video2x
-video2x upscale -i in.mp4 -o out_4k.mp4
-video2x interpolate -i in.mp4 -o out_60fps.mp4 -t 2.0
-video2x hybrid -i in.mp4 -o out_4k60.mp4   # both
+# upscale 4x with Real-ESRGAN
+video2x -i input.mp4 -o output.mp4 -p realesrgan -s 4 \
+  --realesrgan-model realesrgan-plus
+
+# interpolate 4x with RIFE
+video2x -i input.mp4 -o output.mp4 -p rife -m 4 --rife-model rife-v4.6
+
+# upscale to an exact resolution with Anime4K (libplacebo)
+video2x -i input.mp4 -o output.mp4 -w 3840 -h 2160 -p libplacebo \
+  --libplacebo-shader anime4k-v4-a+a
 ```
+
+| Flag | Meaning |
+|---|---|
+| `-i` / `-o` | Input and output video paths (both required). |
+| `-p` | Processor: `libplacebo`, `realesrgan`, `realcugan`, `rife`. |
+| `-s` | Scaling factor (minimum 2). Upscaling only. |
+| `-w` / `-h` | Exact output width and height. Upscaling only. |
+| `-m` | Frame rate multiplier (minimum 2). Interpolation only. |
+| `-n` | Noise level. Upscaling only. |
+| `-t` | Scene-detection threshold, 0–100. Interpolation only. |
+| `-c` | Output codec. Default `libx264`. |
+| `-e` | Extra encoder option as `key=value`, repeatable. |
+| `-d` | Vulkan device index (GPU id). |
+| `-a` | Hardware-accelerated decoding. Default `none`. |
+| `-b` | Benchmark mode — discards frames and reports average FPS. |
+| `--list-gpus` | List available GPUs and exit. |
+
+`--realesrgan-model` accepts `realesr-animevideov3`, `realesrgan-plus-anime`,
+`realesrgan-plus`, `realesr-generalv3`. `--rife-model` accepts `rife`,
+`rife-HD`, `rife-UHD`, `rife-anime`, `rife-v2` through `rife-v4.26`; the
+default is `rife-v4.26`.
+
+**Upscaling and interpolation are separate runs** in 6.0 — there is no
+"hybrid" mode any more. Run one, then the other.
 
 ## Model selection
 
 | Model | Use for |
 |---|---|
-| `realesrgan-x4plus` | General footage, photographic content |
-| `realesrgan-x4plus-anime` | Anime, illustration, line art |
-| `RealESRGAN_x2plus` | 2× when 4× is too aggressive |
-| `realesr-general-x4v3` | Adjustable denoise; good on compressed source |
-| `rife-v4.6` | Interpolation; `-m` model quality |
+| `realesrgan-plus` | General footage, photographic content |
+| `realesrgan-plus-anime` | Anime, illustration, line art |
+| `realesr-animevideov3` | Video-tuned; the ncnn and video2x default |
+| `realesr-generalv3` | Adjustable denoise; good on compressed source |
+| `rife-v4.26` | Interpolation; the video2x default |
+| `rife-v4.6` | Earlier interpolation model |
 | `rife-v3.1` | Faster, slightly less stable on motion |
 
 ## Tiling for large videos
 
 Upscaling a 4K frame to 8K needs far more VRAM than the whole frame at 4K.
-Tile it:
+Tile it — with the ncnn build:
 
 ```bash
-realesrgan-ncnn-vulkan -i in.mp4 -o out.mp4 -s 2 \
+realesrgan-ncnn-vulkan -i frames -o out_frames -s 2 \
   -t 512 -m realesr-general-x4v3   # 512px tiles
 ```
 
-Smaller tiles use less VRAM but can produce visible seams. 512 is a good
-balance; 256 if you OOM, 1024 if you have VRAM to spare.
+`-t 0` (the default) picks the tile size automatically. Smaller tiles use
+less VRAM but can produce visible seams. 512 is a good balance; 256 if you
+OOM, 1024 if you have VRAM to spare.
 
 ## Interpolation with RIFE
 
+Via video2x (recommended — the ncnn/Vulkan build is fast and handles video
+directly):
+
 ```bash
 # 24fps -> 48fps
-python RIFE.py -i in.mp4 -o out_48.mp4 -u 2.0
+video2x -i in.mp4 -o out_48.mp4 -p rife -m 2
 
-# interpolate to 60fps (2.5x)
-python RIFE.py -i in.mp4 -o out_60.mp4 -u 2.5
-
-# use a specific model
-python RIFE.py -i in.mp4 -o out.mp4 -m rife-v4.6
+# 24fps -> 96fps
+video2x -i in.mp4 -o out_96.mp4 -p rife -m 4 --rife-model rife-v4.6
 ```
 
-The `-u` multiplier is the target frame rate multiplier. `2.0` doubles;
-`2.5` gives 60fps from 24fps.
+Or with the upstream RIFE repo (`hzwer/ECCV2022-RIFE`, MIT) directly:
+
+```bash
+python3 inference_video.py --exp=2 --video=video.mp4
+```
+
+`--exp` is the frame rate multiplier — `1` doubles, `2` quadruples. The
+output lands next to the input as `video_2X_xxfps.mp4`. Other useful flags:
+
+| Flag | Meaning |
+|---|---|
+| `--exp=N` | Frame rate multiplier. |
+| `--fps=N` | Target frame rate for the output. |
+| `--scale=0.5` | Optical-flow processing resolution. Use 0.5 for 4K sources; 2.0 if you get disordered patterns. |
+| `--output=path` | Output path. |
+| `--montage --png` | Write frames as PNGs instead of a video. |
+| `--img=dir/` | Interpolate a directory of images. |
+
+For image pairs:
+
+```bash
+python3 inference_img.py --img img0.png img1.png --exp=4
+```
+
+For 60fps from 24fps you need a 2.5× multiplier, which `--exp` cannot
+express — use `--fps=60` instead, interpolate by 3 and drop frames, or let
+video2x handle it.
+
+`-t` on video2x sets the scene-detection threshold (0–100). Lower values
+detect scene cuts more aggressively, which prevents smearing across a cut.
 
 ## Frame-by-frame with Real-ESRGAN (Python)
 

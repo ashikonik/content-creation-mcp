@@ -34,6 +34,11 @@ Finding and downloading footage, images, and music that you can actually publish
 **Pexels is the default for video B-roll.** Its search quality for "what a shot
 of X looks like" is better than anything else free.
 
+**Openverse is unreliable right now.** Its `/v1/images/` endpoint returns
+HTTP 504 (gateway timeout) while `/v1/audio/` still responds — it is an
+upstream outage, not a bug in your request. If a search returns 504, switch
+to Wikimedia Commons rather than debugging the parameters.
+
 ## Pexels API
 
 ```bash

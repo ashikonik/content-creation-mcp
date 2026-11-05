@@ -45,26 +45,61 @@ has the most active community.
 ```bash
 git clone https://github.com/RVC-Boss/GPT-SoVITS.git
 cd GPT-SoVITS
+
+# Linux/macOS: the installer picks device and model source for you
+bash install.sh --device CUDA --source HF
+# Windows:
+pwsh -F install.ps1 --Device CUDA128 --Source HF
+
+# or manually:
 pip install -r requirements.txt
+pip install -r extra-req.txt --no-deps
+```
+
+ffmpeg and `libsox-dev` are required.
+
+The WebUI is the main interface:
+
+```bash
+python webui.py                  # unified WebUI
+python GPT_SoVITS/inference_webui.py   # inference only
 ```
 
 ### Zero-shot cloning (no training)
 
-```python
-from GPT_SoVITS.inference_tts import get_tts_wav
+The primary interface is `api_v2.py`, an HTTP server:
 
-wav_file = get_tts_wav(
-    text="Your text goes here.",
-    ref_wav_path="reference.wav",      # 3-10 seconds of clean speech
-    prompt_text="The exact words said in reference.wav",
-    text_lang="en",
-    ref_lang="en",                      # "zh" for Chinese
-    bottleneck_size=256,
-)
+```bash
+python api_v2.py -a 127.0.0.1 -p 9880 -c GPT_SoVITS/configs/tts_infer.yaml
+```
+
+```bash
+curl -X POST "http://127.0.0.1:9880/tts" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Your text goes here.",
+    "text_lang": "en",
+    "ref_audio_path": "reference.wav",
+    "prompt_lang": "en",
+    "prompt_text": "The exact words said in reference.wav"
+  }' \
+  --output out.wav
+```
+
+Weight selection is done over HTTP before the first generation:
+
+```bash
+curl "http://127.0.0.1:9880/set_gpt_weights?weights_path=GPT_SoVITS/pretrained_models/s1bert25hz-5kh-longer-epoch=12-step=369668.ckpt"
+curl "http://127.0.0.1:9880/set_sovits_weights?weights_path=GPT_SoVITS/pretrained_models/s2Gv2ProPlus.pth"
 ```
 
 `prompt_text` must be the **verbatim transcript of the reference audio**. This
 is how GPT-SoVITS captures the voice's cadence, not just timbre.
+
+Useful request fields: `speed_factor` (default 1.0), `top_k`, `top_p`,
+`temperature`, `seed`, `text_split_method`, `batch_size`, `streaming_mode`,
+`media_type` (`wav` or `mp3`), and `aux_ref_audio_paths` for several
+references.
 
 ### Fine-tuning (better quality)
 
@@ -73,27 +108,30 @@ You need:
 - 5 minutes for a good one
 - 30+ minutes for an excellent one
 
+The dataset scripts live in `GPT_SoVITS/prepare_datasets/`:
+
 ```bash
-python tools/prepare_datasets.py --input ./raw_audio --output ./prepared
-python tools/1-get-text.py --input_dir ./prepared --output_dir ./prepared
-python tools/2-get-hubert-wav32k.py --input_dir ./prepared --output_dir ./prepared
-python tools/3-get-semantic.py --input_dir ./prepared --output_dir ./prepared
-python s1_train.py --config configs/s1longer.yaml --input_dir ./prepared --output_dir ./weights
-python s2_train.py --config configs/s2config.yaml --input_dir ./prepared --output_dir ./weights
+# 1. slice and denoise the raw audio
+python tools/slice_audio.py --input_path ./raw_audio --output_path ./sliced
+python tools/cmd-denoise.py --input_path ./sliced --type vocal
+
+# 2. the three prepare steps
+python GPT_SoVITS/prepare_datasets/1-get-text.py \
+  --input_dir ./prepared --output_dir ./prepared
+python GPT_SoVITS/prepare_datasets/2-get-hubert-wav32k.py \
+  --input_dir ./prepared --output_dir ./prepared
+python GPT_SoVITS/prepare_datasets/3-get-semantic.py \
+  --input_dir ./prepared --output_dir ./prepared
+
+# 3. train the two stages
+python GPT_SoVITS/s1_train.py --config configs/s1longer.yaml \
+  --input_dir ./prepared --output_dir ./weights
+python GPT_SoVITS/s2_train.py --config configs/s2config.yaml \
+  --input_dir ./prepared --output_dir ./weights
 ```
 
-```python
-from GPT_SoVITS.inference_tts import get_tts_wav
-
-wav = get_tts_wav(
-    text="Your text.",
-    ref_wav_path="prepared/ref.wav",
-    ref_text="Reference transcript",
-    text_lang="en", ref_lang="en",
-    sovits_path="weights/s2G_0.pth",
-    config_path="configs/tts_infer.yaml",
-)
-```
+`s2_train_v3.py` and `s2_train_v3_lora.py` train the v3 / LoRA variants
+instead.
 
 ## RVC — voice conversion
 
@@ -102,84 +140,133 @@ RVC converts existing audio. It has a large community model zoo.
 ```bash
 git clone https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI.git
 cd Retrieval-based-Voice-Conversion-WebUI
-pip install -r requirements.txt
-python gui.py
+
+# CUDA 12.8
+python -m pip install torch==2.7.1+cu128 torchaudio==2.7.1+cu128 \
+  --index-url https://download.pytorch.org/whl/cu128
+python -m pip install -r requirments_cu128_py312.txt
+
+# or CPU
+python -m pip install -r requirments_cpu_py312.txt
+
+python webui.py
 ```
 
-```python
-from RVCProject.RVCInference import RVCInference
-
-infer = RVCInference(device="cuda")
-infer.load_model("assets/weights/character.pth",
-                  "assets/weights/character.index")
-
-result = infer.process(
-    input_path="source.wav",
-    output_path="converted.wav",
-    index_rate=0.75,      # 0.0 = no timbre retention, 1.0 = full
-    f0_up_key=0,         # shift pitch: +12 = one octave up
-    f0_method="rmvpe",   # pitch extraction method
-    use_f0=True,
-)
-```
-
-| Parameter | Effect |
-|---|---|
-| `index_rate` | **The important one.** 0.6–0.8 for a convincing target voice. Below 0.4 sounds like the original with a filter. |
-| `f0_up_key` | Semitones to shift. Use to match the source and target pitch ranges, or to avoid chipmunk artefacts. |
-| `f0_method` | `rmvpe` is best and fastest. `harvest` is slower but more accurate on breathy voices. |
-| `use_f0` | Keep the original pitch contour. Set `False` for speech-to-speech where you want a flat read. |
-| `split_threshold` | 0.5 default. Lower for cleaner vocals. |
-
-### Training an RVC model
+The pretrained assets download separately into `assets/`:
 
 ```bash
-python infer-web.py --model_dir "logs/[name]/G_*.pth" --index_dir "logs/[name]/added_*.index"
+python -m pip install --upgrade huggingface_hub
+huggingface-cli download RVC-Boss/GPT-SoVITS --include "pretrained/*" "pretrained_v2/*" --local-dir assets
+python -m zipfile -e .model-downloads/mute.zip logs
 ```
+
+### Offline conversion
+
+RVC ships a CLI for headless conversion:
+
+```bash
+python -m infer.cli \
+  --model "assets/weights/character.pth" \
+  --input source.wav \
+  --output converted.wav \
+  --index-rate 0.75 \
+  --pitch 0 \
+  --f0-method rmvpe \
+  --format wav
+```
+
+| Flag | Effect |
+|---|---|
+| `--index-rate` | **The important one.** 0.6–0.8 for a convincing target voice. Below 0.4 sounds like the original with a filter. |
+| `--pitch` | Semitones to shift. Use to match the source and target pitch ranges, or to avoid chipmunk artefacts. |
+| `--f0-method` | `rmvpe` (default) or `pm`. `pm` is slower but more accurate on breathy voices. |
+| `--protect` | Protects the consonant and transient region from being flattened. Default 0.33. |
+| `--rms-mix-rate` | How much of the original RMS envelope is preserved. Default 1.0. |
+| `--resample-sr` | Output sample rate. 0 keeps the model's. |
+| `--model` | A model filename or a path to a `.pth`. Multi-speaker models need `--speaker-id`. |
+| `--index` | An explicit `.index` path. The matching speaker index is chosen automatically when omitted. |
+| `--list-speakers` | Print the model's speaker metadata and exit. |
+
+`--input` and `--output` accept directories too, and `--recursive` walks
+subdirectories.
+
+### Training an RVC model
 
 Requirements:
 - 10+ minutes of clean, single-speaker audio
 - 44.1kHz WAV
 - No background music, no other speakers, minimal reverb
 
+The training scripts are in `train/`, and they read their configuration from
+the WebUI's config rather than from command-line flags:
+
 ```bash
-# preprocess
-python tools/preprocess_f0.py "dataset/raw" "dataset/44k" f0 rmvpe
-python tools/extract_f0_feature.py "dataset/44k" "dataset/44k" f0 rmvpe
-python tools/train_nsf_sim_cache.py "dataset/44k" "dataset/cache" 0 1 0 %GPU%
-python tools/train_nsf_sim.py \
-  --model_dir "logs/experiment" --data_dir "dataset/cache" \
-  --exp_name "experiment" --n_layers 3 --sampler_rate 44100
+# 1. preprocess — positional arguments: input dir, sample rate, n_processes,
+#    experiment dir, noparallel, per, manifest path
+python train/preprocess.py "dataset/raw" 44100 4 "logs/experiment" True 0.1
+
+# 2. train — settings come from the experiment config in configs/
+python train/train.py
+
+# 3. build the index file (improves timbre retention)
+python train/train_index.py "logs/experiment" "logs/experiment/added.index"
 ```
 
 The index file (`.index`) improves timbre retention. Build it after training.
 
 ## OpenVoice — instant cloning
 
+```bash
+git clone https://github.com/myshell-ai/OpenVoice.git
+cd OpenVoice
+pip install -e .
+
+# V2 checkpoints (MIT, free for commercial use)
+# https://myshell-public-repo-host.s3.amazonaws.com/openvoice/checkpoints_v2_0417.zip
+#   -> extract to checkpoints_v2/
+
+# V2 also needs MeloTTS for the base speakers
+pip install git+https://github.com/myshell-ai/MeloTTS.git
+python -m unidic download
+```
+
 ```python
+import torch
 from openvoice import se_extractor
 from openvoice.api import ToneColorConverter
 
-reference_speaker = "reference.wav"
-target_se, audio_name = se_extractor.get_se(reference_speaker,
-                                            tone_color_converter, sv=True)
-
 converter = ToneColorConverter(
-    f'checkpoints_v2/converter/config.json',
+    'checkpoints_v2/converter/config.json',
     device='cuda')
 converter.load_ckpt('checkpoints_v2/converter/checkpoint.pth')
 
-source_se = torch.load(f'checkpoints_v2/base_speakers/ses/en-default.pth')
+target_se, audio_name = se_extractor.get_se(
+    "reference.wav",
+    converter,
+    target_dir='processed',
+)
+
+source_se = torch.load('checkpoints_v2/base_speakers/ses/en-default.pth')
 converter.convert(
     audio_src_path="source.mp3",
     src_se=source_se,
     tgt_se=target_se,
     output_path="converted.wav",
+    tau=0.3,
 )
 ```
 
+`get_se(audio_path, vc_model, target_dir='processed', vad=True)` returns the
+speaker embedding and a generated name for the cached segment. `vad=True`
+splits the reference with voice-activity detection; `vad=False` uses
+Whisper-based splitting instead.
+
+`tau` controls how much of the source style survives the conversion — higher
+preserves more of the original delivery.
+
 Tone colour conversion only — it transfers timbre, not speaking style. Faster
-and lighter than GPT-SoVITS, less expressive.
+and lighter than GPT-SoVITS, less expressive. OpenVoice V2 is MIT and
+commercially usable.
 
 ## Reference audio requirements
 

@@ -193,10 +193,22 @@ The clip's first 3 seconds decide whether it is watched. Add a hook caption.
 
 ```python
 from PIL import Image, ImageDraw, ImageFont
+from pathlib import Path
+
+def load_font(size):
+    """DejaVu Sans Bold, wherever the distro put it."""
+    for p in (
+        "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf",             # Debian/Ubuntu, Arch
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", # older Debian
+        "/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf",           # Fedora
+        "/Library/Fonts/Arial Bold.ttf",                         # macOS
+    ):
+        if Path(p).exists():
+            return ImageFont.truetype(p, size)
+    return ImageFont.truetype("DejaVuSans-Bold.ttf", size)
 
 def add_hook(video_path, out_path, text, duration=2.5):
-    font = ImageFont.truetype(
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 84)
+    font = load_font(84)
     # build an ASS file with the hook as an overlay for the first N seconds
     ...
 ```

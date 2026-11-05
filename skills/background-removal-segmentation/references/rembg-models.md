@@ -11,15 +11,25 @@ session = new_session("u2net_human_seg")   # or "isnet-general-use"
 out = remove("in.png", session=session)
 ```
 
-| Model | Size | Best for |
+| Model | Download | Best for |
 |---|---|---|
-| `u2net` | 176 MB | General objects |
-| `u2net_human_seg` | 176 MB | People, portraits |
-| `u2netp` | 4.7 MB | Low resource, poor edges |
-| `isnet-general-use` | 179 MB | Best general quality |
-| `birefnet-general` | 900 MB | Best edges, heaviest |
-| `birefnet-portrait` | 900 MB | Portraits, hair |
-| `silueta` | 44 MB | Small, decent |
+| `u2net` | 168 MB | General objects |
+| `u2net_human_seg` | 168 MB | People, portraits |
+| `u2netp` | 4.4 MB | Low resource, poor edges |
+| `isnet-general-use` | 170 MB | Best general quality |
+| `birefnet-general` | 928 MB | Best edges, heaviest |
+| `birefnet-portrait` | 928 MB | Portraits, hair |
+| `birefnet-general-lite` | 214 MB | BiRefNet quality at a quarter of the size |
+| `bria-rmbg` | 977 MB | The default model; strong on hard edges |
+| `silueta` | 42 MB | Small, decent |
+
+The BiRefNet models are large because they are the accurate ones. Start with
+`birefnet-general-lite` (214 MB) if the download size matters more than the
+last few percent of edge quality.
+
+> `bria-rmbg` is BRIA's model and carries a non-commercial licence. Check its
+> terms before shipping it in a product; `birefnet-general` has no such
+> restriction.
 
 ## SAM 2 for promptable segmentation
 
@@ -62,5 +72,7 @@ bg.convert("RGB").save("composited.png")
 ## Inpainting instead of removal
 
 ```bash
-python IOPaint/cli.py --model=lama --image=in.png --mask=mask.png --device=cuda
+pip install iopaint
+iopaint run --model=lama --device=cuda \
+  --image=in.png --mask=mask.png --output=out.png
 ```

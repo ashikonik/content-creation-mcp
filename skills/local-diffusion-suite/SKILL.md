@@ -70,17 +70,31 @@ it patches attention and offloads aggressively.
 ```bash
 git clone https://github.com/lllyasviel/Fooocus.git
 cd Fooocus
+pip install -r requirements_versions.txt
 python entry_with_update.py
 ```
 
-No configuration. Downloads models on first run.
+No configuration. Downloads models on first run. Minimum 4GB VRAM.
+
+`--preset anime` and `--preset realistic` select the model presets;
+`--listen` exposes the UI on the network.
 
 ### InvokeAI
 
+The recommended path is the Invoke Launcher (Windows/macOS/Linux), which
+installs and updates Invoke for you. For a manual install, use `uv`:
+
 ```bash
-pip install invokeai
-invokeai-web
+uv venv --relocatable --prompt invoke --python 3.12 \
+  --python-preference only-managed .venv
+source .venv/bin/activate
+uv pip install invokeai
+invokeai-web --root ~/invokeai
 ```
+
+`invokeai-web` is the console entry point (`invokeai.app.run_app`). Other
+entry points: `invoke-useradd`, `invoke-userlist`, `invoke-usermod`,
+`invoke-db-copy`.
 
 ### Diffusers (scripting)
 

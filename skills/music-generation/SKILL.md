@@ -28,9 +28,9 @@ a structure you can rely on.
 |---|---|---|---|---|
 | **MusicGen** | `facebookresearch/audiocraft` | MIT (code), CC-BY-NC for weights | 30s | Instrumental beds, very good timbre |
 | **AudioGen** | `facebookresearch/audiocraft` | Same | 10s | Sound effects, environmental audio |
-| **ACE-Step 1.5** | `ace-step/ACE-Step-1.5` | MIT | 4 min | Full songs with structure, fastest |
+| **ACE-Step 1.5** | `ace-step/ACE-Step-1.5` | MIT | 10 min | Full songs with structure, fastest |
 | **YuE** | `multimodal-art-projection/YuE` | Apache-2.0 | 5 min | Lyrics-to-song, symbolic planning |
-| **Stable Audio Open** | `Stability-AI/stable-audio-open` | STABILITY AI NON-COMMERCIAL | 47s | High fidelity, cinematic |
+| **Stable Audio Open** | `Stability-AI/stable-audio-tools` | MIT (code), weights non-commercial | 47s | High fidelity, cinematic |
 | **ACE-Step vocals** | `ace-step/ACE-Step-1.5` | MIT | — | Vocals on top of MusicGen |
 
 **ACE-Step for anything song-shaped. MusicGen for instrumental beds and loops.**
@@ -60,7 +60,8 @@ Model sizes:
 | `facebook/musicgen-small` | 300M | 2GB | Good for drafts |
 | `facebook/musicgen-medium` | 1.5B | 6GB | The sweet spot |
 | `facebook/musicgen-large` | 3.3B | 12GB | Best |
-| `facebook/musicgen-medium-3.5B` | 3.5B | 12GB | Best, stereo |
+| `facebook/musicgen-stereo-medium` | 1.5B | 6GB | Stereo |
+| `facebook/musicgen-melody` | 1.5B | 6GB | Also accepts a melody as input |
 
 ```python
 model = MusicGen.get_pretrained("facebook/musicgen-medium")
@@ -97,46 +98,126 @@ AudioGen is excellent for sound design. 10 seconds max, so loop for longer beds.
 
 ```bash
 git clone https://github.com/ace-step/ACE-Step-1.5.git
-pip install -e ACE-Step-1.5
+cd ACE-Step-1.5
+uv sync          # Python 3.11-3.12
+
+uv run acestep             # Gradio UI on http://localhost:7860
+uv run acestep-api         # REST API on http://localhost:8001
+```
+
+The CLI is **wizard/config driven** — it takes a `.toml` config, not a long
+list of flags:
+
+```bash
+python cli.py                          # interactive wizard
+python cli.py --config config.toml     # generate from a saved config
+python cli.py --configure              # build a config without generating
+```
+
+The wizard covers task selection, DiT and LM model choice, caption, lyrics
+mode (instrumental / auto-generate / file / paste), output count, and advanced
+parameters. It saves everything to a `.toml` whose keys map directly onto the
+runtime settings — `caption`, `prompt`, `lyrics`, `duration`, `bpm`,
+`keyscale`, `timesignature`, `instrumental`, `seed`, `guidance_scale`,
+`inference_steps`, `save_dir`, and others.
+
+```toml
+# config.toml — the shape the wizard writes
+caption = "upbeat electronic pop, catchy chorus"
+lyrics = """
+[verse]
+Walking through the city lights
+[chorus]
+We are the ones who never sleep
+"""
+duration = 60
+bpm = 120
+instrumental = false
+save_dir = "output"
 ```
 
 ```bash
-accelerate launch app.py \
-  --audio_duration 60 \
-  --prompt "upbeat electronic pop, female vocals, catchy chorus" \
-  --lyrics "[verse]
-Walking through the city lights
-[chorus]
-We are the ones who never sleep" \
-  --bpm 120 \
-  --output_dir outputs
+python cli.py --config config.toml
 ```
 
-ACE-Step produces a song with verse/chorus structure in one pass, up to
-4 minutes. This is the right tool when you need music that matches a video's
-arc rather than a generic loop.
+To prompt the LM directly, put the instruction in `instruction.txt` in the
+project root — when `thinking=True` and a config is loaded, that file is used
+as the pre-loaded prompt instead of pausing for interactive editing.
+
+ACE-Step produces a song with verse/chorus structure in one pass, from 10
+seconds to 10 minutes. This is the right tool when you need music that matches
+a video's arc rather than a generic loop.
+
+**VRAM** drives the model choice: 2B turbo runs in under 6GB, the XL (4B DiT)
+variants want 12GB with offload and 20GB+ without it. The `acestep` launcher
+auto-detects the tier and picks a config for you.
 
 ## Stable Audio Open
 
+The upstream project is **`Stability-AI/stable-audio-tools`** (MIT code). There
+is no `stable-audio-open` repo — the weights live on Hugging Face as
+`stabilityai/stable-audio-open-1.0`, and you must accept the model terms there
+before the first download.
+
+The easiest route is the bundled Gradio UI:
+
 ```bash
-pip install stable-audio-tools
+git clone https://github.com/Stability-AI/stable-audio-tools.git
+cd stable-audio-tools
+uv sync                                  # or: pip install "stable-audio-tools[train]"
+uv run python run_gradio.py --pretrained-name stabilityai/stable-audio-open-1.0
 ```
+
+For scripted generation, use the low-level API. `stable_audio_tools` exports
+`get_pretrained_model` and `create_model_from_config` — there is **no**
+`create_diffusion_pipeline`; the generator is `generate_diffusion_cond`:
 
 ```python
-import torch
-from stable_audio_tools import create_diffusion_pipeline
+import torch, torchaudio
+from stable_audio_tools import get_pretrained_model
+from stable_audio_tools.inference.generation import generate_diffusion_cond
 
-pipeline = create_diffusion_pipeline(
-    "stabilityai/stable-audio-open-1.0",
-    torch_dtype=torch.float16,
+model, config = get_pretrained_model("stabilityai/stable-audio-open-1.0")
+model = model.to("cuda").half()
+
+sample_rate = config["sample_rate"]          # 44100 for stable-audio-open-1.0
+seconds = 30
+conditioning = {
+    "prompt": "ambient cinematic drone, slow build",
+    "seconds_start": 0.0,
+    "seconds_total": float(seconds),
+}
+
+audio = generate_diffusion_cond(
+    model,
+    steps=250,
+    cfg_scale=6,
+    conditioning=[conditioning],
+    negative_conditioning=[{**conditioning, "prompt": "drums, vocals, distortion"}],
+    batch_size=1,
+    sample_size=sample_rate * seconds,
+    sample_rate=sample_rate,
+    seed=-1,
     device="cuda",
 )
-audio = pipeline("ambient cinematic drone, slow build, 90 seconds",
-                 negative_prompt="drums, vocals, distortion")
+
+torchaudio.save("out.wav", audio[0].cpu(), sample_rate)
 ```
 
-**Licence:** the weights are under Stability AI's non-commercial community
-licence. Check before using in monetised content.
+Key details:
+
+- `conditioning` is a **list of dicts**, one per batch item, each with
+  `prompt`, `seconds_start`, and `seconds_total`.
+- `sample_size` is in **samples**, not seconds — multiply by the sample rate.
+- `seed=-1` picks a random seed; set an integer for reproducible output.
+- `cfg_scale` defaults to 6. Raise it for stronger prompt adherence.
+- `adapt_duration_to_conditioning=True` shortens the generation window to
+  `seconds_total` instead of rendering the full `sample_size`.
+
+**Licence:** the *code* is MIT, but the *weights* are under Stability AI's
+non-commercial community licence. Check before using in monetised content.
+`stabilityai/stable-audio-open-small` is a lighter checkpoint (1.2B) for
+faster iteration.
 
 ## Prompting for music
 

@@ -86,12 +86,27 @@ text with Pillow.
 
 ```python
 from PIL import Image, ImageDraw, ImageFont
+from pathlib import Path
+
+def load_font(size):
+    """DejaVu Sans Bold, wherever the distro put it."""
+    candidates = [
+        "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf",        # Debian/Ubuntu, Arch
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",  # older Debian
+        "/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf",      # Fedora
+        "/Library/Fonts/Arial Bold.ttf",                    # macOS
+        "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+    ]
+    for p in candidates:
+        if Path(p).exists():
+            return ImageFont.truetype(p, size)
+    # last resort: let fontconfig resolve it
+    return ImageFont.truetype("DejaVuSans-Bold.ttf", size)
 
 W, H = 1280, 720
 img = Image.open("base.png").convert("RGB").resize((W, H))
 
-# pick a font that is actually installed
-font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 96)
+font = load_font(96)
 
 draw = ImageDraw.Draw(img)
 text = "THIS CHANGED EVERYTHING"
@@ -107,6 +122,11 @@ draw.text((60 + pad, 60 + pad // 2), text, font=font, fill=(255, 255, 255))
 
 img.save("thumb.jpg", quality=95)
 ```
+
+**Do not hard-code one font path.** `/usr/share/fonts/truetype/dejavu/` is the
+old Debian layout; current Debian/Ubuntu and Arch use `/usr/share/fonts/TTF/`,
+Fedora uses `/usr/share/fonts/dejavu/`, and macOS has no DejaVu at all. Check
+with `fc-list | grep -i dejavu` before assuming a path.
 
 ## Legibility rules
 
@@ -148,11 +168,10 @@ Produce 3 variants and pick by eye (or by test). Vary one axis at a time:
 ```python
 from PIL import Image, ImageDraw, ImageFont
 
-def make_variant(base, text, bar_color, position="bottom"):
+def make_variant(base, text, bar_color, position="bottom", H=720):
     img = base.copy()
     draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype(
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 96)
+    font = load_font(96)          # the helper defined above
     bbox = draw.textbbox((0, 0), text, font=font)
     tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
     x, y = (60, H - th - 120) if position == "bottom" else (60, 60)

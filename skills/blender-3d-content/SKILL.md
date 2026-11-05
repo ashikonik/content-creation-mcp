@@ -26,7 +26,7 @@ reflections and materials are all real.
 | Approach | Use when |
 |---|---|
 | **Python API** (`bpy`) | Precise, repeatable, parametric. The default. |
-| **MCP server** (`blender-mcp`) | An agent drives a live Blender session interactively |
+| **MCP server** (`mcp-for-blender`) | An agent drives a live Blender session interactively |
 
 The Python API covers everything. Reach for the MCP server only when the task
 needs *interactive* adjustments — "make the camera lower", "change the material
@@ -36,9 +36,26 @@ to brushed steel" — with a human in the loop.
 
 ```bash
 blender --background --python script.py
-# or, with the MCP bridge installed:
-pip install blender-mcp
 ```
+
+## The Blender MCP bridge
+
+```bash
+# one command installs uv, the addon, and wires up your MCP clients
+curl -LsSf https://www.mcp-for-blender.com/install.sh | sh
+
+# or, if you already have uv:
+uvx mcp-for-blender setup
+```
+
+The setup finds your MCP clients (Claude Desktop, Claude Code, Codex, Cursor,
+VS Code, Devin Desktop/Windsurf, OpenCode, Antigravity), installs the Blender
+addon, enables it, and backs up each config it touches. Restart your MCP
+client afterwards — the addon starts its server when Blender opens.
+
+The PyPI package was renamed from `blender-mcp` to **`mcp-for-blender`**.
+Existing installs keep working and `uvx blender-mcp` still runs the server,
+but new installs should use the new name.
 
 ### Minimal render script
 

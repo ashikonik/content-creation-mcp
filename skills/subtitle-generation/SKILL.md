@@ -45,9 +45,21 @@ ffmpeg -i input.mp4 -ar 16000 -ac 1 audio16k.wav
 
 Produces `output.srt`.
 
-Model sizes: `tiny` 39MB, `base` 142MB, `small` 466MB, `medium` 1.5GB,
-`large-v3` 3GB. `large-v3` is the most accurate; `base` is fine for clean
-narration.
+Model sizes: `tiny` 74MB, `base` 141MB, `small` 465MB, `medium` 1.5GB,
+`large-v3` 3.0GB. `large-v3` is the most accurate; `base` is fine for clean
+narration. Quantised builds (`-q5_0`, `-q8_0`) are also published and cut
+the size roughly in half.
+
+The CLI takes 16-bit WAV only, so convert first:
+
+```bash
+sh ./models/download-ggml-model.sh base
+./build/bin/whisper-cli -m models/ggml-base.bin -f audio16k.wav \
+  -osrt -of output -l auto
+```
+
+`-osrt` writes the SRT, `-of` sets the output filename prefix, and `-l auto`
+detects the language.
 
 ### faster-whisper (Python, fastest on GPU)
 
