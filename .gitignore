@@ -1,0 +1,18 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Build output — regenerate with `npm run build`
+mcp/dist/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,48 @@
+# NOTICE
+
+This project redistributes third-party content under its original licence.
+
+The MCP server source in `mcp/src/`, `mcp/build/`, and the skills and agents
+authored in this repository are MIT licensed (see `LICENSE`).
+
+## Vendored content
+
+Skills and agents copied into `skills/` and `agents/` from other projects
+remain under their upstream licence. Each vendored directory carries the
+upstream `LICENSE.txt` where one was available. Full attribution is
+generated into `CREDITS.md` from `mcp/data/provenance.json` — do not edit
+`CREDITS.md` by hand.
+
+To regenerate:
+
+    python3 mcp/build/write_credits.py
+
+## Excluded content
+
+Entries whose licence could not be determined, or which are not redistributable,
+are excluded from the published index and listed in `mcp/data/excluded.json`
+with the reason. They are not part of this distribution.
+
+### Excluded for depending on paid hosted APIs
+
+This corpus covers open-source and local-hostable tools only. Content whose
+subject is a paid, hosted AI generation service is excluded, because using it
+requires an account and a per-call fee, and the local alternatives live in
+other skills in this repository instead.
+
+| Entry | Reason |
+|---|---|
+| `fal-ai-media` | Documents fal.ai's hosted generation endpoints (Veo, Kling, Seedance, Nano Banana) and ElevenLabs — paid hosted services. See `local-diffusion-suite`, `local-tts-engines`, and `music-generation` for the local equivalents. |
+
+Where a skill merely mentioned a hosted service in one example alongside
+otherwise-local guidance, the example was rewritten to use a local tool rather
+than excluding the whole skill.
+
+## A note on licensing of documented tools
+
+Several skills in this repository *document* open-source tools that are
+themselves copyleft licensed (ComfyUI is GPL-3.0, AUTOMATIC1111 is AGPL-3.0,
+Fooocus is GPL-3.0). Writing a skill that explains how to install and run such
+a tool does not create a derivative work of that tool and does not import its
+licence obligations into this repository. The tools are **not** vendored,
+bundled, or linked here — only referenced by name and command line.

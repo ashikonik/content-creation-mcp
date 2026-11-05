@@ -1,0 +1,33 @@
+{
+  "name": "content-creation-mcp",
+  "version": "1.0.0",
+  "description": "Harness-agnostic MCP server exposing content-creation skills and agents over stdio and Streamable HTTP.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "content-creation-mcp": "./dist/index.js",
+    "content-creation-mcp-http": "./dist/http.js"
+  },
+  "main": "./dist/index.js",
+  "files": ["dist", "data"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:index": "python3 build/build_index.py",
+    "pretest": "npm run build",
+    "test": "node --test tests/*.test.js",
+    "start": "node dist/index.js",
+    "start:http": "node dist/http.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.20.2",
+    "yaml": "2.8.2",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "22.18.11",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

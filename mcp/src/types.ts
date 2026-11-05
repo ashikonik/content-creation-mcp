@@ -1,0 +1,129 @@
+/**
+ * Core types for the content-creation MCP server.
+ *
+ * The server is transport-agnostic: everything in here is built from the
+ * generated index and knows nothing about stdio vs HTTP.
+ */
+
+/** Content taxonomy axis. Every skill and agent is assigned exactly one. */
+export type ContentDomain =
+  | "video"
+  | "image"
+  | "audio"
+  | "text"
+  | "3d"
+  | "design"
+  | "av_pipeline"
+  | "writing";
+
+export const CONTENT_DOMAINS: ContentDomain[] = [
+  "video",
+  "image",
+  "audio",
+  "text",
+  "3d",
+  "design",
+  "av_pipeline",
+  "writing",
+];
+
+/** Where a record came from: authored here, or vendored from upstream. */
+export type SkillSource = "authored" | "vendored";
+
+export interface SkillFrontmatter {
+  name: string;
+  description: string;
+  license?: string;
+  version?: string;
+  allowed_tools?: string[];
+  compatibility?: string;
+  metadata?: {
+    promptSignals?: {
+      phrases?: string[];
+    };
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
+export interface SkillRecord {
+  /** Directory name under skills/ — the stable identifier. */
+  id: string;
+  name: string;
+  description: string;
+  content_domain: ContentDomain;
+  source: SkillSource;
+  license?: string;
+  /** Prompt-trigger phrases used by the search ranker. */
+  prompt_signals: string[];
+  /** Path relative to the project root, e.g. "skills/foo/SKILL.md". */
+  path: string;
+  /** Supporting files relative to the skill directory. */
+  files: string[];
+  /** Supporting files that are references/ documents. */
+  references: string[];
+  /** Supporting files that are executable scripts. */
+  scripts: string[];
+  /** Token count of the body, used for reporting. */
+  body_chars: number;
+  /** Upstream repository, for vendored skills. */
+  upstream?: string;
+  upstream_owner?: string;
+}
+
+export interface AgentRecord {
+  id: string;
+  name: string;
+  description: string;
+  content_domain: ContentDomain;
+  tools: string[];
+  model: string;
+  source: SkillSource;
+  license?: string;
+  path: string;
+  files: string[];
+  prompt_signals: string[];
+  body_chars: number;
+  upstream?: string;
+  upstream_owner?: string;
+}
+
+export interface LibraryIndex {
+  version: string;
+  generated_at: string;
+  project_root: string;
+  counts: {
+    skills: number;
+    agents: number;
+    by_domain: Record<string, number>;
+  };
+  skills: SkillRecord[];
+  agents: AgentRecord[];
+}
+
+/** Dialect names understood by render_skill. */
+export type RenderFormat =
+  | "markdown"
+  | "claude-frontmatter"
+  | "openai-yaml"
+  | "agentsmd"
+  | "cursor-rules";
+
+export const RENDER_FORMATS: RenderFormat[] = [
+  "markdown",
+  "claude-frontmatter",
+  "openai-yaml",
+  "agentsmd",
+  "cursor-rules",
+];
+
+export interface SearchResult {
+  id: string;
+  kind: "skill" | "agent";
+  name: string;
+  description: string;
+  content_domain: ContentDomain;
+  score: number;
+  source: SkillSource;
+  matched_signals: string[];
+}

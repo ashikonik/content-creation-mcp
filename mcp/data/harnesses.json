@@ -1,0 +1,111 @@
+{
+  "$comment": "Dialect registry. Data, not switch branches — adding a harness dialect is a JSON edit. Each entry maps a client family to the layout it expects, the skill format, the agent format, and where the files go.",
+  "harnesses": {
+    "claude-code": {
+      "label": "Claude Code",
+      "dirs": {
+        "skills": ".claude/skills",
+        "agents": ".claude/agents"
+      },
+      "skill_format": "claude-frontmatter",
+      "agent_format": "claude-frontmatter",
+      "skill_filename": "SKILL.md",
+      "agent_filename": "{name}.md",
+      "notes": "Skill directories hold SKILL.md with name + description frontmatter."
+    },
+    "codex": {
+      "label": "Codex",
+      "dirs": {
+        "skills": ".codex/skills",
+        "agents": ".codex/agents"
+      },
+      "skill_format": "openai-yaml",
+      "agent_format": "openai-yaml",
+      "skill_filename": "{name}.yaml",
+      "agent_filename": "{name}.yaml",
+      "notes": "Expects a YAML envelope with interface and policy keys."
+    },
+    "opencode": {
+      "label": "opencode",
+      "dirs": {
+        "skills": ".opencode/skills",
+        "agents": ".opencode/agent"
+      },
+      "skill_format": "claude-frontmatter",
+      "agent_format": "claude-frontmatter",
+      "skill_filename": "SKILL.md",
+      "agent_filename": "{name}.md",
+      "notes": "Reads Claude-style skill directories."
+    },
+    "cline": {
+      "label": "Cline",
+      "dirs": {
+        "skills": ".clinerules/skills",
+        "agents": ".clinerules/agents"
+      },
+      "skill_format": "claude-frontmatter",
+      "agent_format": "claude-frontmatter",
+      "skill_filename": "SKILL.md",
+      "agent_filename": "{name}.md",
+      "notes": "Rule-style markdown directories."
+    },
+    "agentsmd": {
+      "label": "AGENTS.md",
+      "dirs": {
+        "skills": ".",
+        "agents": "."
+      },
+      "skill_format": "agentsmd",
+      "agent_format": "agentsmd",
+      "skill_filename": "AGENTS.md",
+      "agent_filename": "AGENTS.md",
+      "notes": "Single append-only markdown file. Sections are delimited by <!-- skills-library:name:X --> markers so a single skill can be replaced without rewriting the file."
+    },
+    "cursor-rules": {
+      "label": "Cursor rules",
+      "dirs": {
+        "skills": ".cursor/rules",
+        "agents": ".cursor/rules"
+      },
+      "skill_format": "cursor-rules",
+      "agent_format": "cursor-rules",
+      "skill_filename": "{name}.mdc",
+      "agent_filename": "{name}.mdc",
+      "notes": "Plain prose rules; no frontmatter required."
+    },
+    "generic-mcp": {
+      "label": "Generic MCP client",
+      "dirs": {
+        "skills": "",
+        "agents": ""
+      },
+      "skill_format": "markdown",
+      "agent_format": "markdown",
+      "skill_filename": "{name}.md",
+      "agent_filename": "{name}.md",
+      "notes": "No install convention. The client calls render_skill and stores the result wherever it likes."
+    }
+  },
+  "formats": {
+    "markdown": {
+      "extension": ".md",
+      "description": "Body only, no frontmatter. The most portable form."
+    },
+    "claude-frontmatter": {
+      "extension": ".md",
+      "description": "YAML frontmatter with name, description, and optional allowed-tools."
+    },
+    "openai-yaml": {
+      "extension": ".yaml",
+      "description": "YAML document with interface, policy, metadata, and instructions keys."
+    },
+    "agentsmd": {
+      "extension": ".md",
+      "description": "Markdown section with skills-library name markers."
+    },
+    "cursor-rules": {
+      "extension": ".mdc",
+      "description": "Prose rule file with a heading and a trigger line."
+    }
+  }
+}

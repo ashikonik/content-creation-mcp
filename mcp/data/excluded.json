@@ -1,0 +1,11 @@
+{
+  "$comment": "Content excluded from the corpus, with the reason. The index builder skips these; NOTICE lists them. This is where a vendored skill goes when it cannot be made to satisfy the corpus constraints without rewriting it beyond recognition.",
+  "entries": [
+    {
+      "name": "fal-ai-media",
+      "kind": "skill",
+      "reason": "hosted-paid-api",
+      "detail": "The skill is a guide to fal.ai's hosted generation endpoints (Veo, Kling, Seedance, Nano Banana) and ElevenLabs. Those are paid, hosted AI generation services, which the corpus excludes: it covers open-source and local-hostable tools only."
+    }
+  ]
+}
