@@ -206,6 +206,11 @@ support alpha. Check with `Image.open(out).mode == "RGBA"`.
 good at smooth backgrounds and bad at detailed ones. Use `sd2` for complex
 backgrounds.
 
+## Reference tools
+
+Other open-source image tools worth knowing, each over 1,000
+GitHub stars — see `references/image-reference-tools.md`.
+
 ## Related skills
 
 `comfyui-image-workflows` · `video-background-removal` · `local-diffusion-suite` ·

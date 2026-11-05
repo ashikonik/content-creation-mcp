@@ -270,6 +270,11 @@ Cloning a face or voice without consent is unlawful in many jurisdictions and
 is universally wrong. Get explicit permission, and disclose synthetic media
 where it could mislead. See `voice-cloning-rvc` for the consent rules.
 
+## Reference tools
+
+Other open-source audio tools worth knowing, each over 1,000
+GitHub stars — see `references/audio-reference-tools.md`.
+
 ## Related skills
 
 `voice-cloning-rvc` · `local-tts-engines` · `video-background-removal` ·

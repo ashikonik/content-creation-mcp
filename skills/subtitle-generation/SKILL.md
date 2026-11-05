@@ -264,6 +264,11 @@ render. Generate at native resolution.
 **`force_style` has no effect** — the subtitle file must be `.srt` or `.ass`;
 ASS styling does not apply to WebVTT.
 
+## Reference tools
+
+Other open-source av pipeline tools worth knowing, each over 1,000
+GitHub stars — see `references/av_pipeline-reference-tools.md`.
+
 ## Related skills
 
 `local-tts-engines` · `video-translation-dubbing` · `lip-sync` ·

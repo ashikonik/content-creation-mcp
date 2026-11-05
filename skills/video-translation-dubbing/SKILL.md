@@ -354,6 +354,11 @@ shipping them silently.
 voices. Dubbing someone else's content without permission is not
 repurposing.
 
+## Reference tools
+
+Other open-source av pipeline tools worth knowing, each over 1,000
+GitHub stars — see `references/av_pipeline-reference-tools.md`.
+
 ## Related skills
 
 `lip-sync` · `voice-cloning-rvc` · `local-tts-engines` ·

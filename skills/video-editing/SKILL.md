@@ -308,3 +308,9 @@ identify the 5 most engaging 30-second clips for social media."
 - `local-diffusion-suite` — Local insert shots and stills
 - `videodb` — Server-side video processing, indexing, and streaming
 - `content-engine` — Platform-native content distribution
+
+## Reference tools
+
+Other open-source video tools worth knowing, each over 1,000
+GitHub stars — see `references/video-reference-tools.md`.
+

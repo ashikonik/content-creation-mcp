@@ -228,6 +228,11 @@ STYLE_SUFFIX = ", cinematic, 35mm film, shallow depth of field, warm golden hour
 Append it to every shot prompt. Then assemble with `shorts-reels-pipeline` or
 `media-transcode-pipeline`.
 
+## Reference tools
+
+Other open-source video tools worth knowing, each over 1,000
+GitHub stars — see `references/video-reference-tools.md`.
+
 ## Related skills
 
 `comfyui-video-workflows` · `video-upscale-interpolate` ·

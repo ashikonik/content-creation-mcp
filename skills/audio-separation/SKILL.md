@@ -231,6 +231,11 @@ runs. Separate once and keep them together.
 **Separation sounds worse than the original** — the source is low-quality or
 heavily compressed. Separation amplifies artefacts.
 
+## Reference tools
+
+Other open-source audio tools worth knowing, each over 1,000
+GitHub stars — see `references/audio-reference-tools.md`.
+
 ## Related skills
 
 `music-generation` · `local-tts-engines` · `voice-cloning-rvc` ·

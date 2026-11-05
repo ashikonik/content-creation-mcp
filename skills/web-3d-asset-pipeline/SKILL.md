@@ -76,3 +76,9 @@ This guidance is engine-agnostic and can serve Three.js, React Three Fiber, Baby
 - Rapier starter: `../../references/rapier-integration-starter.md`
 - 3D asset pipeline reference: `../../references/web-3d-asset-pipeline.md`
 - Alternative engines: `../../references/alternative-3d-engines.md`
+
+## Reference tools
+
+Other open-source 3d tools worth knowing, each over 1,000
+GitHub stars — see `references/3d-reference-tools.md`.
+

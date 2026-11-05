@@ -480,6 +480,11 @@ clean narration.
 **Long text drifts** — generate in sentence-sized chunks and concatenate, rather
 than passing a whole page.
 
+## Reference tools
+
+Other open-source audio tools worth knowing, each over 1,000
+GitHub stars — see `references/audio-reference-tools.md`.
+
 ## Related skills
 
 `voice-cloning-rvc` · `lip-sync` · `subtitle-generation` · `tts-to-video` ·

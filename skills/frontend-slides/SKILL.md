@@ -181,3 +181,9 @@ Use these maxima unless the user explicitly asks for denser slides and readabili
 - animation is meaningful, not noisy
 - reduced motion is respected
 - file paths and customization points are explained at handoff
+
+## Reference tools
+
+Other open-source design tools worth knowing, each over 1,000
+GitHub stars — see `references/design-reference-tools.md`.
+

@@ -191,6 +191,11 @@ Sampler` with a resolution-aware split.
 **Black or flat images** — the VAE is fp16 on hardware where fp16 VAE is
 unstable. Set the VAE to `bf16` or run the VAE in fp32.
 
+## Reference tools
+
+Other open-source image tools worth knowing, each over 1,000
+GitHub stars — see `references/image-reference-tools.md`.
+
 ## Related skills
 
 `local-diffusion-suite` · `comfyui-video-workflows` ·

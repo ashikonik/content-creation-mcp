@@ -153,3 +153,9 @@ Fix: Generate a unique title per product using the product name and primary cate
 - `frontend-patterns`
 - `brand-voice`
 - `market-research`
+
+## Reference tools
+
+Other open-source text tools worth knowing, each over 1,000
+GitHub stars — see `references/text-reference-tools.md`.
+

@@ -314,6 +314,11 @@ your background, or export SVG and let the renderer handle it.
 adapt. Use `prefers-color-scheme` CSS in the SVG, or use transparent
 backgrounds with `currentColor` text.
 
+## Reference tools
+
+Other open-source design tools worth knowing, each over 1,000
+GitHub stars — see `references/design-reference-tools.md`.
+
 ## Related skills
 
 `node-link-and-diagram-layout` · `agent-slide-decks` · `frontend-slides` ·

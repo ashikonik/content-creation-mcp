@@ -219,6 +219,11 @@ output; it says which attention implementation it selected.
 
 **Same image every time** — the seed is fixed. Set `seed=-1` for random.
 
+## Reference tools
+
+Other open-source image tools worth knowing, each over 1,000
+GitHub stars — see `references/image-reference-tools.md`.
+
 ## Related skills
 
 `comfyui-image-workflows` · `comfyui-video-workflows` ·

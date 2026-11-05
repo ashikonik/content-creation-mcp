@@ -37,13 +37,15 @@
       ],
       "path": "skills/agent-slide-decks/SKILL.md",
       "files": [
-        "references/deck-templates.md"
+        "references/deck-templates.md",
+        "references/design-reference-tools.md"
       ],
       "references": [
-        "references/deck-templates.md"
+        "references/deck-templates.md",
+        "references/design-reference-tools.md"
       ],
       "scripts": [],
-      "body_chars": 7396
+      "body_chars": 7538
     },
     {
       "id": "article-writing",
@@ -54,10 +56,16 @@
       "license": "MIT",
       "prompt_signals": [],
       "path": "skills/article-writing/SKILL.md",
-      "files": [],
-      "references": [],
+      "files": [
+        "references/text-reference-tools.md"
+      ],
+      "references": [
+        "references/text-reference-tools.md"
+      ],
       "scripts": [],
-      "body_chars": 2548
+      "body_chars": 2687,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "audio-separation",
@@ -78,13 +86,15 @@
       ],
       "path": "skills/audio-separation/SKILL.md",
       "files": [
+        "references/audio-reference-tools.md",
         "references/model-chooser.md"
       ],
       "references": [
+        "references/audio-reference-tools.md",
         "references/model-chooser.md"
       ],
       "scripts": [],
-      "body_chars": 6162
+      "body_chars": 6302
     },
     {
       "id": "background-removal-segmentation",
@@ -107,13 +117,15 @@
       ],
       "path": "skills/background-removal-segmentation/SKILL.md",
       "files": [
+        "references/image-reference-tools.md",
         "references/rembg-models.md"
       ],
       "references": [
+        "references/image-reference-tools.md",
         "references/rembg-models.md"
       ],
       "scripts": [],
-      "body_chars": 6466
+      "body_chars": 6606
     },
     {
       "id": "batch-draft-writer",
@@ -127,7 +139,9 @@
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 8074
+      "body_chars": 8074,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "blender-3d-content",
@@ -149,13 +163,15 @@
       ],
       "path": "skills/blender-3d-content/SKILL.md",
       "files": [
+        "references/3d-reference-tools.md",
         "references/product-render-recipe.md"
       ],
       "references": [
+        "references/3d-reference-tools.md",
         "references/product-render-recipe.md"
       ],
       "scripts": [],
-      "body_chars": 8762
+      "body_chars": 8896
     },
     {
       "id": "blender-motion-state-inspection",
@@ -169,7 +185,9 @@
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 7830
+      "body_chars": 7830,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "brand-discovery",
@@ -201,7 +219,9 @@
         "references/90_SYNTHESIS.md"
       ],
       "scripts": [],
-      "body_chars": 7059
+      "body_chars": 7059,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "brand-voice",
@@ -219,7 +239,9 @@
         "references/voice-profile-schema.md"
       ],
       "scripts": [],
-      "body_chars": 3332
+      "body_chars": 3332,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "canva-branded-presentation",
@@ -236,7 +258,9 @@
       ],
       "references": [],
       "scripts": [],
-      "body_chars": 2695
+      "body_chars": 2695,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "comfyui-image-workflows",
@@ -258,13 +282,15 @@
       ],
       "path": "skills/comfyui-image-workflows/SKILL.md",
       "files": [
+        "references/image-reference-tools.md",
         "references/node-reference.md"
       ],
       "references": [
+        "references/image-reference-tools.md",
         "references/node-reference.md"
       ],
       "scripts": [],
-      "body_chars": 6005
+      "body_chars": 6145
     },
     {
       "id": "comfyui-video-workflows",
@@ -302,10 +328,16 @@
       "license": "MIT",
       "prompt_signals": [],
       "path": "skills/content-engine/SKILL.md",
-      "files": [],
-      "references": [],
+      "files": [
+        "references/text-reference-tools.md"
+      ],
+      "references": [
+        "references/text-reference-tools.md"
+      ],
       "scripts": [],
-      "body_chars": 4048
+      "body_chars": 4187,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "crosspost",
@@ -319,7 +351,9 @@
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 3132
+      "body_chars": 3132,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "design-system",
@@ -333,7 +367,9 @@
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 2290
+      "body_chars": 2290,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "diagram-generation",
@@ -355,13 +391,15 @@
       ],
       "path": "skills/diagram-generation/SKILL.md",
       "files": [
+        "references/design-reference-tools.md",
         "references/syntax-reference.md"
       ],
       "references": [
+        "references/design-reference-tools.md",
         "references/syntax-reference.md"
       ],
       "scripts": [],
-      "body_chars": 7465
+      "body_chars": 7607
     },
     {
       "id": "draft-brief",
@@ -388,7 +426,9 @@
       "scripts": [
         "scripts/legal_docx.js"
       ],
-      "body_chars": 7325
+      "body_chars": 7325,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "draft-long-form-memo",
@@ -415,7 +455,9 @@
       "scripts": [
         "scripts/legal_docx.js"
       ],
-      "body_chars": 5436
+      "body_chars": 5436,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "email",
@@ -429,7 +471,9 @@
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 8854
+      "body_chars": 8854,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "email-ops",
@@ -443,7 +487,9 @@
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 3159
+      "body_chars": 3159,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "frontend-design",
@@ -459,7 +505,9 @@
       ],
       "references": [],
       "scripts": [],
-      "body_chars": 9076
+      "body_chars": 9076,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "frontend-slides",
@@ -471,11 +519,16 @@
       "prompt_signals": [],
       "path": "skills/frontend-slides/SKILL.md",
       "files": [
-        "STYLE_PRESETS.md"
+        "STYLE_PRESETS.md",
+        "references/design-reference-tools.md"
       ],
-      "references": [],
+      "references": [
+        "references/design-reference-tools.md"
+      ],
       "scripts": [],
-      "body_chars": 6191
+      "body_chars": 6334,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "geist",
@@ -489,7 +542,9 @@
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 5873
+      "body_chars": 5873,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "google-slides",
@@ -537,7 +592,9 @@
         "references/reference-visual-iteration.md"
       ],
       "scripts": [],
-      "body_chars": 17879
+      "body_chars": 17879,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "humanizer",
@@ -557,7 +614,9 @@
         "references/pattern-details.md"
       ],
       "scripts": [],
-      "body_chars": 4856
+      "body_chars": 4856,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "hyperframes",
@@ -637,7 +696,9 @@
         "scripts/animation-map.mjs",
         "scripts/contrast-report.mjs"
       ],
-      "body_chars": 20604
+      "body_chars": 20604,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "hyperframes-cli",
@@ -651,7 +712,9 @@
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 6551
+      "body_chars": 6551,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "hyperframes-registry",
@@ -679,7 +742,9 @@
         "references/wiring-components.md"
       ],
       "scripts": [],
-      "body_chars": 3862
+      "body_chars": 3862,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "imagegen",
@@ -713,7 +778,9 @@
         "scripts/image_gen.py",
         "scripts/remove_chroma_key.py"
       ],
-      "body_chars": 18550
+      "body_chars": 18550,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "ios-icon-gen",
@@ -733,7 +800,9 @@
         "scripts/generate_icons.swift",
         "scripts/iconify_gen.sh"
       ],
-      "body_chars": 5296
+      "body_chars": 5296,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "lip-sync",
@@ -755,13 +824,15 @@
       ],
       "path": "skills/lip-sync/SKILL.md",
       "files": [
+        "references/audio-reference-tools.md",
         "references/model-comparison.md"
       ],
       "references": [
+        "references/audio-reference-tools.md",
         "references/model-comparison.md"
       ],
       "scripts": [],
-      "body_chars": 8589
+      "body_chars": 8729
     },
     {
       "id": "local-diffusion-suite",
@@ -784,13 +855,15 @@
       ],
       "path": "skills/local-diffusion-suite/SKILL.md",
       "files": [
+        "references/image-reference-tools.md",
         "references/tool-comparison.md"
       ],
       "references": [
+        "references/image-reference-tools.md",
         "references/tool-comparison.md"
       ],
       "scripts": [],
-      "body_chars": 6682
+      "body_chars": 6822
     },
     {
       "id": "local-tts-engines",
@@ -814,13 +887,15 @@
       ],
       "path": "skills/local-tts-engines/SKILL.md",
       "files": [
+        "references/audio-reference-tools.md",
         "references/engine-comparison.md"
       ],
       "references": [
+        "references/audio-reference-tools.md",
         "references/engine-comparison.md"
       ],
       "scripts": [],
-      "body_chars": 15353
+      "body_chars": 15493
     },
     {
       "id": "long-to-short-repurpose",
@@ -866,7 +941,9 @@
       ],
       "references": [],
       "scripts": [],
-      "body_chars": 2588
+      "body_chars": 2588,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "marketing-campaign",
@@ -880,7 +957,9 @@
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 4761
+      "body_chars": 4761,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "media-transcode-pipeline",
@@ -904,16 +983,18 @@
       ],
       "path": "skills/media-transcode-pipeline/SKILL.md",
       "files": [
+        "references/av_pipeline-reference-tools.md",
         "references/platform-specs.md",
         "scripts/transcode.py"
       ],
       "references": [
+        "references/av_pipeline-reference-tools.md",
         "references/platform-specs.md"
       ],
       "scripts": [
         "scripts/transcode.py"
       ],
-      "body_chars": 10133
+      "body_chars": 10285
     },
     {
       "id": "music-generation",
@@ -936,13 +1017,15 @@
       ],
       "path": "skills/music-generation/SKILL.md",
       "files": [
+        "references/audio-reference-tools.md",
         "references/model-comparison.md"
       ],
       "references": [
+        "references/audio-reference-tools.md",
         "references/model-comparison.md"
       ],
       "scripts": [],
-      "body_chars": 10550
+      "body_chars": 10690
     },
     {
       "id": "netlify-image-cdn",
@@ -963,7 +1046,9 @@
         "references/user-uploads.md"
       ],
       "scripts": [],
-      "body_chars": 2257
+      "body_chars": 2257,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "node-link-and-diagram-layout",
@@ -985,7 +1070,9 @@
         "references/routing-overlap-and-quality.md"
       ],
       "scripts": [],
-      "body_chars": 10881
+      "body_chars": 10881,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "remotion-best-practices",
@@ -1038,7 +1125,9 @@
       ],
       "references": [],
       "scripts": [],
-      "body_chars": 5064
+      "body_chars": 5064,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "remotion-video-creation",
@@ -1084,7 +1173,9 @@
       ],
       "references": [],
       "scripts": [],
-      "body_chars": 3251
+      "body_chars": 3251,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "reports-pdfs-and-slide-automation",
@@ -1108,7 +1199,9 @@
         "references/report-structure-and-figure-packaging.md"
       ],
       "scripts": [],
-      "body_chars": 7856
+      "body_chars": 7856,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "seo",
@@ -1119,10 +1212,16 @@
       "license": "MIT",
       "prompt_signals": [],
       "path": "skills/seo/SKILL.md",
-      "files": [],
-      "references": [],
+      "files": [
+        "references/text-reference-tools.md"
+      ],
+      "references": [
+        "references/text-reference-tools.md"
+      ],
       "scripts": [],
-      "body_chars": 3994
+      "body_chars": 4133,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "shorts-reels-pipeline",
@@ -1145,13 +1244,15 @@
       ],
       "path": "skills/shorts-reels-pipeline/SKILL.md",
       "files": [
-        "references/platform-presets.md"
+        "references/platform-presets.md",
+        "references/video-reference-tools.md"
       ],
       "references": [
-        "references/platform-presets.md"
+        "references/platform-presets.md",
+        "references/video-reference-tools.md"
       ],
       "scripts": [],
-      "body_chars": 5200
+      "body_chars": 5340
     },
     {
       "id": "social-graph-ranker",
@@ -1165,7 +1266,9 @@
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 3799
+      "body_chars": 3799,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "social-publish-scheduling",
@@ -1187,13 +1290,15 @@
       ],
       "path": "skills/social-publish-scheduling/SKILL.md",
       "files": [
-        "references/platform-reference.md"
+        "references/platform-reference.md",
+        "references/text-reference-tools.md"
       ],
       "references": [
-        "references/platform-reference.md"
+        "references/platform-reference.md",
+        "references/text-reference-tools.md"
       ],
       "scripts": [],
-      "body_chars": 10176
+      "body_chars": 10314
     },
     {
       "id": "social-publisher",
@@ -1207,7 +1312,9 @@
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 3537
+      "body_chars": 3537,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "sprite-pipeline",
@@ -1221,7 +1328,9 @@
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 3128
+      "body_chars": 3128,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "stock-media-sourcing",
@@ -1272,16 +1381,18 @@
       ],
       "path": "skills/subtitle-generation/SKILL.md",
       "files": [
+        "references/av_pipeline-reference-tools.md",
         "references/caption-specs.md",
         "scripts/generate_srt.py"
       ],
       "references": [
+        "references/av_pipeline-reference-tools.md",
         "references/caption-specs.md"
       ],
       "scripts": [
         "scripts/generate_srt.py"
       ],
-      "body_chars": 7650
+      "body_chars": 7802
     },
     {
       "id": "taste",
@@ -1299,7 +1410,9 @@
         "references/genre-taxonomy.md"
       ],
       "scripts": [],
-      "body_chars": 15034
+      "body_chars": 15034,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "text-to-video-local",
@@ -1326,13 +1439,15 @@
       ],
       "path": "skills/text-to-video-local/SKILL.md",
       "files": [
-        "references/model-requirements.md"
+        "references/model-requirements.md",
+        "references/video-reference-tools.md"
       ],
       "references": [
-        "references/model-requirements.md"
+        "references/model-requirements.md",
+        "references/video-reference-tools.md"
       ],
       "scripts": [],
-      "body_chars": 7013
+      "body_chars": 7153
     },
     {
       "id": "thumbnail-generator",
@@ -1411,7 +1526,9 @@
         "references/uml-diagram-types-and-selection.md"
       ],
       "scripts": [],
-      "body_chars": 11507
+      "body_chars": 11507,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "video-background-removal",
@@ -1449,10 +1566,16 @@
       "license": "MIT",
       "prompt_signals": [],
       "path": "skills/video-editing/SKILL.md",
-      "files": [],
-      "references": [],
+      "files": [
+        "references/video-reference-tools.md"
+      ],
+      "references": [
+        "references/video-reference-tools.md"
+      ],
       "scripts": [],
-      "body_chars": 9884
+      "body_chars": 10025,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "video-translation-dubbing",
@@ -1474,13 +1597,15 @@
       ],
       "path": "skills/video-translation-dubbing/SKILL.md",
       "files": [
+        "references/av_pipeline-reference-tools.md",
         "references/pipeline-reference.md"
       ],
       "references": [
+        "references/av_pipeline-reference-tools.md",
         "references/pipeline-reference.md"
       ],
       "scripts": [],
-      "body_chars": 10818
+      "body_chars": 10970
     },
     {
       "id": "video-upscale-interpolate",
@@ -1548,7 +1673,9 @@
       "scripts": [
         "scripts/ws_listener.py"
       ],
-      "body_chars": 13433
+      "body_chars": 13433,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "voice-cloning-rvc",
@@ -1571,13 +1698,15 @@
       ],
       "path": "skills/voice-cloning-rvc/SKILL.md",
       "files": [
+        "references/audio-reference-tools.md",
         "references/rvc-parameters.md"
       ],
       "references": [
+        "references/audio-reference-tools.md",
         "references/rvc-parameters.md"
       ],
       "scripts": [],
-      "body_chars": 10503
+      "body_chars": 10643
     },
     {
       "id": "web-3d-asset-pipeline",
@@ -1588,10 +1717,16 @@
       "license": "MIT",
       "prompt_signals": [],
       "path": "skills/web-3d-asset-pipeline/SKILL.md",
-      "files": [],
-      "references": [],
+      "files": [
+        "references/3d-reference-tools.md"
+      ],
+      "references": [
+        "references/3d-reference-tools.md"
+      ],
       "scripts": [],
-      "body_chars": 3187
+      "body_chars": 3322,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "website-to-hyperframes",
@@ -1623,7 +1758,9 @@
         "references/techniques.md"
       ],
       "scripts": [],
-      "body_chars": 5873
+      "body_chars": 5873,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "writing-hookify-rules",
@@ -1637,7 +1774,9 @@
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 8157
+      "body_chars": 8157,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "writing-plans",
@@ -1653,7 +1792,9 @@
       ],
       "references": [],
       "scripts": [],
-      "body_chars": 5960
+      "body_chars": 5960,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "writing-skills",
@@ -1674,7 +1815,9 @@
       ],
       "references": [],
       "scripts": [],
-      "body_chars": 22398
+      "body_chars": 22398,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     }
   ],
   "agents": [
@@ -1780,7 +1923,9 @@
       "path": "agents/marketing-agent.md",
       "files": [],
       "prompt_signals": [],
-      "body_chars": 6792
+      "body_chars": 6792,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "media-pipeline-engineer",
@@ -1819,7 +1964,9 @@
       "path": "agents/planner.md",
       "files": [],
       "prompt_signals": [],
-      "body_chars": 7749
+      "body_chars": 7749,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "script-and-story-editor",
@@ -1882,7 +2029,9 @@
       "path": "agents/seo-specialist.md",
       "files": [],
       "prompt_signals": [],
-      "body_chars": 2511
+      "body_chars": 2511,
+      "upstream": "https://github.com/ashikonik/content-creation-mcp",
+      "upstream_owner": "ashikonik"
     },
     {
       "id": "short-form-producer",

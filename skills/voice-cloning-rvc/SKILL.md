@@ -318,6 +318,11 @@ loudness. Normalise first: `ffmpeg -i in.wav -af loudnorm=I=-20 out.wav`.
 **Licence issue** — RVC and GPT-SoVITS themselves are permissive, but the
 **voice** is not yours to clone. Check the source audio's licence too.
 
+## Reference tools
+
+Other open-source audio tools worth knowing, each over 1,000
+GitHub stars — see `references/audio-reference-tools.md`.
+
 ## Related skills
 
 `local-tts-engines` · `lip-sync` · `music-generation` · `tts-to-video` ·

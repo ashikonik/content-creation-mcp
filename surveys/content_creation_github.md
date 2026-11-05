@@ -5,29 +5,29 @@ This survey drove the corpus in `skills/` and `agents/`. It swept GitHub for rep
 * **List A** — repositories containing agent or skill definitions: `SKILL.md` files, `agents/` directories, or MCP servers.
 * **List B** — repositories that are content-generation tools or libraries in their own right.
 
-**43,359 repositories** classified in total (12,730 in list A, 30,629 in list B). Both lists are sorted by stars, descending.
+**43,362 repositories** classified in total (12,730 in list A, 30,632 in list B). Both lists are sorted by stars, descending.
 
 ## Star distribution
 
 | Threshold | List A | List B |
 |---|---|---|
-| >=100 stars | 1,012 | 4,286 |
-| >=500 stars | 441 | 1,893 |
-| >=1000 stars | 304 | 1,145 |
-| >=10000 stars | 61 | 171 |
-| >=50000 stars | 13 | 26 |
+| >=100 stars | 1,012 | 4,289 |
+| >=500 stars | 441 | 1,896 |
+| >=1000 stars | 304 | 1,148 |
+| >=10000 stars | 61 | 174 |
+| >=50000 stars | 13 | 27 |
 
 ## Modality split
 
 | Modality | List A | List B |
 |---|---|---|
-| 3d | 837 | 1,795 |
-| audio | 1,795 | 6,395 |
-| design | 1,578 | 2,363 |
-| image | 1,615 | 3,464 |
-| other | 1,432 | 5,172 |
-| text | 1,684 | 1,969 |
-| video | 3,789 | 9,471 |
+| 3d | 620 | 1,242 |
+| audio | 1,710 | 7,368 |
+| avpipe | 257 | 292 |
+| design | 1,422 | 2,260 |
+| image | 2,319 | 5,814 |
+| text | 2,348 | 2,713 |
+| video | 4,054 | 10,943 |
 
 ## Top repositories — list A (agent/skill definitions)
 
@@ -72,7 +72,7 @@ This survey drove the corpus in `skills/` and `agents/`. It swept GitHub for rep
 | 15,729 | [CoplayDev/unity-mcp](https://github.com/CoplayDev/unity-mcp) | Unity MCP acts as a bridge between AI assistants and your Unity Editor. Give your LLM tools to manage assets, … |
 | 15,548 | [nidhinjs/prompt-master](https://github.com/nidhinjs/prompt-master) | A Claude skill that writes the accurate prompts for any AI tool. Zero tokens or credits wasted. Full context a… |
 | 15,524 | [miuuyy/codex-chatgpt-web](https://github.com/miuuyy/codex-chatgpt-web) | Use ChatGPT Web (including Pro) as a native model in Codex — with context, tools, streaming and images, withou… |
-| 15,098 | [livekit/agents](https://github.com/livekit/agents) | A framework for building realtime voice AI agents 🤖🎙️📹  |
+| 15,098 | [livekit/agents](https://github.com/livekit/agents) | A framework for building realtime voice AI agents 🤖🎙️📹 |
 | 14,884 | [apify/apify-mcp-server](https://github.com/apify/apify-mcp-server) | The Apify MCP server enables your AI agents to extract data from social media, search engines, maps, e-commerc… |
 | 14,314 | [jub0t/Concat](https://github.com/jub0t/Concat) | Beta: The truly free, open-source, local-first, cross-platform video editor. Scriptable through a JSON-RPC API… |
 | 14,175 | [krillinai/OpenCreator](https://github.com/krillinai/OpenCreator) | Formerly KrillinAI, VideoTranslation and Dubbing Tool for 120+ Languages. Open-source AI workspace for creator… |
@@ -88,7 +88,7 @@ This survey drove the corpus in `skills/` and `agents/`. It swept GitHub for rep
 | 11,777 | [genspark-ai/genoffice](https://github.com/genspark-ai/genoffice) | Free, open-source AI Office suite: Docs, Sheets, Slides, PDF, Markdown and HTML editors with a built-in AI age… |
 | 11,526 | [zubair-trabzada/geo-seo-claude](https://github.com/zubair-trabzada/geo-seo-claude) | GEO-first SEO skill for Claude Code. Comprehensive AI search optimization for any website — citability scoring… |
 | 11,417 | [moonshine-ai/moonshine](https://github.com/moonshine-ai/moonshine) | Very low latency speech to text, intent recognition, and text to speech, for building voice agents and interfa… |
-| 11,217 | [TEN-framework/ten-framework](https://github.com/TEN-framework/ten-framework) |  Open-source framework for conversational voice AI agents |
+| 11,217 | [TEN-framework/ten-framework](https://github.com/TEN-framework/ten-framework) | Open-source framework for conversational voice AI agents |
 | 10,808 | [nicobailon/visual-explainer](https://github.com/nicobailon/visual-explainer) | Agent skill that generates rich HTML pages or slide decks for diagrams, diff reviews, plan audits, data tables… |
 | 10,763 | [AgriciDaniel/claude-ads](https://github.com/AgriciDaniel/claude-ads) | Claude-first paid-media operations skill for Claude Code across 12 ad platforms (Google, Meta, YouTube, Linked… |
 | 10,394 | [chuspeeism/dashi-ppt-skill](https://github.com/chuspeeism/dashi-ppt-skill) | An AI-agent skill that generates browser-editable presentations from multiple visual themes, exportable to HTM… |
@@ -116,6 +116,7 @@ This survey drove the corpus in `skills/` and `agents/`. It swept GitHub for rep
 | 73,881 | [hugohe3/ppt-master](https://github.com/hugohe3/ppt-master) | AI turns documents or topics into real, native PowerPoint decks—with native shapes, transitions and animations… |
 | 70,971 | [remotion-dev/remotion](https://github.com/remotion-dev/remotion) | 🎥      Make videos programmatically with React |
 | 70,830 | [asgeirtj/system_prompts_leaks](https://github.com/asgeirtj/system_prompts_leaks) | Documented system prompts from Anthropic - Claude Fable 5.1, Opus 5.5, Claude Design, Claude Code. OpenAI - Ch… |
+| 66,564 | [FFmpeg/FFmpeg](https://github.com/FFmpeg/FFmpeg) | Mirror of https://git.ffmpeg.org/ffmpeg.git |
 | 64,922 | [RVC-Boss/GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS) | 1 min voice data can also be used to train a good TTS model! (few shot voice cloning) |
 | 62,103 | [penpot/penpot](https://github.com/penpot/penpot) | Penpot: The open-source design platform for Product teams that need scalable collaboration. |
 | 60,225 | [CorentinJ/Real-Time-Voice-Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) | Clone a voice in 5 seconds to generate arbitrary speech in real-time |
@@ -127,7 +128,7 @@ This survey drove the corpus in `skills/` and `agents/`. It swept GitHub for rep
 | 49,488 | [alibaba/open-code-review](https://github.com/alibaba/open-code-review) | Secure, fast, efficient, battle-tested at Alibaba's scale. Hybrid architecture code review tool: deterministic… |
 | 49,379 | [slidevjs/slidev](https://github.com/slidevjs/slidev) | Presentation Slides for Developers |
 | 46,184 | [coqui-ai/TTS](https://github.com/coqui-ai/TTS) | 🐸💬 - a deep learning toolkit for Text-to-Speech, battle-tested in research and production |
-| 42,266 | [ManimCommunity/manim](https://github.com/ManimCommunity/manim) | A community-maintained Python framework for creating mathematical animations.  |
+| 42,266 | [ManimCommunity/manim](https://github.com/ManimCommunity/manim) | A community-maintained Python framework for creating mathematical animations. |
 | 41,157 | [codewhale-hq/Codewhale](https://github.com/codewhale-hq/Codewhale) | Open-source agent for the terminal written in Rust. Use any provider or model. Issues & PRs always welcome |
 | 41,089 | [OpenBMB/VoxCPM](https://github.com/OpenBMB/VoxCPM) | VoxCPM2: Tokenizer-Free TTS for Multilingual Speech Generation, Creative Voice Design, and True-to-Life Clonin… |
 | 40,822 | [github/awesome-copilot](https://github.com/github/awesome-copilot) | Community-contributed instructions, agents, skills, and configurations to help you make the most of GitHub Cop… |
@@ -157,7 +158,6 @@ This survey drove the corpus in `skills/` and `agents/`. It swept GitHub for rep
 | 27,755 | [vercel/ai](https://github.com/vercel/ai) | The AI Toolkit for TypeScript. From the creators of Next.js, the AI SDK is a free open-source library for buil… |
 | 27,120 | [onlook-dev/onlook](https://github.com/onlook-dev/onlook) | The Developer Tool for Visual Engineers • An Open-Source AI-First Design tool • Visually build, style, and edi… |
 | 26,500 | [SYSTRAN/faster-whisper](https://github.com/SYSTRAN/faster-whisper) | Faster Whisper transcription with CTranslate2 |
-| 26,489 | [every-app/open-seo](https://github.com/every-app/open-seo) | Open source alternative to Semrush and Ahrefs |
 
 ## Capabilities searched
 

@@ -306,6 +306,11 @@ to the core count. Limit it: `-x265-params "pools=4:frame-threads=2"`.
 **Transcode lost quality in a second pass** — you encoded an already-encoded
 file. Always transcode from the master.
 
+## Reference tools
+
+Other open-source av pipeline tools worth knowing, each over 1,000
+GitHub stars — see `references/av_pipeline-reference-tools.md`.
+
 ## Related skills
 
 `tts-to-video` · `shorts-reels-pipeline` · `long-to-short-repurpose` ·

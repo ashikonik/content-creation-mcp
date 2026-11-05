@@ -316,6 +316,11 @@ mistakes are the most common scheduling bug.
 **The post was flagged by a filter** — some platforms filter outbound links in
 posts by brand-new accounts. Post text-only first, build history, then link.
 
+## Reference tools
+
+Other open-source text tools worth knowing, each over 1,000
+GitHub stars — see `references/text-reference-tools.md`.
+
 ## Related skills
 
 `social-publisher` · `crosspost` · `content-engine` · `seo` ·

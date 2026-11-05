@@ -327,6 +327,11 @@ source separately before mixing.
 non-commercial. MusicGen weights are CC-BY-NC. ACE-Step is MIT. Check before
 publishing monetised content.
 
+## Reference tools
+
+Other open-source audio tools worth knowing, each over 1,000
+GitHub stars — see `references/audio-reference-tools.md`.
+
 ## Related skills
 
 `audio-separation` · `local-tts-engines` · `stock-media-sourcing` ·

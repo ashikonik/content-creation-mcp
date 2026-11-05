@@ -76,3 +76,9 @@ Before delivering:
 - the voice matches the supplied examples or the agreed `VOICE PROFILE`
 - every section adds something new
 - formatting matches the intended medium
+
+## Reference tools
+
+Other open-source text tools worth knowing, each over 1,000
+GitHub stars — see `references/text-reference-tools.md`.
+

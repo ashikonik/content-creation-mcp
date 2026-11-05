@@ -158,6 +158,11 @@ loses 30%+ of viewers.
 **Video rejected or muted** → some platforms auto-mute on upload. Verify the
 audio track exists before publishing: `ffprobe -v error -show_streams out.mp4`.
 
+## Reference tools
+
+Other open-source video tools worth knowing, each over 1,000
+GitHub stars — see `references/video-reference-tools.md`.
+
 ## Related skills
 
 `local-tts-engines` · `stock-media-sourcing` · `text-to-video-local` ·

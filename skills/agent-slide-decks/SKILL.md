@@ -323,6 +323,11 @@ Chromium; on some systems install `chromium` or set `CHROME_PATH`.
 **Slidev exports a blank page** — an unclosed code fence. Check the markdown
 for unbalanced ```` ``` ````.
 
+## Reference tools
+
+Other open-source design tools worth knowing, each over 1,000
+GitHub stars — see `references/design-reference-tools.md`.
+
 ## Related skills
 
 `diagram-generation` · `frontend-slides` · `google-slides` ·

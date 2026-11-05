@@ -279,6 +279,11 @@ ffmpeg `-framerate`.
 running with the addon enabled and the server started; the MCP side is only a
 client.
 
+## Reference tools
+
+Other open-source 3d tools worth knowing, each over 1,000
+GitHub stars — see `references/3d-reference-tools.md`.
+
 ## Related skills
 
 `web-3d-asset-pipeline` · `blender-motion-state-inspection` ·
