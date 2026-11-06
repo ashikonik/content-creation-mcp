@@ -4,7 +4,7 @@ description: A creative-direction (taste) layer for music videos and short-form 
   in the angelcore / cloud-trance / hyperpop visual family. Distills a named-genre
   aesthetic vocabulary, a mood + color + light system, and a beat-synced editing grammar,
   then chains ECC's video skills (video-editing, local-diffusion-suite, text-to-video-local,
-  remotion-video-creation, motion-*, content-engine) into one production pipeline.
+  remotion-best-practices, motion-*, content-engine) into one production pipeline.
   Use when the work is not just making a video function but making it feel intentional,
   when building a music video, a fancam/edit, a moodboard-driven reel, or when choosing
   a coherent visual direction for AI-generated b-roll.
@@ -45,7 +45,7 @@ is opinionated on purpose. Taste is a point of view, not a menu.
   "cloud trance", "hyperpop edit", "Bladee", "dreamcore", or names a saved reference.
 - The current edit works but reads as flat, generic, AI-slop, or stylistically incoherent.
 
-This skill sits **on top of** `video-editing` (the mechanics) and `remotion-video-creation`
+This skill sits **on top of** `video-editing` (the mechanics) and `remotion-best-practices`
 (the renderer). Use those for *how*. Use this for *what and why*.
 
 ## Core Thesis
@@ -144,7 +144,7 @@ This skill is the conductor. Each ECC skill is an instrument. Do not skip layers
 1. STRUCTURE (video-editing) map the song: timestamps for intro/verse/drop/bridge/outro
 2. GENERATE (local-diffusion) make b-roll per genre prompt-presets; throw away 80%
 3. CUT (video-editing/FFmpeg) beat-cut + reframe to 9:16; assemble selects on the grid
-4. COMPOSE (remotion-video-creation) overlays, blooms, lyric text, beat-synced sequencing
+4. COMPOSE (remotion-best-practices) overlays, blooms, lyric text, beat-synced sequencing
 5. MOTION (motion-* skills)  easing curves, light-leak/particle motion, transition timing
 6. AUDIO (music-generation)   transition risers/impacts to sell the cuts (track itself is in Ableton)
 7. POLISH                    grade to the palette above, final pacing pass, export
@@ -155,11 +155,11 @@ This skill is the conductor. Each ECC skill is an instrument. Do not skip layers
 |------|-------------------|-------------------|
 | Structure & cut | `video-editing` | FFmpeg cut/concat/reframe, EDL, scene/silence detection |
 | Generate b-roll | `local-diffusion-suite`, `text-to-video-local` | image/video models per genre preset |
-| Compose & overlay | `remotion-video-creation` | beat-synced `<Sequence>`s, text, blooms, masks |
+| Compose & overlay | `remotion-best-practices` | beat-synced `<Sequence>`s, text, blooms, masks |
 | Motion timing | `motion-foundations`, `motion-patterns`, `motion-advanced`, `motion-ui` | easing, springs, light/particle motion |
-| Server-side video | `videodb` | smart reframe, indexing if footage is large |
+| Server-side video | `media-transcode-pipeline` | transcode, reframe, package per platform |
 | Distribution | `content-engine` | per-platform cuts, covers, captions |
-| Voice/lyric VO | `video-editing` (ElevenLabs section) | only if a spoken layer is needed |
+| Voice/lyric VO | `local-tts-engines`, `voice-cloning-rvc` | only if a spoken layer is needed |
 
 ## Beat Math (lock cuts to the song)
 
@@ -257,7 +257,7 @@ export const AngelcoreMV: React.FC = () => (
   </AbsoluteFill>
 );
 ```
-Render: `npx remotion render src/index.ts AngelcoreMV out.mp4`. See `remotion-video-creation`
+Render: `npx remotion render src/index.ts AngelcoreMV out.mp4`. See `remotion-best-practices`
 for project setup, audio track binding, and render flags.
 
 ## Key Principles
@@ -273,11 +273,11 @@ for project setup, audio track binding, and render flags.
 ## Related Skills
 
 - `video-editing` — the mechanical pipeline (FFmpeg, reframe, EDL, polish) this sits on top of
-- `remotion-video-creation` — programmable beat-synced composition and rendering
+- `remotion-best-practices` — programmable beat-synced composition and rendering
 - `local-diffusion-suite` — generate the b-roll stills
 - `text-to-video-local` — generate the b-roll as video clips
 - `music-generation` — transition SFX and risers
 - `motion-foundations`, `motion-patterns`, `motion-advanced`, `motion-ui` — easing and motion timing
-- `videodb` — server-side smart reframe and indexing for large footage
+- `media-transcode-pipeline` — server-side transcode, smart reframe, and packaging for large footage
 - `content-engine` — platform-native distribution, covers, captions
 - `frontend-design-direction` — the same "decide a direction first" discipline, for UI

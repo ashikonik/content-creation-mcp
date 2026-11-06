@@ -57,7 +57,6 @@ LICENCE_SIGNOFF: set[str] = {
     "canva-branded-presentation",
     "draft-brief",
     "draft-long-form-memo",
-    "email",
     "geist",
     "google-slides",
     "humanizer",

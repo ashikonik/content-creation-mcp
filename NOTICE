@@ -55,10 +55,21 @@ other skills in this repository instead.
 | Entry | Reason |
 |---|---|
 | `fal-ai-media` | Documents fal.ai's hosted generation endpoints (Veo, Kling, Seedance, Nano Banana) and ElevenLabs — paid hosted services. See `local-diffusion-suite`, `local-tts-engines`, and `music-generation` for the local equivalents. |
+| `videodb` | VideoDB is a hosted SaaS with no self-hosted path documented. The local equivalents for the operations it covers are in `media-transcode-pipeline`, `subtitle-generation`, `video-editing`, `audio-separation`, and `local-diffusion-suite`. |
+| `email` | Documents Resend, a hosted transactional-email service, with a workflow specific to Vercel deployments. See `email-ops` for mailbox work that does not require a hosted sender. |
+| `social-publisher` | Documents SocialClaw, a hosted workspace service reached through a workspace API key. The authored `social-publish-scheduling` skill covers planning and scheduling a campaign without a hosted publisher. |
+
+Free stock-media APIs are a different category and are in scope: Pexels,
+Pixabay, Unsplash, Wikimedia Commons, and the Internet Archive serve
+open-licensed media rather than generating it. `stock-media-sourcing` is
+kept for that reason.
 
 Where a skill merely mentioned a hosted service in one example alongside
 otherwise-local guidance, the example was rewritten to use a local tool rather
-than excluding the whole skill.
+than excluding the whole skill. Where a hosted service is offered only as an
+explicit fallback behind a local default, the skill is kept and the fallback
+is named in the skill itself — `imagegen` uses the harness's built-in image
+tool by default and reaches its hosted CLI only when the user asks for it.
 
 ## A note on licensing of documented tools
 

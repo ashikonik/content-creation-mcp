@@ -462,20 +462,6 @@
     "verdict": "needs-review"
   },
   {
-    "name": "email",
-    "kind": "skill",
-    "owner": "vendored",
-    "license": "UNKNOWN",
-    "license_source": "none",
-    "source": "~/.codex/.tmp/plugins/plugins/vercel/skills/email",
-    "upstream": null,
-    "upstream_root": "~/.codex/.tmp/plugins/plugins/vercel/skills/email",
-    "path": "skills/email/",
-    "content_domain": "writing",
-    "vendored_on": "2026-11-05",
-    "verdict": "needs-review"
-  },
-  {
     "name": "email-ops",
     "kind": "skill",
     "owner": "vendored",
@@ -784,20 +770,6 @@
     "verdict": "needs-review"
   },
   {
-    "name": "remotion-video-creation",
-    "kind": "skill",
-    "owner": "vendored",
-    "license": "MIT",
-    "license_source": "origin:~/Projects/ECC/LICENSE",
-    "source": "~/Projects/ECC/skills/remotion-video-creation",
-    "upstream": "https://github.com/affaan-m/ECC.git",
-    "upstream_root": "~/Projects/ECC",
-    "path": "skills/remotion-video-creation/",
-    "content_domain": "video",
-    "vendored_on": "2026-11-05",
-    "verdict": "publish"
-  },
-  {
     "name": "reports-pdfs-and-slide-automation",
     "kind": "skill",
     "owner": "vendored",
@@ -880,20 +852,6 @@
     "content_domain": "text",
     "vendored_on": "2026-11-05",
     "verdict": "authored"
-  },
-  {
-    "name": "social-publisher",
-    "kind": "skill",
-    "owner": "vendored",
-    "license": "MIT",
-    "license_source": "origin:~/Projects/ECC/LICENSE",
-    "source": "~/Projects/ECC/skills/social-publisher",
-    "upstream": "https://github.com/affaan-m/ECC.git",
-    "upstream_root": "~/Projects/ECC",
-    "path": "skills/social-publisher/",
-    "content_domain": "text",
-    "vendored_on": "2026-11-05",
-    "verdict": "publish"
   },
   {
     "name": "sprite-pipeline",
@@ -1062,20 +1020,6 @@
     "content_domain": "video",
     "vendored_on": "2026-11-05",
     "verdict": "authored"
-  },
-  {
-    "name": "videodb",
-    "kind": "skill",
-    "owner": "vendored",
-    "license": "MIT",
-    "license_source": "origin:~/Projects/ECC/LICENSE",
-    "source": "~/Projects/ECC/skills/videodb",
-    "upstream": "https://github.com/affaan-m/ECC.git",
-    "upstream_root": "~/Projects/ECC",
-    "path": "skills/videodb/",
-    "content_domain": "video",
-    "vendored_on": "2026-11-05",
-    "verdict": "publish"
   },
   {
     "name": "voice-cloning-rvc",

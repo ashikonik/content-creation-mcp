@@ -61,6 +61,11 @@ REQUIRED_CAPABILITIES: list[tuple[str, str, str]] = [
     ("social scheduling", "social-publish-scheduling", "schedule posts across platforms"),
     ("transcoding", "media-transcode-pipeline", "transcode for instagram"),
     ("dubbing", "video-translation-dubbing", "dub a video in another language"),
+    ("footage search", "video-editing", "search my video library"),
+    ("remotion", "remotion-best-practices", "create a video with remotion"),
+    ("image generation", "imagegen", "generate an image"),
+    ("email triage", "email-ops", "triage my mailbox"),
+    ("social scheduling", "social-publish-scheduling", "schedule posts across platforms"),
 ]
 
 # The 12 agents the plan requires.
@@ -629,28 +634,149 @@ def check_no_paid_apis(report: Report) -> None:
     it, and are within scope. What is excluded is the paid generation and
     transcription tier — fal.ai, Replicate, OpenAI, ElevenLabs, and their
     equivalents.
+
+    The earlier version of this check scanned for a list of literal API
+    hostnames. It passed the corpus while missing the hosted services that
+    were actually in it: `resend.com`, `videodb.io`, and `api.openai.com`
+    were all present and none of them matched the pattern. A check that
+    passes because its pattern is incomplete is worse than no check, because
+    it reports a guarantee it is not keeping.
+
+    The policy is now expressed as a list of services the corpus may not
+    depend on, and every reference to one of them is a hit. The list is
+    scanned for the service names and the API-key variable names, because a
+    skill can reference a hosted service without writing its URL.
+
+    A skill whose *subject* is a hosted service belongs in the exclusion
+    table instead. A skill that merely offers a hosted path as an explicit
+    user opt-in fallback, alongside a local default, is allowed — but only
+    when it is on this allowlist, so the exception is visible and
+    reviewable rather than a gap in a regex.
     """
     report.category("open-source constraint")
+
+    # Hosted services the corpus may not depend on. Matched as substrings
+    # of the host, so `api.openai.com` and `openai.com` both match.
+    banned_services = [
+        "fal.ai",
+        "fal.run",
+        "replicate.com",
+        "openai.com",
+        "deepai",
+        "stability.ai",
+        "elevenlabs",
+        "runwayml",
+        "heygen",
+        "clipdrop",
+        "groq.com",
+        "dashscope",
+        "together.xyz",
+        "perplexity.ai",
+        "anthropic.com",
+        "midjourney",
+        "leonardo.ai",
+        "resend.com",
+        "sendgrid.com",
+        "mailgun.org",
+        "postmarkapp.com",
+        "videodb.io",
+        "socialclaw",
+        "getsocialclaw",
+    ]
+
+    # Hosted services that are in scope because they serve open-licensed
+    # media rather than generating it.
+    allowed_services = [
+        "pexels.com",
+        "pixabay.com",
+        "unsplash.com",
+        "wikimedia.org",
+        "archive.org",
+    ]
+
+    # Names that contain a banned service's name without being that
+    # service. `heygen-com` is the GitHub organisation that publishes the
+    # Hyperframes project; `hyperframes.heygen.com` is that project's own
+    # host. Neither is the HeyGen product API.
+    benign_name_patterns = [
+        r"heygen-com",
+        r"hyperframes\.heygen\.com",
+    ]
+
+    # Skills allowed to mention a hosted service, and only as an explicit
+    # fallback behind a local default. Each entry is a deliberate,
+    # reviewable exception.
+    hosted_fallback_allowlist = {
+        "imagegen": (
+            "the built-in/local image tool is the default path; the hosted "
+            "CLI is only reachable when the user explicitly asks for it"
+        ),
+        # This skill *is* the local alternative to ElevenLabs. It names the
+        # hosted service only to say "use this instead".
+        "local-tts-engines": (
+            "the skill documents local engines; ElevenLabs is named as the "
+            "hosted service it replaces, and as a trigger phrase a user "
+            "would type"
+        ),
+    }
+
     banned = re.compile(
-        r"\b(replicate\.com|api\.deepai\.com|api\.deepai|openai\.com/v1|"
-        r"api\.stability\.ai|dashscope\.com|api\.elevenlabs\.io|"
-        r"api\.runwayml\.com|heygen\.com/api|api\.clipdrop\.com|"
-        r"api\.groq\.com|fal\.run|fal\.ai)\b",
+        r"(?:" + "|".join(re.escape(s) for s in banned_services) + r")",
         re.I,
     )
+    allowed = re.compile(
+        r"(?:" + "|".join(re.escape(s) for s in allowed_services) + r")",
+        re.I,
+    )
+    benign = re.compile(
+        r"(?:" + "|".join(benign_name_patterns) + r")",
+        re.I,
+    )
+
     hits: list[str] = []
     for path in sorted(SKILLS_DIR.rglob("*.md")):
-        # Excluded skills are not published and are not scanned.
-        if any(
-            path.is_relative_to(SKILLS_DIR / name)
-            for name in excluded_skill_names()
-        ):
+        skill_name = path.relative_to(SKILLS_DIR).parts[0]
+        if skill_name in hosted_fallback_allowlist:
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
         for match in banned.finditer(text):
+            # An allowed service may legitimately share a substring with a
+            # banned one (e.g. "images.pexels.com" does not, but be
+            # explicit rather than lucky).
+            if allowed.search(match.group(0)):
+                continue
+            # A name that merely contains the banned service's name — a GitHub
+            # organisation, a project's own host — is not that service. The
+            # surrounding text has to be examined, because the benign form
+            # is longer than the banned one ("heygen-com" vs "heygen").
+            window = text[max(0, match.start() - 32) : match.end() + 32]
+            if benign.search(window):
+                continue
             hits.append(f"{path.relative_to(PROJECT_ROOT)}: {match.group(0)}")
-    report.check(not hits, f"hosted-only API references found: {hits}")
-    report.ok("no hosted-only generation or transcription APIs referenced")
+
+    report.check(
+        not hits,
+        f"hosted-service references found outside the allowlist: {sorted(set(hits))}",
+    )
+
+    # Every allowlisted exception must still exist, and its local default
+    # must still be present. An allowlist entry that no longer describes the
+    # skill is a stale exemption.
+    for skill_name, reason in hosted_fallback_allowlist.items():
+        skill_dir = SKILLS_DIR / skill_name
+        report.check(
+            skill_dir.is_dir(),
+            f"the hosted-fallback allowlist names {skill_name}, which is not in the corpus",
+        )
+        if skill_dir.is_dir():
+            report.check(
+                "local" in (skill_dir / "SKILL.md").read_text(encoding="utf-8").lower()
+                or "built-in" in (skill_dir / "SKILL.md").read_text(encoding="utf-8").lower(),
+                f"{skill_name} is allowlisted for a hosted fallback but no longer "
+                f"documents a local default ({reason})",
+            )
+
+    report.ok("no hosted-service references outside the allowlist")
 
 
 def excluded_skill_names() -> set[str]:

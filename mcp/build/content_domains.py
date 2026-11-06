@@ -51,7 +51,6 @@ SKILL_DOMAINS = {
     "video-translation-dubbing": "av_pipeline",
     # --- vendored skills ------------------------------------------------
     "video-editing": "video",
-    "remotion-video-creation": "video",
     "remotion-best-practices": "video",
     "hyperframes": "video",
     "hyperframes-cli": "video",

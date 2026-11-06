@@ -13,6 +13,12 @@ metadata:
     - structure a video from raw capture
     - polish a video in descript
     - final cut and export
+    - search my video library
+    - find a moment in a recording
+    - search my footage
+    - extract frames from a video
+    - index a video for search
+    - locate a clip in a long recording
 ---
 
 # Video Editing
@@ -50,7 +56,7 @@ Each layer has a specific job. Do not skip layers. Do not try to make one tool d
 Collect the source material:
 - **Screen Studio**: polished screen recordings for app demos, coding sessions, browser workflows
 - **Raw camera footage**: vlog footage, interviews, event recordings
-- **Desktop capture via VideoDB**: session recording with real-time context (see `videodb` skill)
+- **Desktop capture**: session recording via the OS's own screen recorder, then import the file (see `media-transcode-pipeline` for preparing the capture for the timeline)
 
 Output: raw files ready for organization.
 
@@ -293,6 +299,52 @@ Use Claude to analyze transcript + scene timestamps:
 identify the 5 most engaging 30-second clips for social media."
 ```
 
+### Searching your own footage
+
+To find a moment in a large library without watching it end to end, index it
+locally and search the index. Nothing here needs an account or a per-call
+fee.
+
+**Transcript search** — transcribe once, then grep the text:
+
+```bash
+# Transcribe with local Whisper (see the subtitle-generation skill)
+whisper.cpp -m models/ggml-medium.en.bin -f input.mp4 -otxt -osrt
+
+# Find every mention, with the timestamp alongside it
+grep -in "coffee\|espresso" transcript.txt
+```
+
+The timestamps in the `.srt` give you the in/out points directly, so a
+transcript hit maps to a cut without any further work.
+
+**Visual search** — when the thing you are looking for is in the picture,
+not the audio, embed the frames and search them. CLIP-style models run on
+CPU:
+
+```bash
+# Sample one frame per second
+ffmpeg -i input.mp4 -vf fps=1 frames/%06d.png
+
+# Embed the frames (open_clip, or any CLIP checkpoint)
+python3 embed_frames.py frames/ --model ViT-B-32 --out embeddings.npy
+
+# Rank frames against a text query
+python3 search_frames.py embeddings.npy --query "a dog running on grass" --top 10
+```
+
+Because the frames were sampled at 1 fps, a frame index maps back to a
+timestamp as `index` seconds into the video.
+
+**Combining them** — the two indexes answer different questions and are
+worth having side by side. The transcript finds what was *said*; the frame
+embeddings find what was *seen*. A clip of someone pouring coffee with no
+speech is invisible to a transcript search and obvious to a visual one.
+
+When the answer is a specific moment rather than a topic, combine the
+scene-change timestamps from the section above with a transcript or visual
+search, so the candidates are already at cut boundaries.
+
 ## What Each Tool Does Best
 
 | Tool | Strength | Weakness |
@@ -318,7 +370,7 @@ identify the 5 most engaging 30-second clips for social media."
 - `local-tts-engines` — Local narration and voiceover synthesis
 - `music-generation` — Local background music and SFX
 - `local-diffusion-suite` — Local insert shots and stills
-- `videodb` — Server-side video processing, indexing, and streaming
+- `media-transcode-pipeline` — Server-side transcoding, packaging, and normalization
 - `content-engine` — Platform-native content distribution
 
 ## Reference tools

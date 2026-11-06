@@ -32,21 +32,27 @@ from content_domains import AGENT_DOMAINS, SKILL_DOMAINS  # noqa: E402
 
 # Only vendored content is listed here. Authored skills are written for this
 # project and are not re-vendored.
+#
+# Skills that were excluded from the corpus are deliberately absent — see
+# `mcp/data/excluded.json` for the list and the reason for each. Re-vendoring
+# them would put them back on disk, where the index builder would skip them
+# but the files would still ship. `remotion-video-creation` is absent because
+# it was merged into `remotion-best-practices`, which is the newer upstream
+# revision and the only one of the two the corpus keeps.
 VENDORED_SKILLS = [
-    "video-editing", "remotion-video-creation",
+    "video-editing",
     "remotion-best-practices", "hyperframes",
     "hyperframes-cli", "hyperframes-registry",
     "website-to-hyperframes", "manim-video",
-    "videodb",
-    "imagegen", "fal-ai-media", "netlify-image-cdn",
+    "imagegen", "netlify-image-cdn",
     "sprite-pipeline", "ios-icon-gen",
     "article-writing", "seo", "content-engine",
-    "social-publisher", "batch-draft-writer",
+    "batch-draft-writer",
     "draft-brief", "draft-long-form-memo",
     "brand-discovery", "brand-voice", "crosspost",
     "marketing-campaign", "writing-skills",
     "writing-plans", "writing-hookify-rules",
-    "email", "email-ops", "social-graph-ranker",
+    "email-ops", "social-graph-ranker",
     "humanizer",
     "frontend-slides", "google-slides",
     "canva-branded-presentation",

@@ -1,9 +1,9 @@
 {
-  "version": "1.3.0",
+  "version": "1.4.0",
   "generated_at": "1970-01-01T00:00:00Z",
   "project_root": ".",
   "counts": {
-    "skills": 68,
+    "skills": 64,
     "agents": 15,
     "by_domain": {
       "3d": 3,
@@ -11,9 +11,9 @@
       "av_pipeline": 4,
       "design": 11,
       "image": 13,
-      "text": 12,
-      "video": 21,
-      "writing": 14
+      "text": 11,
+      "video": 19,
+      "writing": 13
     }
   },
   "skills": [
@@ -512,26 +512,6 @@
       "body_chars": 5436
     },
     {
-      "id": "email",
-      "name": "email",
-      "description": "Email sending integration guidance — Resend (native Vercel Marketplace) with React Email templates. Covers API setup, transactional emails, domain verification, and template patterns. Use when sending emails from a Vercel-deployed application.",
-      "content_domain": "writing",
-      "source": "vendored",
-      "prompt_signals": [
-        "send an email from my app",
-        "transactional email setup",
-        "resend api integration",
-        "verify my email domain",
-        "react email template",
-        "email sending integration"
-      ],
-      "path": "skills/email/SKILL.md",
-      "files": [],
-      "references": [],
-      "scripts": [],
-      "body_chars": 8854
-    },
-    {
       "id": "email-ops",
       "name": "email-ops",
       "description": "Evidence-first mailbox triage, drafting, send verification, and sent-mail-safe follow-up workflow for ECC. Use when the user wants to organize email, draft or send through the real mail surface, or prove what landed in Sent.",
@@ -626,7 +606,7 @@
     {
       "id": "google-slides",
       "name": "google-slides",
-      "description": "Google Slides work for finding, reading, summarizing, creating, importing, template following, visual cleanup, source-deck adaptation, structural repair, and content edits in native Slides decks.",
+      "description": "Google Slides work for finding, reading, summarizing, creating, importing, template following, visual cleanup, source-deck adaptation, structural repair, and content edits in native Slides decks. Requires a Google Slides connector — in Codex that is the Google Drive plugin. For building decks from scratch without a Google connector, see agent-slide-decks, frontend-slides, or canva-branded-presentation.",
       "content_domain": "design",
       "source": "vendored",
       "prompt_signals": [
@@ -675,7 +655,7 @@
         "references/reference-visual-iteration.md"
       ],
       "scripts": [],
-      "body_chars": 17879
+      "body_chars": 18882
     },
     {
       "id": "humanizer",
@@ -847,7 +827,7 @@
     {
       "id": "imagegen",
       "name": "imagegen",
-      "description": "Generate or edit raster images when the task benefits from AI-created bitmap visuals such as photos, illustrations, textures, sprites, mockups, or transparent-background cutouts. Use when Codex should create a brand-new image, transform an existing image, or derive visual variants from references, and the output should be a bitmap asset rather than repo-native code or vector. Do not use when the task is better handled by editing existing SVG/vector/code-native assets, extending an established icon or logo system, or building the visual directly in HTML/CSS/canvas.",
+      "description": "Generate or edit raster images when the task benefits from AI-created bitmap visuals such as photos, illustrations, textures, sprites, mockups, or transparent-background cutouts. Use when the agent should create a brand-new image, transform an existing image, or derive visual variants from references, and the output should be a bitmap asset rather than repo-native code or vector. Do not use when the task is better handled by editing existing SVG/vector/code-native assets, extending an established icon or logo system, or building the visual directly in HTML/CSS/canvas.",
       "content_domain": "image",
       "source": "vendored",
       "license": "Apache-2.0",
@@ -883,7 +863,7 @@
         "scripts/image_gen.py",
         "scripts/remove_chroma_key.py"
       ],
-      "body_chars": 18550
+      "body_chars": 19179
     },
     {
       "id": "ios-icon-gen",
@@ -1216,6 +1196,9 @@
       "files": [
         "rules/3d.md",
         "rules/animations.md",
+        "rules/assets/charts-bar-chart.tsx",
+        "rules/assets/text-animations-typewriter.tsx",
+        "rules/assets/text-animations-word-highlight.tsx",
         "rules/assets.md",
         "rules/audio-visualization.md",
         "rules/audio.md",
@@ -1255,61 +1238,7 @@
       ],
       "references": [],
       "scripts": [],
-      "body_chars": 5064
-    },
-    {
-      "id": "remotion-video-creation",
-      "name": "remotion-video-creation",
-      "description": "Best practices for Remotion - Video creation in React. 29 domain-specific rules covering 3D, animations, audio, captions, charts, transitions, and more.",
-      "content_domain": "video",
-      "source": "vendored",
-      "prompt_signals": [
-        "create a video with remotion",
-        "remotion domain rules",
-        "remotion transitions and audio",
-        "remotion chart composition",
-        "remotion 3d scene",
-        "remotion video creation"
-      ],
-      "path": "skills/remotion-video-creation/SKILL.md",
-      "files": [
-        "rules/3d.md",
-        "rules/animations.md",
-        "rules/assets/charts-bar-chart.tsx",
-        "rules/assets/text-animations-typewriter.tsx",
-        "rules/assets/text-animations-word-highlight.tsx",
-        "rules/assets.md",
-        "rules/audio.md",
-        "rules/calculate-metadata.md",
-        "rules/can-decode.md",
-        "rules/charts.md",
-        "rules/compositions.md",
-        "rules/display-captions.md",
-        "rules/extract-frames.md",
-        "rules/fonts.md",
-        "rules/get-audio-duration.md",
-        "rules/get-video-dimensions.md",
-        "rules/get-video-duration.md",
-        "rules/gifs.md",
-        "rules/images.md",
-        "rules/import-srt-captions.md",
-        "rules/lottie.md",
-        "rules/measuring-dom-nodes.md",
-        "rules/measuring-text.md",
-        "rules/sequencing.md",
-        "rules/tailwind.md",
-        "rules/text-animations.md",
-        "rules/timing.md",
-        "rules/transcribe-captions.md",
-        "rules/transitions.md",
-        "rules/trimming.md",
-        "rules/videos.md"
-      ],
-      "references": [],
-      "scripts": [],
-      "body_chars": 3251,
-      "upstream": "https://github.com/affaan-m/ECC.git",
-      "upstream_owner": "affaan-m"
+      "body_chars": 5068
     },
     {
       "id": "reports-pdfs-and-slide-automation",
@@ -1477,29 +1406,7 @@
         "references/text-reference-tools.md"
       ],
       "scripts": [],
-      "body_chars": 10314
-    },
-    {
-      "id": "social-publisher",
-      "name": "social-publisher",
-      "description": "Agent-driven scheduling and publishing of social media posts across 13 platforms via SocialClaw. Use when the user wants to publish to X, LinkedIn, Instagram, Facebook Pages, TikTok, Discord, Telegram, YouTube, Reddit, WordPress, or Pinterest — or when managing campaigns, uploading media, or monitoring post delivery status.",
-      "content_domain": "text",
-      "source": "vendored",
-      "prompt_signals": [
-        "publish to linkedin and instagram",
-        "schedule a social campaign",
-        "post to tiktok and reddit",
-        "upload media for a post",
-        "monitor post delivery status",
-        "publish across thirteen platforms"
-      ],
-      "path": "skills/social-publisher/SKILL.md",
-      "files": [],
-      "references": [],
-      "scripts": [],
-      "body_chars": 3537,
-      "upstream": "https://github.com/affaan-m/ECC.git",
-      "upstream_owner": "affaan-m"
+      "body_chars": 10293
     },
     {
       "id": "sprite-pipeline",
@@ -1584,7 +1491,7 @@
     {
       "id": "taste",
       "name": "taste",
-      "description": "A creative-direction (taste) layer for music videos and short-form edits in the angelcore / cloud-trance / hyperpop visual family. Distills a named-genre aesthetic vocabulary, a mood + color + light system, and a beat-synced editing grammar, then chains ECC's video skills (video-editing, local-diffusion-suite, text-to-video-local, remotion-video-creation, motion-*, content-engine) into one production pipeline. Use when the work is not just making a video function but making it feel intentional, when building a music video, a fancam/edit, a moodboard-driven reel, or when choosing a coherent visual direction for AI-generated b-roll.",
+      "description": "A creative-direction (taste) layer for music videos and short-form edits in the angelcore / cloud-trance / hyperpop visual family. Distills a named-genre aesthetic vocabulary, a mood + color + light system, and a beat-synced editing grammar, then chains ECC's video skills (video-editing, local-diffusion-suite, text-to-video-local, remotion-best-practices, motion-*, content-engine) into one production pipeline. Use when the work is not just making a video function but making it feel intentional, when building a music video, a fancam/edit, a moodboard-driven reel, or when choosing a coherent visual direction for AI-generated b-roll.",
       "content_domain": "video",
       "source": "vendored",
       "prompt_signals": [
@@ -1603,7 +1510,7 @@
         "references/genre-taxonomy.md"
       ],
       "scripts": [],
-      "body_chars": 15034,
+      "body_chars": 15082,
       "upstream": "https://github.com/affaan-m/ECC.git",
       "upstream_owner": "affaan-m"
     },
@@ -1763,7 +1670,13 @@
         "ai assisted video editing",
         "structure a video from raw capture",
         "polish a video in descript",
-        "final cut and export"
+        "final cut and export",
+        "search my video library",
+        "find a moment in a recording",
+        "search my footage",
+        "extract frames from a video",
+        "index a video for search",
+        "locate a clip in a long recording"
       ],
       "path": "skills/video-editing/SKILL.md",
       "files": [
@@ -1773,7 +1686,7 @@
         "references/video-reference-tools.md"
       ],
       "scripts": [],
-      "body_chars": 10025,
+      "body_chars": 11840,
       "upstream": "https://github.com/affaan-m/ECC.git",
       "upstream_owner": "affaan-m"
     },
@@ -1833,53 +1746,6 @@
       ],
       "scripts": [],
       "body_chars": 8902
-    },
-    {
-      "id": "videodb",
-      "name": "videodb",
-      "description": "See, Understand, Act on video and audio. See- ingest from local files, URLs, RTSP/live feeds, or live record desktop; return realtime context and playable stream links. Understand- extract frames, build visual/semantic/temporal indexes, and search moments with timestamps and auto-clips. Act- transcode and normalize (codec, fps, resolution, aspect ratio), perform timeline edits (subtitles, text/image overlays, branding, audio overlays, dubbing, translation), generate media assets (image, audio, video), and create real time alerts for events from live streams or desktop capture.",
-      "content_domain": "video",
-      "source": "vendored",
-      "prompt_signals": [
-        "search my video library",
-        "ingest a video file",
-        "extract frames from a video",
-        "find a moment in a recording",
-        "transcode and normalize a video",
-        "index a video for search"
-      ],
-      "path": "skills/videodb/SKILL.md",
-      "files": [
-        "references/api-reference.md",
-        "references/capture-reference.md",
-        "references/capture.md",
-        "references/editor.md",
-        "references/generative.md",
-        "references/rtstream-reference.md",
-        "references/rtstream.md",
-        "references/search.md",
-        "references/streaming.md",
-        "references/use-cases.md",
-        "scripts/ws_listener.py"
-      ],
-      "references": [
-        "references/api-reference.md",
-        "references/capture-reference.md",
-        "references/capture.md",
-        "references/editor.md",
-        "references/generative.md",
-        "references/rtstream-reference.md",
-        "references/rtstream.md",
-        "references/search.md",
-        "references/streaming.md",
-        "references/use-cases.md"
-      ],
-      "scripts": [
-        "scripts/ws_listener.py"
-      ],
-      "body_chars": 13433,
-      "upstream": "https://github.com/affaan-m/ECC.git",
-      "upstream_owner": "affaan-m"
     },
     {
       "id": "voice-cloning-rvc",
@@ -2382,7 +2248,7 @@
         "platform native copy",
         "social publishing"
       ],
-      "body_chars": 8273
+      "body_chars": 8390
     },
     {
       "id": "stock-media-researcher",

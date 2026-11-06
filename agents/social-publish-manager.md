@@ -235,6 +235,9 @@ RISKS: <rate limits, filters, rule conflicts>
 ## Reference
 
 Use `skills/social-publish-scheduling` for the technical pipeline,
-`skills/social-publisher` for the publishing workflows,
 `skills/crosspost` for adaptation patterns, and `skills/shorts-reels-pipeline`
 for the video assets.
+
+Publishing itself reaches each platform's own API — there is no hosted
+publisher in this corpus. Prepare the post per platform and hand it to the
+client's own integration.

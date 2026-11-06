@@ -323,5 +323,5 @@ GitHub stars — see `references/text-reference-tools.md`.
 
 ## Related skills
 
-`social-publisher` · `crosspost` · `content-engine` · `seo` ·
+`crosspost` · `content-engine` · `seo` ·
 `shorts-reels-pipeline` · `long-to-short-repurpose` · `thumbnail-generator`

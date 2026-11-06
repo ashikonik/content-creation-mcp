@@ -22,7 +22,7 @@ harness assumptions, no registry to enrol in.
 ```
                     ┌──────────────────────────────┐
   Claude Code ────► │                              │
-  Codex ──────────► │   content-creation-mcp       │ ──► 68 skills
+  Codex ──────────► │   content-creation-mcp       │ ──► 64 skills
   Cursor ─────────► │   (stdio + HTTP)             │ ──► 15 agents
   OpenCode ───────► │                              │ ──► 8 content domains
   Anything else ───► │                              │ ──► 5 render dialects
@@ -121,13 +121,13 @@ usable by anything.
 Each skill and agent carries a `content_domain`, so a client can ask for "audio
 skills" directly instead of guessing keywords. See `mcp/build/content_domains.py`.
 
-Current distribution across the 82-record corpus:
+Current distribution across the 79-record corpus (64 skills + 15 agents):
 
 | Domain | Records | Domain | Records |
 |---|---:|---|---:|
-| `video` | 20 | `image` | 13 |
-| `writing` | 15 | `text` | 12 |
-| `design` | 10 | `audio` | 5 |
+| `video` | 19 | `image` | 13 |
+| `writing` | 13 | `text` | 11 |
+| `design` | 11 | `audio` | 5 |
 | `av_pipeline` | 4 | `3d` | 3 |
 
 ## Render dialects
@@ -204,7 +204,10 @@ paths, so the whole directory is portable.
 - every record has a provenance row with a licence, and excluded content is
   documented in `NOTICE`
 - all 24 required capabilities resolve to a skill, through a real search query
-- no paid, hosted AI generation API is referenced anywhere in the corpus
+- no skill depends on a paid hosted service. The check names the services it
+  forbids and scans for them; free stock-media APIs are in scope, and a hosted
+  path is allowed only where a local default is the primary one and the
+  fallback is an explicit user opt-in
 - the index and provenance table are byte-reproducible
 - the server's own test suite passes, including the cross-transport parity check
 

@@ -11,6 +11,106 @@ state is tagged `v1.0.0`.
 
 Nothing yet.
 
+## [1.4.0] — 2026-11-06
+
+Stage 5 of the remediation: the corpus matches the project's own stated
+constraints, and the check that was supposed to enforce them actually
+enforces them.
+
+### Fixed
+
+- **The hosted-service check was passing because its pattern was
+  incomplete, not because the corpus was clean.** It scanned for a list of
+  literal API hostnames — `openai.com/v1`, `api.elevenlabs.io`,
+  `fal.run` — and the corpus passed while containing `resend.com`,
+  `videodb.io`, and `api.openai.com`, none of which matched. A check that
+  reports a guarantee it is not keeping is worse than no check. The policy
+  is now expressed as a list of services the corpus may not depend on, and
+  every reference to one of them is a hit, matched by service name and API
+  key variable rather than by URL. The new check was tested against
+  samples of both kinds before it was adopted.
+- **Four skills that depended on hosted services are no longer in the
+  corpus.** `fal-ai-media` (fal.ai and ElevenLabs), `videodb` (a hosted
+  video database with no self-hosted path), `email` (Resend, with a
+  Vercel-specific workflow), and `social-publisher` (SocialClaw, a hosted
+  workspace service). Each is listed in `mcp/data/excluded.json` with its
+  reason, documented in `NOTICE`, and removed from the tree — the runtime
+  is index-only, so a file that is not in the index cannot be served by
+  any tool, and shipping it was shipping dead weight.
+- **The coverage those skills provided was not lost.** `video-editing`
+  gained a section on searching your own footage — transcript search over
+  local Whisper output, and visual search over CLIP frame embeddings — with
+  six new trigger phrases. The queries that used to reach `videodb` now
+  reach `video-editing`, and four of them are pinned in the verification
+  suite. `taste` and `video-editing` now point at
+  `media-transcode-pipeline` where they pointed at `videodb`.
+- **`taste` pointed at a section that no longer existed.** It referred to
+  `video-editing (ElevenLabs section)`; `video-editing` has no such
+  section and never did in its current form. Its voice reference now
+  names the local skills that actually do it.
+- **`website-to-hyperframes` offered hosted TTS as a peer option.** Its
+  voice audition list put ElevenLabs and HeyGen next to the local engine.
+  The hosted options are gone and the local ones — Kokoro and Piper — are
+  named with the skills that cover the wider comparison.
+- **`remotion-best-practices` pointed at a rewrite that had already
+  happened.** Its rules index described `rules/voiceover.md` as "using
+  ElevenLabs TTS" while that file had been rewritten to use local Piper
+  and Kokoro. The index line now matches the file.
+- **The remotion corpus had two copies of the same upstream rules.**
+  `remotion-video-creation` and `remotion-best-practices` had
+  near-identical descriptions and 28 shared rule files, and every shared
+  file differed. `remotion-best-practices` is the newer revision — it
+  additionally rewrote the captioning rule off the paid OpenAI Whisper
+  API and onto local Whisper.cpp, and it carries ten rules the other
+  lacks. It is now the only Remotion skill. The `assets/` directory of
+  example components existed only in the older copy, and two links in the
+  surviving skill pointed at it; it has been ported, which also fixed
+  those two broken links. The nine cross-references to the retired skill
+  now name the survivor.
+- **`google-slides` now states its requirement instead of assuming it.**
+  The skill's tool names are Codex's (`mcp__codex_apps__google_drive_*`)
+  and it opened with "use this skill in Codex local-plugin sessions",
+  which told a non-Codex client nothing about why it could not be used.
+  It now names the capability it needs — a Google Slides connector — lists
+  what that connector is called in each harness, and points at the
+  harness-agnostic slide skills for clients that have none.
+- **`imagegen` no longer assumes Codex.** Its description said "Use when
+  Codex should create a brand-new image", and its save-path policy
+  asserted a Codex path as fact. Both are now expressed as what the
+  harness does, with the Codex path given as the concrete instance, and
+  the skill points at `local-diffusion-suite` for users with no
+  image-generation tool at all.
+
+### Changed
+
+- The corpus is now 64 skills and 15 agents, down from 68 and 15. Four
+  skills were excluded for depending on hosted services and two Remotion
+  skills were merged into one.
+- The vendoring script no longer lists the excluded skills. Re-vendoring
+  would have put them back on disk, where the index builder skips them
+  but the files still ship.
+
+### Tests
+
+- The hosted-service check now names the services it forbids and scans for
+  them. Two named services are exempt by pattern — `heygen-com` is the
+  GitHub organisation that publishes Hyperframes, and
+  `hyperframes.heygen.com` is that project's own host; neither is the
+  HeyGen product API.
+- A hosted path is allowed only where the skill is on an explicit
+  allowlist, and each entry states why it qualifies. `imagegen` qualifies
+  because its built-in tool is the default and the hosted CLI is only
+  reachable on an explicit request; `local-tts-engines` qualifies because
+  it names ElevenLabs to say "use this instead". The check also asserts
+  that each allowlisted skill still documents a local default, so an
+  exemption cannot outlive the thing that justified it.
+- The required-capability list grew from 24 to 29, pinning the
+  capabilities whose skills changed hands.
+
+Verification: 94 tests pass, and the full local suite reports 1060 checks
+passing. Both determinism gates pass — `index.json` is byte-identical to a
+fresh build and `provenance.json` is up to date.
+
 ## [1.3.0] — 2026-11-06
 
 Stage 4 of the remediation: the search ranker describes the corpus it is
@@ -388,7 +488,8 @@ Recorded here so the audit trail shows what the remediation addressed.
   no runtime code read the file.
 - **No CI, no changelog, no tags** prior to this file.
 
-[Unreleased]: https://github.com/ashikonik/content-creation-mcp/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/ashikonik/content-creation-mcp/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.4.0
 [1.3.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.3.0
 [1.2.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.2.0
 [1.1.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.1.0

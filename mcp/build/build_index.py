@@ -43,7 +43,7 @@ DATA_DIR = PROJECT_ROOT / "mcp" / "data"
 INDEX_PATH = DATA_DIR / "index.json"
 EXCLUDED_PATH = DATA_DIR / "excluded.json"
 
-INDEX_VERSION = "1.3.0"
+INDEX_VERSION = "1.4.0"
 
 
 def provenance_upstream() -> dict[tuple[str, str], dict]:
