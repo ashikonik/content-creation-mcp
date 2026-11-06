@@ -19,6 +19,15 @@ where a reader will look for it.
 
 ### Fixed
 
+- **The CI workflow did not install PyYAML, and every run failed on a clean
+  runner.** The dependency was declared in `mcp/pyproject.toml` but the
+  workflow only installed the Node dependencies, so
+  `build_index.py --check` died with `ModuleNotFoundError: No module named
+  'yaml'` on all four matrix legs. It passed locally because PyYAML happened
+  to be installed on the machine that wrote the workflow. The workflow now
+  installs `PyYAML>=6.0` before the Python gates, with pip caching against
+  `mcp/pyproject.toml`. The failure was reproduced and the fix verified in
+  a virtualenv without PyYAML — a stand-in for the clean runner.
 - **The dialect registry is now the registry.** `mcp/data/harnesses.json` was
   described in the README as the extension point such that "adding a client is
   a JSON edit", but the renderer dispatched through a hardcoded `switch`, the
