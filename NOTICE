@@ -8,14 +8,36 @@ authored in this repository are MIT licensed (see `LICENSE`).
 ## Vendored content
 
 Skills and agents copied into `skills/` and `agents/` from other projects
-remain under their upstream licence. Each vendored directory carries the
-upstream `LICENSE.txt` where one was available. Full attribution is
-generated into `CREDITS.md` from `mcp/data/provenance.json` — do not edit
-`CREDITS.md` by hand.
+remain under their upstream licence. The licence is detected **at the
+upstream origin** — the tree the content was copied from — not in the copy
+itself. Full attribution is generated into `CREDITS.md` from
+`mcp/data/provenance.json`; do not edit `CREDITS.md` by hand.
 
 To regenerate:
 
     python3 mcp/build/write_credits.py
+
+### Content with an unverified licence
+
+Some upstream origins carry no licence file at all. Those entries are
+published with their licence recorded as `UNKNOWN` rather than assumed, and
+are listed under "Unverified licence" in `CREDITS.md`. They are a deliberate,
+sign-offed exception: the entry names in `LICENCE_SIGNOFF` in
+`mcp/build/build_provenance.py` are the explicit human decision to publish
+them, and the build fails if an unlicensed entry is published without one.
+
+Of the 46 vendored entries, 29 have a licence that was detected at their
+upstream origin (61 MIT and 4 Apache-2.0 across the whole corpus, authored
+entries included) and 17 have none. The 17 are published on the explicit
+sign-off recorded in `LICENCE_SIGNOFF`.
+
+This is a deliberate change from an earlier state of this repository, where
+the licence search walked upwards from each vendored directory and stopped
+when it found a licence — which, for most entries, was this repository's own
+MIT `LICENSE`. That attributed this project's licence to upstreams that
+never granted it: 64 rows carried `license_source: "LICENSE"`, and 43 of
+those upstreams had no discoverable licence at all. The search is now
+bounded so it cannot leave the upstream tree.
 
 ## Excluded content
 

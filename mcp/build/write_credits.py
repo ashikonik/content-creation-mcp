@@ -14,6 +14,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from origins import UNKNOWN_LICENCE  # noqa: E402
 from provenance import (  # noqa: E402
     PROJECT_ROOT,
     entries_needing_review,
@@ -22,6 +23,30 @@ from provenance import (  # noqa: E402
 
 CREDITS_PATH = PROJECT_ROOT / "CREDITS.md"
 DATA_DIR = PROJECT_ROOT / "mcp" / "data"
+
+
+def origin_label(entry: dict) -> str:
+    """A published description of where an entry came from.
+
+    Prefers the upstream repository URL. A local filesystem path is a
+    machine-specific detail and is not published, except as a coarse
+    description of the kind of source it was, which is what a reader
+    actually needs to know.
+    """
+    upstream = entry.get("upstream")
+    if upstream:
+        return str(upstream)
+
+    source = str(entry.get("source") or "")
+    if not source or source == "authored":
+        return "unknown"
+
+    # Describe the shape of the origin without publishing a local path.
+    if "/.codex/" in source or "/.claude/" in source:
+        return "local plugin marketplace (no upstream repository recorded)"
+    if "Skills_n_Agents" in source:
+        return "local skill aggregator (no upstream repository recorded)"
+    return "local copy (no upstream repository recorded)"
 
 
 def write_credits() -> int:
@@ -37,6 +62,9 @@ def write_credits() -> int:
     by_license: dict[str, list[dict]] = defaultdict(list)
     for entry in entries:
         by_license[entry.get("license") or "UNKNOWN"].append(entry)
+
+    authored = [e for e in entries if e.get("verdict") == "authored"]
+    vendored = [e for e in entries if e.get("verdict") != "authored"]
 
     lines: list[str] = []
     lines.append("# Credits")
@@ -62,7 +90,6 @@ def write_credits() -> int:
 
     lines.append("## Authored content")
     lines.append("")
-    authored = [e for e in entries if e.get("source") == "authored"]
     if authored:
         lines.append(
             "Written for this project and released under the repository's MIT "
@@ -77,14 +104,13 @@ def write_credits() -> int:
 
     lines.append("## Vendored content")
     lines.append("")
-    vendored = [e for e in entries if e.get("source") != "authored"]
     if not vendored:
         lines.append("None.")
         lines.append("")
     else:
         lines.append(
-            "Copied from upstream repositories. Each entry keeps the licence "
-            "of its origin."
+            "Copied from upstream sources. Each entry keeps the licence of "
+            "its origin, as detected at that origin."
         )
         lines.append("")
         for license_name in sorted(by_license):
@@ -94,20 +120,42 @@ def write_credits() -> int:
             lines.append(f"### {license_name}")
             lines.append("")
             for entry in sorted(group, key=lambda e: e["name"]):
-                owner = entry.get("owner") or "unknown"
-                upstream = entry.get("upstream") or entry.get("source") or "unknown"
-                lines.append(f"- **{entry['name']}** — {owner}")
-                lines.append(f"  - Source: {upstream}")
+                lines.append(f"- **{entry['name']}** ({entry['kind']})")
+                lines.append(f"  - Source: {origin_label(entry)}")
                 lines.append(f"  - Path: `{entry.get('path', '')}`")
             lines.append("")
 
-    review = entries_needing_review(entries)
+    unverified = [
+        e for e in vendored if (e.get("license") or "") == UNKNOWN_LICENCE
+    ]
+    if unverified:
+        lines.append("## Unverified licence")
+        lines.append("")
+        lines.append(
+            "These entries are published, but no licence could be detected at "
+            "their upstream origin. Their licence is recorded as UNKNOWN "
+            "rather than assumed. They are listed here so the gap is "
+            "visible rather than silently absorbed into the totals above."
+        )
+        lines.append("")
+        for entry in sorted(unverified, key=lambda e: (e["kind"], e["name"])):
+            lines.append(f"- **{entry['name']}** ({entry['kind']})")
+            lines.append(f"  - Source: {origin_label(entry)}")
+            lines.append(f"  - Path: `{entry.get('path', '')}`")
+        lines.append("")
+
+    review = [
+        e
+        for e in entries
+        if e.get("verdict") in ("needs-review", "unknown-licence")
+        and (e.get("license") or "") != UNKNOWN_LICENCE
+    ]
     if review:
         lines.append("## Needs review")
         lines.append("")
         lines.append(
-            "These entries have a licence that was not in the known set. "
-            "They are excluded from the corpus until reviewed."
+            "These entries have a licence that was not in the known set, and "
+            "need a human decision."
         )
         lines.append("")
         for entry in sorted(review, key=lambda e: e["name"]):

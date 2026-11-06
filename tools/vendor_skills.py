@@ -5,7 +5,14 @@ Copies (never links) skill directories and agent files, recording provenance for
 each: origin path, upstream source repo, licence, and the vendoring timestamp.
 
 Usage:
-    python3 .vendor_skills.py <source-library-root>
+    python3 tools/vendor_skills.py <source-library-root>
+
+Content domains are NOT declared here. They come from the taxonomy in
+``mcp/build/content_domains.py``, which is the single source of truth for the
+``modality`` filter exposed by the server. This script used to carry its own
+``MODALITY`` map, which drifted from the taxonomy on 14 of 44 skills — a
+re-vendoring would then have silently reclassified content that clients
+already index by domain.
 """
 import json
 import os
@@ -14,37 +21,42 @@ import shutil
 import sys
 from datetime import datetime, timezone
 
-DEST = os.path.dirname(os.path.abspath(__file__))
+DEST = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKILLS_OUT = os.path.join(DEST, "skills")
 AGENTS_OUT = os.path.join(DEST, "agents")
 PROV_OUT = os.path.join(DEST, "mcp", "data", "provenance.json")
 
-# name -> content modality this project assigns it
-MODALITY = {
-    "video-editing": "video", "remotion-video-creation": "video",
-    "remotion-best-practices": "video", "hyperframes": "video",
-    "hyperframes-cli": "video", "hyperframes-registry": "video",
-    "website-to-hyperframes": "video", "manim-video": "video",
-    "videodb": "av_pipeline",
-    "imagegen": "image", "fal-ai-media": "image", "netlify-image-cdn": "image",
-    "sprite-pipeline": "image", "ios-icon-gen": "image",
-    "article-writing": "text", "seo": "text", "content-engine": "text",
-    "social-publisher": "text", "batch-draft-writer": "text",
-    "draft-brief": "text", "draft-long-form-memo": "text",
-    "brand-discovery": "text", "brand-voice": "text", "crosspost": "text",
-    "marketing-campaign": "text", "writing-skills": "text",
-    "writing-plans": "text", "writing-hookify-rules": "text",
-    "email": "text", "email-ops": "text", "social-graph-ranker": "text",
-    "humanizer": "text",
-    "frontend-slides": "design", "google-slides": "design",
-    "canva-branded-presentation": "design",
-    "reports-pdfs-and-slide-automation": "design",
-    "node-link-and-diagram-layout": "design",
-    "uml-and-software-architecture-visualization": "design",
-    "design-system": "design", "frontend-design": "design", "geist": "design",
-    "taste": "design",
-    "web-3d-asset-pipeline": "3d", "blender-motion-state-inspection": "3d",
-}
+sys.path.insert(0, os.path.join(DEST, "mcp", "build"))
+
+from content_domains import AGENT_DOMAINS, SKILL_DOMAINS  # noqa: E402
+
+# Only vendored content is listed here. Authored skills are written for this
+# project and are not re-vendored.
+VENDORED_SKILLS = [
+    "video-editing", "remotion-video-creation",
+    "remotion-best-practices", "hyperframes",
+    "hyperframes-cli", "hyperframes-registry",
+    "website-to-hyperframes", "manim-video",
+    "videodb",
+    "imagegen", "fal-ai-media", "netlify-image-cdn",
+    "sprite-pipeline", "ios-icon-gen",
+    "article-writing", "seo", "content-engine",
+    "social-publisher", "batch-draft-writer",
+    "draft-brief", "draft-long-form-memo",
+    "brand-discovery", "brand-voice", "crosspost",
+    "marketing-campaign", "writing-skills",
+    "writing-plans", "writing-hookify-rules",
+    "email", "email-ops", "social-graph-ranker",
+    "humanizer",
+    "frontend-slides", "google-slides",
+    "canva-branded-presentation",
+    "reports-pdfs-and-slide-automation",
+    "node-link-and-diagram-layout",
+    "uml-and-software-architecture-visualization",
+    "design-system", "frontend-design", "geist",
+    "taste",
+    "web-3d-asset-pipeline", "blender-motion-state-inspection",
+]
 
 AGENT_NAMES = [
     "seo-specialist", "marketing-agent", "planner",
@@ -103,7 +115,7 @@ def find_upstream(source_path):
 
 def main():
     if len(sys.argv) < 2:
-        print("usage: .vendor_skills.py <source-library-root>", file=sys.stderr)
+        print("usage: tools/vendor_skills.py <source-library-root>", file=sys.stderr)
         return 1
     src_root = os.path.abspath(sys.argv[1])
     lib = json.load(open(os.path.join(src_root, ".library_data.json")))
@@ -117,7 +129,12 @@ def main():
     prov = []
     copied = skipped = 0
 
-    for name, modality in sorted(MODALITY.items()):
+    for name in sorted(VENDORED_SKILLS):
+        modality = SKILL_DOMAINS.get(name)
+        if modality is None:
+            print(f"  skip (no taxonomy entry): {name}")
+            skipped += 1
+            continue
         rec = by_name.get(name)
         if rec is None:
             print(f"  skip (not in source): {name}")
@@ -173,7 +190,7 @@ def main():
             "upstream": None,
             "upstream_root": None,
             "path": f"agents/{name}.md",
-            "content_domain": "text",
+            "content_domain": AGENT_DOMAINS.get(name, "text"),
             "vendored_on": stamp,
             "verdict": "publish" if lic else "publish-default-mit",
         })

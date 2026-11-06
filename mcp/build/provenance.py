@@ -88,8 +88,14 @@ def detect_license_text(text: str) -> str | None:
     return None
 
 
-def detect_license_near(skill_dir: Path) -> tuple[str | None, str]:
+def detect_license_near(skill_dir: Path, stop_at: Path | None = None) -> tuple[str | None, str]:
     """Find the licence governing a skill directory.
+
+    The search walks up from ``skill_dir`` but never past ``stop_at``
+    (defaulting to ``skill_dir`` itself). Without that bound the walk
+    climbs out of the vendored tree and into this repository, where it
+    finds this project's own MIT LICENSE and reports it as the upstream
+    licence — which it is not.
 
     Returns ``(licence, source_description)``.
     """
@@ -104,8 +110,11 @@ def detect_license_near(skill_dir: Path) -> tuple[str | None, str]:
         except (json.JSONDecodeError, OSError):
             pass
 
-    # 2. nearest LICENSE file, walking up
-    current = skill_dir
+    # 2. nearest LICENSE file, walking up — but only within the bounded
+    #    subtree. The bound is what stops this repository's own licence
+    #    from being attributed to the upstream.
+    boundary = (stop_at or skill_dir).resolve()
+    current = skill_dir.resolve()
     for _ in range(8):
         for name in LICENSE_FILES:
             candidate = current / name
@@ -115,9 +124,8 @@ def detect_license_near(skill_dir: Path) -> tuple[str | None, str]:
                 except OSError:
                     found = None
                 if found:
-                    rel = candidate.relative_to(PROJECT_ROOT)
-                    return found, str(rel)
-        if current.parent == current:
+                    return found, _describe_licence_source(candidate)
+        if current == boundary or current.parent == current:
             break
         current = current.parent
 
@@ -133,6 +141,19 @@ def detect_license_near(skill_dir: Path) -> tuple[str | None, str]:
             pass
 
     return None, "none"
+
+
+def _describe_licence_source(candidate: Path) -> str:
+    """Describe where a licence file was found, without losing the path.
+
+    A path inside the project is reported relative to the project root; a
+    path outside it is reported absolutely, so the reader can tell that the
+    licence came from somewhere other than this repository.
+    """
+    try:
+        return str(candidate.relative_to(PROJECT_ROOT))
+    except ValueError:
+        return str(candidate)
 
 
 def license_from_frontmatter(skill_dir: Path) -> str | None:

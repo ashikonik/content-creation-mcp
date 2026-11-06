@@ -30,6 +30,7 @@ AGENTS_DIR = PROJECT_ROOT / "agents"
 INDEX_PATH = DATA_DIR / "index.json"
 PROVENANCE_PATH = DATA_DIR / "provenance.json"
 HARNESSES_PATH = DATA_DIR / "harnesses.json"
+CREDITS_PATH = PROJECT_ROOT / "CREDITS.md"
 
 # The 24 capabilities the plan requires. Each must resolve to at least one
 # skill in the corpus, and that skill must be searchable by a query that
@@ -116,6 +117,24 @@ class Report:
 
 def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def licence_signoff() -> set[str]:
+    """The names signed off for publication with an unverified licence.
+
+    Read from ``LICENCE_SIGNOFF`` in the build script rather than
+    duplicated here, so the verification gate and the build gate cannot
+    disagree about what is allowed to publish.
+    """
+    build_dir = str(MCP_DIR / "build")
+    if build_dir not in sys.path:
+        sys.path.insert(0, build_dir)
+    try:
+        from build_provenance import LICENCE_SIGNOFF  # type: ignore
+
+        return set(LICENCE_SIGNOFF)
+    except Exception:
+        return set()
 
 
 def parse_frontmatter(text: str) -> tuple[dict, str]:
@@ -324,15 +343,74 @@ def check_provenance(report: Report, index: dict) -> None:
             bool(entry.get("source")),
             f"vendored entry {entry['name']} has no recorded source path",
         )
+
+    # An entry whose upstream licence could not be verified is published with
+    # verdict "needs-review" and licence "UNKNOWN". Publishing it requires an
+    # explicit human sign-off, recorded in LICENCE_SIGNOFF in
+    # mcp/build/build_provenance.py. The check here mirrors that gate: it
+    # fails if an unverified entry was published without a sign-off, and if
+    # an entry carries a licence that was never actually detected.
+    signoff = licence_signoff()
+    for entry in vendored:
+        verdict = entry.get("verdict")
+        licence = entry.get("license") or ""
+        if verdict != "needs-review":
+            continue
         report.check(
-            entry.get("verdict") != "needs-review",
-            f"vendored entry {entry['name']} still needs licence review",
+            entry["name"] in signoff,
+            f"vendored entry {entry['name']} is published with an unverified "
+            f"licence and no sign-off",
+        )
+        report.check(
+            licence == "UNKNOWN",
+            f"vendored entry {entry['name']} is needs-review but records "
+            f"licence {licence!r} — a needs-review entry must not claim a "
+            f"licence that was never detected",
+        )
+
+    # Every vendored entry that claims a licence must name where that
+    # licence was detected. "none" would mean the claim is unsupported.
+    for entry in vendored:
+        if entry.get("verdict") == "needs-review":
+            continue
+        report.check(
+            (entry.get("license_source") or "none") != "none",
+            f"vendored entry {entry['name']} claims licence "
+            f"{entry.get('license')!r} but records no licence source",
         )
 
     report.ok(
         f"checked {len(entries)} provenance rows "
         f"({sum(1 for e in entries if e.get('source') == 'authored')} authored, "
-        f"{len(vendored)} vendored)"
+        f"{len(vendored)} vendored, "
+        f"{sum(1 for e in vendored if e.get('verdict') == 'needs-review')} "
+        f"unverified-licence entries all signed off)"
+    )
+
+
+def check_no_local_paths(report: Report) -> None:
+    """Published files must not carry the builder's absolute paths.
+
+    ``CREDITS.md`` and ``index.json`` are shipped to consumers. The
+    provenance table is internal, but it is published too, so its paths are
+    checked as well — the origin locators are stored home-relative
+    (``~/Projects/ECC``) precisely so the account name of whoever assembled
+    the distribution is not part of the artefact.
+    """
+    report.category("no local path leakage")
+    for path in (CREDITS_PATH, INDEX_PATH, PROVENANCE_PATH):
+        text = path.read_text(encoding="utf-8")
+        report.check(
+            "/home/" not in text,
+            f"{path.name} contains an absolute home-directory path",
+        )
+        report.check(
+            "/Users/" not in text,
+            f"{path.name} contains an absolute macOS home-directory path",
+        )
+    report.ok(
+        "CREDITS.md, index.json and provenance.json carry no absolute "
+        "home-directory paths"
     )
 
 
@@ -401,6 +479,46 @@ def check_harnesses(report: Report) -> None:
         )
 
     report.ok(f"checked {len(harnesses)} harness dialects")
+
+
+def check_version_consistency(report: Report, index: dict) -> None:
+    """The project version must be the same everywhere it is written.
+
+    The version appears in four places: the Node package manifest, the
+    server's ``SERVER_VERSION`` constant, the generated index, and the
+    Python distribution metadata. They were previously allowed to drift —
+    the index said 1.0.0 while the server said 1.0.1 — so a client
+    reporting the server's version had no way to tell which artifact it
+    was talking about.
+    """
+    report.category("version consistency")
+
+    package = load_json(MCP_DIR / "package.json")
+    versions = {
+        "mcp/package.json": package.get("version"),
+        "mcp/data/index.json": index.get("version"),
+    }
+
+    server_src = (MCP_DIR / "src" / "server.ts").read_text(encoding="utf-8")
+    match = re.search(r'const\s+SERVER_VERSION\s*=\s*"([^"]+)"', server_src)
+    versions["mcp/src/server.ts"] = match.group(1) if match else None
+
+    pyproject = (MCP_DIR / "pyproject.toml").read_text(encoding="utf-8")
+    match = re.search(r'^version\s*=\s*"([^"]+)"', pyproject, re.M)
+    versions["mcp/pyproject.toml"] = match.group(1) if match else None
+
+    for where, value in versions.items():
+        report.check(bool(value), f"no version found in {where}")
+
+    distinct = {v for v in versions.values() if v}
+    report.check(
+        len(distinct) == 1,
+        "version strings disagree: "
+        + ", ".join(f"{k}={v}" for k, v in sorted(versions.items())),
+    )
+
+    if len(distinct) == 1:
+        report.ok(f"version {distinct.pop()} is consistent across all four files")
 
 
 def check_index_determinism(report: Report) -> None:
@@ -662,6 +780,7 @@ def main() -> int:
     check_uniqueness(report, index)
     check_references(report, index)
     check_provenance(report, index)
+    check_no_local_paths(report)
     check_capabilities(report, index)
     check_domains(report, index)
     check_harnesses(report)
@@ -669,6 +788,7 @@ def main() -> int:
     check_no_paid_apis(report)
     check_survey(report)
     check_readme(report, index)
+    check_version_consistency(report, index)
     check_index_determinism(report)
     check_server(report)
     check_search(report)

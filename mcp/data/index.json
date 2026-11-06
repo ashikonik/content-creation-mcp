@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "generated_at": "1970-01-01T00:00:00Z",
   "project_root": ".",
   "counts": {
@@ -9,11 +9,11 @@
       "3d": 3,
       "audio": 5,
       "av_pipeline": 4,
-      "design": 10,
+      "design": 11,
       "image": 13,
       "text": 12,
-      "video": 20,
-      "writing": 15
+      "video": 21,
+      "writing": 13
     }
   },
   "skills": [
@@ -53,7 +53,7 @@
       "description": "Write articles, guides, blog posts, tutorials, newsletter issues, and other long-form content in a distinctive voice derived from supplied examples or brand guidance. Use when the user wants polished written content longer than a paragraph, especially when voice consistency, structure, and credibility matter.",
       "content_domain": "writing",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/article-writing/SKILL.md",
       "files": [
@@ -64,8 +64,8 @@
       ],
       "scripts": [],
       "body_chars": 2687,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "audio-separation",
@@ -133,15 +133,13 @@
       "description": "Drafts multiple email replies or follow-ups in batch using the Superhuman Mail MCP server — processing your inbox in bulk rather than one email at a time. Use this skill whenever someone asks to \"draft replies to my unread emails\", \"respond to all my emails\", \"write follow-ups for my meetings this week\", \"batch draft responses\", \"draft emails for all threads that need a reply\", \"auto-draft my inbox\", \"help me respond to everything\", \"write follow-up emails based on my meetings\", \"process my inbox\", \"draft responses to these threads\", or any variation of wanting multiple emails drafted at once. Also trigger when someone says \"I have a bunch of emails to respond to\", \"help me get through my inbox\", \"draft a mail merge\", \"send personalized emails to these people\", or wants to create multiple drafts from a single prompt. Trigger broadly — if someone wants more than one email drafted, this skill should activate.",
       "content_domain": "writing",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/batch-draft-writer/SKILL.md",
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 8074,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 8074
     },
     {
       "id": "blender-3d-content",
@@ -179,15 +177,15 @@
       "description": "Use this skill when inspecting Blender characters, rigs, poses, animation retargeting, ground contact, facing direction, or model-vs-motion alignment where screenshots alone are not enough.",
       "content_domain": "3d",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/blender-motion-state-inspection/SKILL.md",
       "files": [],
       "references": [],
       "scripts": [],
       "body_chars": 7830,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "brand-discovery",
@@ -195,7 +193,7 @@
       "description": "Use when a brand needs to discover or articulate its identity through structured multi-session interviews. Covers purpose, positioning, audience, personality, voice, narrative, and founder-brand tension across 8 modules using laddering, 5 Whys, and projective techniques. Produces a resumable session with disk-persisted state and a master brandbook (90_SYNTHESIS.md).",
       "content_domain": "writing",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/brand-discovery/SKILL.md",
       "files": [
@@ -220,8 +218,8 @@
       ],
       "scripts": [],
       "body_chars": 7059,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "brand-voice",
@@ -229,7 +227,7 @@
       "description": "Build a source-derived writing style profile from real posts, essays, launch notes, docs, or site copy, then reuse that profile across content, outreach, and social workflows. Use when the user wants voice consistency without generic AI writing tropes.",
       "content_domain": "writing",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/brand-voice/SKILL.md",
       "files": [
@@ -240,8 +238,8 @@
       ],
       "scripts": [],
       "body_chars": 3332,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "canva-branded-presentation",
@@ -249,7 +247,7 @@
       "description": "Create on-brand Canva presentations from a brief, outline, existing Canva doc, or design link. Use when the user wants a branded slide deck, wants to turn notes into a presentation, or needs a presentation generated in Canva with the right brand kit and a clear slide plan.",
       "content_domain": "design",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/canva-branded-presentation/SKILL.md",
       "files": [
@@ -258,9 +256,7 @@
       ],
       "references": [],
       "scripts": [],
-      "body_chars": 2695,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 2695
     },
     {
       "id": "comfyui-image-workflows",
@@ -325,7 +321,7 @@
       "description": "Create platform-native content systems for X, LinkedIn, TikTok, YouTube, newsletters, and repurposed multi-platform campaigns. Use when the user wants social posts, threads, scripts, content calendars, or one source asset adapted cleanly across platforms.",
       "content_domain": "text",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/content-engine/SKILL.md",
       "files": [
@@ -336,8 +332,8 @@
       ],
       "scripts": [],
       "body_chars": 4187,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "crosspost",
@@ -345,15 +341,15 @@
       "description": "Multi-platform content distribution across X, LinkedIn, Threads, and Bluesky. Adapts content per platform using content-engine patterns. Never posts identical content cross-platform. Use when the user wants to distribute content across social platforms.",
       "content_domain": "text",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/crosspost/SKILL.md",
       "files": [],
       "references": [],
       "scripts": [],
       "body_chars": 3132,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "design-system",
@@ -361,15 +357,15 @@
       "description": "Use this skill to generate or audit design systems, check visual consistency, and review PRs that touch styling.",
       "content_domain": "design",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/design-system/SKILL.md",
       "files": [],
       "references": [],
       "scripts": [],
       "body_chars": 2290,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "diagram-generation",
@@ -407,7 +403,7 @@
       "description": "Drafts court filings — motions, memoranda of law, appellate briefs — as court-ready .docx, with Midpage research behind every citation. Use to \"draft a motion to dismiss,\" \"write the brief.\"",
       "content_domain": "writing",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/draft-brief/SKILL.md",
       "files": [
@@ -426,9 +422,7 @@
       "scripts": [
         "scripts/legal_docx.js"
       ],
-      "body_chars": 7325,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 7325
     },
     {
       "id": "draft-long-form-memo",
@@ -436,7 +430,7 @@
       "description": "Writes a formal objective legal research memo (Questions Presented, Brief Answers, Facts, IRAC Discussion, Conclusion) as a .docx. Use to \"draft a research memo on whether…\" Predicts, never advocates.",
       "content_domain": "writing",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/draft-long-form-memo/SKILL.md",
       "files": [
@@ -455,9 +449,7 @@
       "scripts": [
         "scripts/legal_docx.js"
       ],
-      "body_chars": 5436,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 5436
     },
     {
       "id": "email",
@@ -465,15 +457,13 @@
       "description": "Email sending integration guidance — Resend (native Vercel Marketplace) with React Email templates. Covers API setup, transactional emails, domain verification, and template patterns. Use when sending emails from a Vercel-deployed application.",
       "content_domain": "writing",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/email/SKILL.md",
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 8854,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 8854
     },
     {
       "id": "email-ops",
@@ -481,15 +471,15 @@
       "description": "Evidence-first mailbox triage, drafting, send verification, and sent-mail-safe follow-up workflow for ECC. Use when the user wants to organize email, draft or send through the real mail surface, or prove what landed in Sent.",
       "content_domain": "text",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/email-ops/SKILL.md",
       "files": [],
       "references": [],
       "scripts": [],
       "body_chars": 3159,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "frontend-design",
@@ -505,9 +495,7 @@
       ],
       "references": [],
       "scripts": [],
-      "body_chars": 9076,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 9076
     },
     {
       "id": "frontend-slides",
@@ -515,7 +503,7 @@
       "description": "Create stunning, animation-rich HTML presentations from scratch or by converting PowerPoint files. Use when the user wants to build a presentation, convert a PPT/PPTX to web, or create slides for a talk/pitch. Helps non-designers discover their aesthetic through visual exploration rather than abstract choices.",
       "content_domain": "design",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/frontend-slides/SKILL.md",
       "files": [
@@ -527,24 +515,22 @@
       ],
       "scripts": [],
       "body_chars": 6334,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "geist",
       "name": "geist",
       "description": "Expert guidance for Geist, Vercel's default typography system and font family for precise Next.js interfaces. Use when configuring Geist Sans, Geist Mono, or Geist Pixel, setting up font imports, or applying Vercel typography and aesthetic guidance.",
-      "content_domain": "writing",
+      "content_domain": "design",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/geist/SKILL.md",
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 5873,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 5873
     },
     {
       "id": "google-slides",
@@ -552,7 +538,7 @@
       "description": "Google Slides work for finding, reading, summarizing, creating, importing, template following, visual cleanup, source-deck adaptation, structural repair, and content edits in native Slides decks.",
       "content_domain": "design",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/google-slides/SKILL.md",
       "files": [
@@ -592,9 +578,7 @@
         "references/reference-visual-iteration.md"
       ],
       "scripts": [],
-      "body_chars": 17879,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 17879
     },
     {
       "id": "humanizer",
@@ -602,7 +586,7 @@
       "description": "Rewrites text to sound like a real person wrote it — not an AI. Use this skill any time the user asks to humanize, de-AI, rewrite, make sound natural, remove AI patterns, or fix robotic-sounding text. Also trigger when the user pastes text and says things like \"make this mine,\" \"fix this,\" \"this sounds like AI,\" or \"clean this up.\" Even if the user doesn't use the word \"humanize,\" if they're handing over a block of text and want it to sound more human or personal, use this skill. Always apply the full banned-patterns list below — never skip it, never explain it to the user unless asked.",
       "content_domain": "writing",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/humanizer/SKILL.md",
       "files": [
@@ -614,9 +598,7 @@
         "references/pattern-details.md"
       ],
       "scripts": [],
-      "body_chars": 4856,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 4856
     },
     {
       "id": "hyperframes",
@@ -624,7 +606,7 @@
       "description": "Create video compositions, animations, title cards, overlays, captions, voiceovers, audio-reactive visuals, and scene transitions in HyperFrames HTML. Use when asked to build any HTML-based video content, add captions or subtitles synced to audio, generate text-to-speech narration, create audio-reactive animation (beat sync, glow, pulse driven by music), add animated text highlighting (marker sweeps, hand-drawn circles, burst lines, scribble, sketchout), or add transitions between scenes (crossfades, wipes, reveals, shader transitions). Covers composition authoring, timing, media, and the full video production workflow. For CLI commands (init, lint, preview, render, transcribe, tts) see the hyperframes-cli skill.",
       "content_domain": "video",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/hyperframes/SKILL.md",
       "files": [
@@ -696,9 +678,7 @@
         "scripts/animation-map.mjs",
         "scripts/contrast-report.mjs"
       ],
-      "body_chars": 20604,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 20604
     },
     {
       "id": "hyperframes-cli",
@@ -706,15 +686,13 @@
       "description": "HyperFrames CLI tool — hyperframes init, lint, inspect, preview, render, transcribe, tts, doctor, browser, info, upgrade, compositions, docs, benchmark. Use when scaffolding a project, linting, validating, inspecting visual layout in compositions, previewing in the studio, rendering to video, transcribing audio, generating TTS, or troubleshooting the HyperFrames environment.",
       "content_domain": "video",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/hyperframes-cli/SKILL.md",
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 6551,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 6551
     },
     {
       "id": "hyperframes-registry",
@@ -722,7 +700,7 @@
       "description": "Install and wire registry blocks and components into HyperFrames compositions. Use when running hyperframes add, installing a block or component, wiring an installed item into index.html, or working with hyperframes.json. Covers the add command, install locations, block sub-composition wiring, component snippet merging, and registry discovery.",
       "content_domain": "video",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/hyperframes-registry/SKILL.md",
       "files": [
@@ -742,9 +720,7 @@
         "references/wiring-components.md"
       ],
       "scripts": [],
-      "body_chars": 3862,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 3862
     },
     {
       "id": "imagegen",
@@ -778,9 +754,7 @@
         "scripts/image_gen.py",
         "scripts/remove_chroma_key.py"
       ],
-      "body_chars": 18550,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 18550
     },
     {
       "id": "ios-icon-gen",
@@ -788,7 +762,7 @@
       "description": "Generate iOS app icons as PNG imagesets for Xcode asset catalogs from SF Symbols (5000+ Apple-native) or Iconify API (275k+ open source icons from 200+ collections). Use when generating icons, creating icon assets, adding icons to asset catalog, or searching for icons for iOS projects.",
       "content_domain": "image",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/ios-icon-gen/SKILL.md",
       "files": [
@@ -801,8 +775,8 @@
         "scripts/iconify_gen.sh"
       ],
       "body_chars": 5296,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "lip-sync",
@@ -933,7 +907,7 @@
       "description": "Build reusable Manim explainers for technical concepts, graphs, system diagrams, and product walkthroughs, then hand off to the wider ECC video stack if needed. Use when the user wants a clean animated explainer rather than a generic talking-head script.",
       "content_domain": "video",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/manim-video/SKILL.md",
       "files": [
@@ -942,8 +916,8 @@
       "references": [],
       "scripts": [],
       "body_chars": 2588,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "marketing-campaign",
@@ -951,15 +925,15 @@
       "description": "End-to-end marketing campaign planning and execution. Covers audience research, positioning, campaign angle definition, landing page copy, email sequences, social posts, ad copy, short-form video scripts, and content calendars. Use as the orchestration layer for multi-channel product launches.",
       "content_domain": "text",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/marketing-campaign/SKILL.md",
       "files": [],
       "references": [],
       "scripts": [],
       "body_chars": 4761,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "media-transcode-pipeline",
@@ -1046,9 +1020,7 @@
         "references/user-uploads.md"
       ],
       "scripts": [],
-      "body_chars": 2257,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 2257
     },
     {
       "id": "node-link-and-diagram-layout",
@@ -1056,7 +1028,7 @@
       "description": "Choose and apply automatic layout strategies for node-link diagrams and connected-node visuals. Use when the user asks how to auto-arrange nodes, reduce line crossings, route edges, avoid overlaps, stabilize layout, or choose graph-layout algorithms for network diagrams, dependency graphs, database schema diagrams, ERDs, state machines, decision trees, flow diagrams, box-and-line editors, or other line-connected nodes.",
       "content_domain": "design",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/node-link-and-diagram-layout/SKILL.md",
       "files": [
@@ -1070,9 +1042,7 @@
         "references/routing-overlap-and-quality.md"
       ],
       "scripts": [],
-      "body_chars": 10881,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 10881
     },
     {
       "id": "remotion-best-practices",
@@ -1080,7 +1050,7 @@
       "description": "Best practices for Remotion - Video creation in React",
       "content_domain": "video",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/remotion-best-practices/SKILL.md",
       "files": [
@@ -1125,9 +1095,7 @@
       ],
       "references": [],
       "scripts": [],
-      "body_chars": 5064,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 5064
     },
     {
       "id": "remotion-video-creation",
@@ -1135,7 +1103,7 @@
       "description": "Best practices for Remotion - Video creation in React. 29 domain-specific rules covering 3D, animations, audio, captions, charts, transitions, and more.",
       "content_domain": "video",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/remotion-video-creation/SKILL.md",
       "files": [
@@ -1174,8 +1142,8 @@
       "references": [],
       "scripts": [],
       "body_chars": 3251,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "reports-pdfs-and-slide-automation",
@@ -1183,7 +1151,7 @@
       "description": "Lay out and export data-rich reports and documents. Use when the user needs report structure, figure packaging, PDFs, PowerPoint or Google Slides automation, or programmatic insertion of visualizations, UML-like diagrams, or architecture diagrams into documents.",
       "content_domain": "design",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/reports-pdfs-and-slide-automation/SKILL.md",
       "files": [
@@ -1199,9 +1167,7 @@
         "references/report-structure-and-figure-packaging.md"
       ],
       "scripts": [],
-      "body_chars": 7856,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 7856
     },
     {
       "id": "seo",
@@ -1209,7 +1175,7 @@
       "description": "Audit, plan, and implement SEO improvements across technical SEO, on-page optimization, structured data, Core Web Vitals, and content strategy. Use when the user wants better search visibility, SEO remediation, schema markup, sitemap/robots work, or keyword mapping.",
       "content_domain": "text",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/seo/SKILL.md",
       "files": [
@@ -1220,8 +1186,8 @@
       ],
       "scripts": [],
       "body_chars": 4133,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "shorts-reels-pipeline",
@@ -1260,15 +1226,15 @@
       "description": "Weighted social-graph ranking for warm intro discovery, bridge scoring, and network gap analysis across X and LinkedIn. Use when the user wants the reusable graph-ranking engine itself, not the broader outreach or network-maintenance workflow layered on top of it.",
       "content_domain": "text",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/social-graph-ranker/SKILL.md",
       "files": [],
       "references": [],
       "scripts": [],
       "body_chars": 3799,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "social-publish-scheduling",
@@ -1306,15 +1272,15 @@
       "description": "Agent-driven scheduling and publishing of social media posts across 13 platforms via SocialClaw. Use when the user wants to publish to X, LinkedIn, Instagram, Facebook Pages, TikTok, Discord, Telegram, YouTube, Reddit, WordPress, or Pinterest — or when managing campaigns, uploading media, or monitoring post delivery status.",
       "content_domain": "text",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/social-publisher/SKILL.md",
       "files": [],
       "references": [],
       "scripts": [],
       "body_chars": 3537,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "sprite-pipeline",
@@ -1322,15 +1288,13 @@
       "description": "Generate and normalize 2D sprite animations. Use when the user asks for full-strip generation from approved source frames, consistent anchor and scale normalization, or preview assets for browser-game animation.",
       "content_domain": "image",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/sprite-pipeline/SKILL.md",
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 3128,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 3128
     },
     {
       "id": "stock-media-sourcing",
@@ -1398,9 +1362,9 @@
       "id": "taste",
       "name": "taste",
       "description": "A creative-direction (taste) layer for music videos and short-form edits in the angelcore / cloud-trance / hyperpop visual family. Distills a named-genre aesthetic vocabulary, a mood + color + light system, and a beat-synced editing grammar, then chains ECC's video skills (video-editing, local-diffusion-suite, text-to-video-local, remotion-video-creation, motion-*, content-engine) into one production pipeline. Use when the work is not just making a video function but making it feel intentional, when building a music video, a fancam/edit, a moodboard-driven reel, or when choosing a coherent visual direction for AI-generated b-roll.",
-      "content_domain": "writing",
+      "content_domain": "video",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/taste/SKILL.md",
       "files": [
@@ -1411,8 +1375,8 @@
       ],
       "scripts": [],
       "body_chars": 15034,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "text-to-video-local",
@@ -1508,7 +1472,7 @@
       "description": "Design, critique, read, write, render, and implement UML and UML-like software diagrams. Use when the user mentions UML, sequence diagrams, class diagrams, activity diagrams, state machines, use case diagrams, component diagrams, deployment diagrams, object diagrams, package diagrams, profile diagrams, timing diagrams, communication diagrams, interaction overview diagrams, composite structure diagrams, ERDs, database schema diagrams, C4, BPMN, swimlanes, flowcharts, network diagrams, application architecture diagrams, software architecture diagrams, diagram-as-code, model-as-code, XMI, UMLDI, PlantUML, Mermaid, Graphviz DOT, D2, Structurizr, DBML, diagrams.net/draw.io, Kroki, or interactive diagram editors and explorers.",
       "content_domain": "design",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/uml-and-software-architecture-visualization/SKILL.md",
       "files": [
@@ -1526,9 +1490,7 @@
         "references/uml-diagram-types-and-selection.md"
       ],
       "scripts": [],
-      "body_chars": 11507,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 11507
     },
     {
       "id": "video-background-removal",
@@ -1563,7 +1525,7 @@
       "description": "AI-assisted video editing workflows for cutting, structuring, and augmenting real footage. Covers the full pipeline from raw capture through FFmpeg, Remotion, local TTS and image generation, and final polish in Descript or CapCut. Use when the user wants to edit video, cut footage, create vlogs, or build video content.",
       "content_domain": "video",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/video-editing/SKILL.md",
       "files": [
@@ -1574,8 +1536,8 @@
       ],
       "scripts": [],
       "body_chars": 10025,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "video-translation-dubbing",
@@ -1642,7 +1604,7 @@
       "description": "See, Understand, Act on video and audio. See- ingest from local files, URLs, RTSP/live feeds, or live record desktop; return realtime context and playable stream links. Understand- extract frames, build visual/semantic/temporal indexes, and search moments with timestamps and auto-clips. Act- transcode and normalize (codec, fps, resolution, aspect ratio), perform timeline edits (subtitles, text/image overlays, branding, audio overlays, dubbing, translation), generate media assets (image, audio, video), and create real time alerts for events from live streams or desktop capture.",
       "content_domain": "video",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/videodb/SKILL.md",
       "files": [
@@ -1674,8 +1636,8 @@
         "scripts/ws_listener.py"
       ],
       "body_chars": 13433,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "upstream": "https://github.com/affaan-m/ECC.git",
+      "upstream_owner": "affaan-m"
     },
     {
       "id": "voice-cloning-rvc",
@@ -1714,7 +1676,7 @@
       "description": "Prepare and optimize browser-game 3D assets. Use when the user asks for GLB or glTF shipping work, including Blender cleanup and export, collision or LOD setup, compression, texture packaging, and runtime validation.",
       "content_domain": "3d",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/web-3d-asset-pipeline/SKILL.md",
       "files": [
@@ -1724,9 +1686,7 @@
         "references/3d-reference-tools.md"
       ],
       "scripts": [],
-      "body_chars": 3322,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 3322
     },
     {
       "id": "website-to-hyperframes",
@@ -1734,7 +1694,7 @@
       "description": "Capture a website and create a HyperFrames video from it. Use when: (1) a user provides a URL and wants a video, (2) someone says \"capture this site\", \"turn this into a video\", \"make a promo from my site\", (3) the user wants a social ad, product tour, or any video based on an existing website, (4) the user shares a link and asks for any kind of video content. Even if the user just pastes a URL — this is the skill to use.",
       "content_domain": "video",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/website-to-hyperframes/SKILL.md",
       "files": [
@@ -1758,9 +1718,7 @@
         "references/techniques.md"
       ],
       "scripts": [],
-      "body_chars": 5873,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 5873
     },
     {
       "id": "writing-hookify-rules",
@@ -1768,15 +1726,13 @@
       "description": "This skill should be used when the user asks to \"create a hookify rule\", \"write a hook rule\", \"configure hookify\", \"add a hookify rule\", or needs guidance on hookify rule syntax and patterns.",
       "content_domain": "writing",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/writing-hookify-rules/SKILL.md",
       "files": [],
       "references": [],
       "scripts": [],
-      "body_chars": 8157,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 8157
     },
     {
       "id": "writing-plans",
@@ -1784,7 +1740,7 @@
       "description": "Use when you have a spec or requirements for a multi-step task, before touching code",
       "content_domain": "writing",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/writing-plans/SKILL.md",
       "files": [
@@ -1792,9 +1748,7 @@
       ],
       "references": [],
       "scripts": [],
-      "body_chars": 5960,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 5960
     },
     {
       "id": "writing-skills",
@@ -1802,7 +1756,7 @@
       "description": "Use when creating new skills, editing existing skills, or verifying skills work before deployment",
       "content_domain": "writing",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "prompt_signals": [],
       "path": "skills/writing-skills/SKILL.md",
       "files": [
@@ -1815,9 +1769,7 @@
       ],
       "references": [],
       "scripts": [],
-      "body_chars": 22398,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 22398
     }
   ],
   "agents": [
@@ -1919,13 +1871,11 @@
       ],
       "model": "sonnet",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "path": "agents/marketing-agent.md",
       "files": [],
       "prompt_signals": [],
-      "body_chars": 6792,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 6792
     },
     {
       "id": "media-pipeline-engineer",
@@ -1960,13 +1910,11 @@
       ],
       "model": "opus",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "path": "agents/planner.md",
       "files": [],
       "prompt_signals": [],
-      "body_chars": 7749,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 7749
     },
     {
       "id": "script-and-story-editor",
@@ -2025,13 +1973,11 @@
       ],
       "model": "sonnet",
       "source": "vendored",
-      "license": "MIT",
+      "license": null,
       "path": "agents/seo-specialist.md",
       "files": [],
       "prompt_signals": [],
-      "body_chars": 2511,
-      "upstream": "https://github.com/ashikonik/content-creation-mcp",
-      "upstream_owner": "ashikonik"
+      "body_chars": 2511
     },
     {
       "id": "short-form-producer",

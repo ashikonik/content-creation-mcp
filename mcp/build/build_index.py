@@ -33,6 +33,7 @@ from provenance import (  # noqa: E402
     detect_license_near,
     find_upstream,
     license_from_frontmatter,
+    load_provenance,
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -42,7 +43,38 @@ DATA_DIR = PROJECT_ROOT / "mcp" / "data"
 INDEX_PATH = DATA_DIR / "index.json"
 EXCLUDED_PATH = DATA_DIR / "excluded.json"
 
-INDEX_VERSION = "1.0.0"
+INDEX_VERSION = "1.1.0"
+
+
+def provenance_upstream() -> dict[tuple[str, str], dict]:
+    """The provenance table, keyed by (kind, name).
+
+    The upstream remote is read from here rather than by walking up from the
+    destination directory: the copy lives inside this repository, so that
+    walk finds *this* repository's remote and records every vendored skill
+    as originating from the project that merely redistributed it.
+    """
+    return {
+        (e.get("kind", ""), e.get("name", "")): e
+        for e in load_provenance()
+    }
+
+
+def owner_from_upstream(upstream: str | None) -> str | None:
+    """The owner segment of a repository URL.
+
+    Handles the shapes that actually occur: ``https://host/owner/repo``,
+    ``https://host/owner``, and a bare host.
+    """
+    if not upstream:
+        return None
+    trimmed = upstream.rstrip("/")
+    parts = trimmed.split("/")
+    if len(parts) >= 2:
+        candidate = parts[-2]
+        if candidate and candidate not in ("", "github.com", "gitlab.com", "bitbucket.org"):
+            return candidate
+    return None
 
 
 def load_excluded() -> dict[tuple[str, str], dict]:
@@ -229,6 +261,7 @@ def build_skills() -> tuple[list[dict], list[str]]:
     records: list[dict] = []
     warnings: list[str] = []
     excluded = load_excluded()
+    prov = provenance_upstream()
 
     for skill_dir in sorted(SKILLS_DIR.iterdir()):
         if not skill_dir.is_dir() or skill_dir.name in SKIP_NAMES:
@@ -270,9 +303,11 @@ def build_skills() -> tuple[list[dict], list[str]]:
         upstream = None
         owner = None
         if not authored:
-            upstream = find_upstream(skill_dir)
-            if upstream:
-                owner = upstream.rstrip("/").split("/")[-2] if "/" in upstream else None
+            # The upstream remote comes from the provenance table, which
+            # records where the content was copied from.
+            row = prov.get(("skill", skill_dir.name))
+            upstream = (row or {}).get("upstream")
+            owner = owner_from_upstream(upstream)
 
         body_start = FRONTMATTER_RE.match(text)
         body = text[body_start.end():] if body_start else text
@@ -304,6 +339,7 @@ def build_agents() -> tuple[list[dict], list[str]]:
     records: list[dict] = []
     warnings: list[str] = []
     excluded = load_excluded()
+    prov = provenance_upstream()
 
     for agent_file in sorted(AGENTS_DIR.glob("*.md")):
         agent_id = agent_file.stem
@@ -345,9 +381,9 @@ def build_agents() -> tuple[list[dict], list[str]]:
         owner = None
         if not authored:
             license_value, _ = detect_license_near(agent_file.parent)
-            upstream = find_upstream(agent_file.parent)
-            if upstream:
-                owner = upstream.rstrip("/").split("/")[-2] if "/" in upstream else None
+            row = prov.get(("agent", agent_id))
+            upstream = (row or {}).get("upstream")
+            owner = owner_from_upstream(upstream)
 
         body_start = FRONTMATTER_RE.match(text)
         body = text[body_start.end():] if body_start else text

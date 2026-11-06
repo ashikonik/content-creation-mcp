@@ -25,7 +25,7 @@ import {
 } from "./types.js";
 
 const SERVER_NAME = "content-creation-mcp";
-const SERVER_VERSION = "1.0.1";
+const SERVER_VERSION = "1.1.0";
 
 /** Maximum number of file paths a single get_skill_bundle call may request. */
 const MAX_BUNDLE_FILES = 200;

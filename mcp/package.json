@@ -1,6 +1,6 @@
 {
   "name": "content-creation-mcp",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Harness-agnostic MCP server exposing content-creation skills and agents over stdio and Streamable HTTP.",
   "license": "MIT",
   "type": "module",

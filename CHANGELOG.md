@@ -11,6 +11,88 @@ state is tagged `v1.0.0`.
 
 Nothing yet.
 
+## [1.1.0] — 2026-11-06
+
+Stage 2 of the remediation: makes the attribution record state what is
+actually true about where the vendored content came from and which licence
+governs it.
+
+### Fixed
+
+- **Licence detection no longer escapes the upstream tree.**
+  `detect_license_near()` walked upward from a vendored directory until it
+  found a licence file, and in nearly every case that was this repository's
+  own root `LICENSE` (MIT). The search is now bounded so it cannot leave
+  the tree it started in, and it consults package metadata when no licence
+  file is present — the documented detection order was previously never
+  reached, because the upward walk always succeeded first.
+- **Licences are detected at the origin, not at the destination.** New
+  `mcp/build/origins.py` resolves each vendored entry's true upstream tree
+  and looks for the licence there. 29 of the 46 vendored entries have a
+  licence that was detected upstream; the remaining 17 have none.
+- **An unverified licence is recorded as `UNKNOWN`, never assumed.** The 17
+  entries whose upstream carries no licence are published with verdict
+  `needs-review` and are listed under "Unverified licence" in `CREDITS.md`,
+  so the gap is visible instead of being absorbed into the totals.
+- **Publishing an unverified entry now requires a sign-off.** `LICENCE_SIGNOFF`
+  in `mcp/build/build_provenance.py` names the entries allowed to publish with
+  an unverified licence. The build fails — in both write and `--check` mode —
+  if an unverified entry is published without one, so an inherited MIT claim
+  cannot be reintroduced silently.
+- **Self-attribution removed from the index.** `build_index.py` resolved
+  `upstream` by walking up from the *destination* directory, which found this
+  repository's own remote and recorded 43 skills as originating from the
+  project that merely redistributed them. The upstream is now read from the
+  provenance table.
+- **Owner derivation handles every URL shape.** `owner_from_upstream()`
+  returned `github.com` for a bare `https://github.com/owner` path and an
+  empty string for `https://github.com`. Both are now handled.
+- **Absolute local paths no longer reach the published record.** `CREDITS.md`
+  printed `/home/biloi/Projects/Skills_n_Agents/...` in its `Source:` lines.
+  Origin paths are now recorded home-relative (`~/Projects/ECC`), which stays
+  a usable locator without identifying the account that assembled the
+  distribution. `Source:` lines prefer the upstream repository URL and
+  otherwise describe the *kind* of origin rather than publishing a local path.
+- **The authored/vendored classification was a latent bug.** The check tested
+  the truthiness of a row's `source`, but authored rows carry the literal
+  string `"authored"`, which is truthy — so authored content was classified
+  as vendored. It now tests the `verdict`.
+
+### Changed
+
+- **Content-domain corrections.** The taxonomy in
+  `mcp/build/content_domains.py` is the single source of truth for the
+  `modality` filter, and two of its entries were wrong: `geist` is a UI
+  typography skill (now `design`, was `writing`) and `taste` is a
+  creative-direction layer for music video and short-form edits (now `video`,
+  was `writing`).
+- **The vendoring script no longer carries its own domain map.** It held a
+  `MODALITY` map that had drifted from the taxonomy on 14 of 44 skills, so a
+  re-vendoring would have silently reclassified content that clients already
+  index by domain. The script now reads the taxonomy. It has moved from
+  `.vendor_skills.py` to `tools/vendor_skills.py`.
+- **Packaging fixed.** `mcp/pyproject.toml` pointed `readme` at `../README.md`,
+  which is outside the package root and made the wheel unbuildable; the
+  `Homepage` URL named the wrong repository; `packages = ["build"]` had no
+  `__init__.py`, so the console-script entry points could not resolve; and
+  `mcp/data/*.json` was not declared as package data, so an installed wheel
+  shipped the build scripts without the files they read. All four are fixed
+  and the wheel is now verified to contain the data files.
+
+### Tests
+
+- `.verify_all.py` now asserts the new provenance invariants: an
+  unverified-licence entry must be signed off, a `needs-review` entry must not
+  claim a licence that was never detected, and a published entry that claims a
+  licence must name where it was detected. It also asserts that `CREDITS.md`,
+  `index.json` and `provenance.json` carry no absolute home-directory paths.
+- The sign-off list is read from `build_provenance.py` rather than duplicated,
+  so the verification gate and the build gate cannot disagree.
+
+Verification: 61 tests pass, and the full local suite reports 1084 checks
+passing (up from 1061). Both determinism gates pass — `index.json` is
+byte-identical to a fresh build and `provenance.json` is up to date.
+
 ## [1.0.1] — 2026-11-06
 
 Stage 1 of the remediation: closes the arbitrary-file-read and hardens the
@@ -123,5 +205,7 @@ Recorded here so the audit trail shows what the remediation addressed.
   no runtime code read the file.
 - **No CI, no changelog, no tags** prior to this file.
 
-[Unreleased]: https://github.com/ashikonik/content-creation-mcp/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/ashikonik/content-creation-mcp/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.1.0
+[1.0.1]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.0.1
 [1.0.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.0.0

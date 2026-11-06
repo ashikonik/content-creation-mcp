@@ -11,6 +11,9 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
+# setuptools build artifacts — created by `pip wheel .` in mcp/
+mcp/build/lib/
+mcp/build/bdist.*/
 
 # Editors and OS
 .DS_Store
