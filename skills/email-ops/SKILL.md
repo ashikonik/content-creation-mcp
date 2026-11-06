@@ -1,8 +1,18 @@
 ---
 name: email-ops
-description: Evidence-first mailbox triage, drafting, send verification, and sent-mail-safe follow-up workflow for ECC. Use when the user wants to organize email, draft or send through the real mail surface, or prove what landed in Sent.
+description: Evidence-first mailbox triage, drafting, send verification, and sent-mail-safe
+  follow-up workflow for ECC. Use when the user wants to organize email, draft or
+  send through the real mail surface, or prove what landed in Sent.
 metadata:
   origin: ECC
+  promptSignals:
+    phrases:
+    - triage my mailbox
+    - organize my inbox
+    - draft and send through the mail surface
+    - prove what landed in sent
+    - follow up on sent mail
+    - evidence first email workflow
 ---
 
 # Email Ops

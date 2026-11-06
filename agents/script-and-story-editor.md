@@ -3,6 +3,16 @@ name: script-and-story-editor
 description: Script and story editor — shaping a script for voiceover, tightening a long piece into a short, building narrative structure, writing hooks and titles, and cutting a draft without losing its spine. Use for video scripts, voiceover copy, landing page scripts, podcast outlines, and content rewrites.
 tools: ["Read", "Grep", "Glob", "Write", "Edit", "WebSearch"]
 model: sonnet
+metadata:
+  promptSignals:
+    phrases:
+      - "edit a script"
+      - "write a hook"
+      - "story structure"
+      - "voiceover script"
+      - "tighten a script"
+      - "titles and hooks"
+      - "narrative outline"
 ---
 
 ## Prompt Defense Baseline

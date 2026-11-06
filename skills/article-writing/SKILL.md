@@ -1,6 +1,19 @@
 ---
 name: article-writing
-description: Write articles, guides, blog posts, tutorials, newsletter issues, and other long-form content in a distinctive voice derived from supplied examples or brand guidance. Use when the user wants polished written content longer than a paragraph, especially when voice consistency, structure, and credibility matter.
+description: Write articles, guides, blog posts, tutorials, newsletter issues, and
+  other long-form content in a distinctive voice derived from supplied examples or
+  brand guidance. Use when the user wants polished written content longer than a paragraph,
+  especially when voice consistency, structure, and credibility matter.
+metadata:
+  promptSignals:
+    phrases:
+    - write an article
+    - long-form blog post
+    - newsletter issue
+    - write a tutorial
+    - polished long-form content
+    - keep a consistent voice
+    - write a guide
 ---
 
 # Article Writing

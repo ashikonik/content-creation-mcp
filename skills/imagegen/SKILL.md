@@ -1,6 +1,21 @@
 ---
-name: "imagegen"
-description: "Generate or edit raster images when the task benefits from AI-created bitmap visuals such as photos, illustrations, textures, sprites, mockups, or transparent-background cutouts. Use when Codex should create a brand-new image, transform an existing image, or derive visual variants from references, and the output should be a bitmap asset rather than repo-native code or vector. Do not use when the task is better handled by editing existing SVG/vector/code-native assets, extending an established icon or logo system, or building the visual directly in HTML/CSS/canvas."
+name: imagegen
+description: Generate or edit raster images when the task benefits from AI-created
+  bitmap visuals such as photos, illustrations, textures, sprites, mockups, or transparent-background
+  cutouts. Use when the agent should create a brand-new image, transform an existing image,
+  or derive visual variants from references, and the output should be a bitmap asset
+  rather than repo-native code or vector. Do not use when the task is better handled
+  by editing existing SVG/vector/code-native assets, extending an established icon
+  or logo system, or building the visual directly in HTML/CSS/canvas.
+metadata:
+  promptSignals:
+    phrases:
+    - generate an image
+    - create an illustration
+    - edit an existing image
+    - make a transparent background cutout
+    - generate a texture or sprite
+    - derive visual variants
 ---
 
 # Image Generation Skill
@@ -11,8 +26,9 @@ Generates or edits images for the current project (for example website assets, g
 
 This skill has exactly two top-level modes:
 
-- **Default built-in tool mode (preferred):** built-in `image_gen` tool for image generation, editing, and transparent-image requests. Does not require `OPENAI_API_KEY`.
+- **Default built-in tool mode (preferred):** built-in `image_gen` tool for image generation, editing, and transparent-image requests. Does not require `OPENAI_API_KEY`. Requires the harness to expose an image-generation tool; in Codex that is `image_gen`.
 - **Fallback CLI mode:** `scripts/image_gen.py` CLI. Use when the user explicitly asks for or confirms the CLI/API/model path. Requires `OPENAI_API_KEY`.
+- **No image-generation tool at all?** Use `local-diffusion-suite` — it covers AUTOMATIC1111, Forge, InvokeAI, Fooocus, and ComfyUI on the user's own machine, with no key and no per-call fee.
 
 Within CLI fallback, the CLI exposes three subcommands:
 
@@ -31,9 +47,11 @@ Rules:
 - Never modify `scripts/image_gen.py`. If something is missing, ask the user before doing anything else.
 
 Built-in save-path policy:
-- In built-in tool mode, Codex saves generated images under `$CODEX_HOME/*` by default.
+- In built-in tool mode, the harness saves generated images under its own
+  generated-images directory by default (`$CODEX_HOME/generated_images/...` in
+  Codex). Ask the harness where it wrote the file rather than assuming a path.
 - Do not describe or rely on OS temp as the default built-in destination.
-- Do not describe or rely on a destination-path argument (if any) on the built-in `image_gen` tool. If a specific location is needed, generate first and then move or copy the selected output from `$CODEX_HOME/generated_images/...`.
+- Do not describe or rely on a destination-path argument (if any) on the built-in `image_gen` tool. If a specific location is needed, generate first and then move or copy the selected output from wherever the harness wrote it.
 - Save-path precedence in built-in mode:
   1. If the user names a destination, move or copy the selected output there.
   2. If the image is meant for the current project, move or copy the final selected image into the workspace before finishing.
@@ -298,6 +316,10 @@ If the key is missing, give the user these steps:
 1. Create an API key in the OpenAI platform UI: https://platform.openai.com/api-keys
 2. Set `OPENAI_API_KEY` as an environment variable in their system.
 3. Offer to guide them through setting the environment variable for their OS/shell if needed.
+
+If the user does not want to set up a key, point them at `local-diffusion-suite`
+instead — it runs AUTOMATIC1111, Forge, InvokeAI, Fooocus, or ComfyUI on
+their own machine, with no account and no per-call fee.
 
 If installation is not possible in this environment, tell the user which dependency is missing and how to install it into their active environment.
 

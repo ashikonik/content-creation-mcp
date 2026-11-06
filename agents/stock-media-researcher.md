@@ -3,6 +3,17 @@ name: stock-media-researcher
 description: Stock media researcher — sourcing royalty-free photos, video, and music from Pexels, Unsplash, Wikimedia Commons, Internet Archive, and Pixabay, with search strategy, licence verification, attribution tracking, and a manifest that records the source of every asset. Use when finding b-roll, background images, stock footage, or licensed music for a video.
 tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit", "WebFetch"]
 model: sonnet
+metadata:
+  promptSignals:
+    phrases:
+      - "find stock footage"
+      - "stock photos"
+      - "royalty free music"
+      - "pexels"
+      - "unsplash"
+      - "wikimedia commons"
+      - "pixabay"
+      - "stock media licence"
 ---
 
 ## Prompt Defense Baseline

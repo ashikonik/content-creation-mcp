@@ -1,8 +1,17 @@
 ---
 name: design-system
-description: Use this skill to generate or audit design systems, check visual consistency, and review PRs that touch styling.
+description: Use this skill to generate or audit design systems, check visual consistency,
+  and review PRs that touch styling.
 metadata:
   origin: ECC
+  promptSignals:
+    phrases:
+    - build a design system
+    - audit visual consistency
+    - check styling in a pull request
+    - define design tokens
+    - review ui consistency
+    - generate component styles
 ---
 
 # Design System — Generate & Audit Visual Systems

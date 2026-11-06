@@ -21,9 +21,40 @@ export interface RenderContext {
   record: SkillRecord;
 }
 
-/** Description trimmed to a single line for machine-readable headers. */
-function descriptionOf(fm: SkillFrontmatter): string {
-  return oneLine(fm.description);
+/**
+ * The name a skill is rendered under.
+ *
+ * The frontmatter `name` is preferred, but it is not guaranteed to be
+ * present — the marker comment in the `agentsmd` dialect is the documented
+ * replace-anchor, so a skill that renders as `skills-library:name:undefined`
+ * can never be found or replaced by a harness that keys on it. The index
+ * record's `id` is always present and is the same slug the rest of the
+ * server identifies the skill by, so it is the fallback.
+ */
+function skillName(ctx: RenderContext): string {
+  const fromFrontmatter = ctx.frontmatter.name;
+  if (typeof fromFrontmatter === "string" && fromFrontmatter.trim() !== "") {
+    return fromFrontmatter;
+  }
+  return ctx.record.id;
+}
+
+/**
+ * The trigger phrases for a skill.
+ *
+ * The index carries a curated list; the file's own frontmatter carries the
+ * one the author wrote. The curated list wins when it has entries, because
+ * it is the list the search ranker actually uses — a skill that triggers
+ * in search but renders without triggers is a mismatch a client notices.
+ */
+function triggerPhrases(ctx: RenderContext): string[] {
+  const fromIndex = ctx.record.prompt_signals ?? [];
+  if (fromIndex.length > 0) return fromIndex;
+
+  const meta = ctx.frontmatter.metadata?.promptSignals;
+  const phrases = Array.isArray(meta) ? meta : (meta?.phrases ?? []);
+  if (!Array.isArray(phrases)) return [];
+  return phrases.map((p) => String(p).trim()).filter(Boolean);
 }
 
 /**
@@ -40,8 +71,8 @@ function renderMarkdown(ctx: RenderContext): string {
 function renderClaudeFrontmatter(ctx: RenderContext): string {
   const fm = ctx.frontmatter;
   const header = buildFrontmatter([
-    ["name", fm.name],
-    ["description", descriptionOf(fm)],
+    ["name", skillName(ctx)],
+    ["description", oneLine(fm.description)],
     ["allowed-tools", fm.allowed_tools],
     ["license", fm.license],
     ["version", fm.version],
@@ -56,8 +87,8 @@ function renderOpenAiYaml(ctx: RenderContext): string {
   const fm = ctx.frontmatter;
   const doc = {
     interface: {
-      name: fm.name,
-      description: descriptionOf(fm),
+      name: skillName(ctx),
+      description: oneLine(fm.description),
     },
     policy: {
       compatibility: fm.compatibility ?? "openai-compatible-mcp-client",
@@ -70,7 +101,7 @@ function renderOpenAiYaml(ctx: RenderContext): string {
     metadata: {
       content_domain: ctx.record.content_domain,
       source: ctx.record.source,
-      prompt_signals: fm.metadata?.promptSignals?.phrases ?? [],
+      prompt_signals: triggerPhrases(ctx),
     },
     instructions: ctx.body.trimEnd(),
   };
@@ -83,19 +114,24 @@ function renderOpenAiYaml(ctx: RenderContext): string {
  * and replace a single skill in a larger agents file.
  */
 function renderAgentsMd(ctx: RenderContext): string {
-  const fm = ctx.frontmatter;
-  const marker = `<!-- skills-library:name:${fm.name} -->`;
-  const endMarker = `<!-- skills-library:end:${fm.name} -->`;
+  const name = skillName(ctx);
+  const marker = `<!-- skills-library:name:${name} -->`;
+  const endMarker = `<!-- skills-library:end:${name} -->`;
+
+  const phrases = triggerPhrases(ctx);
 
   const header = [
     marker,
-    `## ${fm.name}`,
+    `## ${name}`,
     "",
     `**Domain:** ${ctx.record.content_domain}  `,
     `**Source:** ${ctx.record.source}  `,
-    `**Triggers:** ${(fm.metadata?.promptSignals?.phrases ?? []).join(" · ")}`,
+    // The line is omitted rather than emitted empty. A "**Triggers:**" with
+    // nothing after it reads as a truncation bug to the client, and the
+    // blank line it would occupy is not needed in its place.
+    ...(phrases.length > 0 ? [`**Triggers:** ${phrases.join(" · ")}`] : []),
     "",
-    descriptionOf(fm),
+    oneLine(ctx.frontmatter.description),
     "",
   ].join("\n");
 
@@ -107,43 +143,69 @@ function renderAgentsMd(ctx: RenderContext): string {
  * rules file expects.
  */
 function renderCursorRules(ctx: RenderContext): string {
-  const fm = ctx.frontmatter;
-  const signals = fm.metadata?.promptSignals?.phrases ?? [];
+  const signals = triggerPhrases(ctx);
 
+  // The blank lines are structural: a `.mdc` rules file reads as
+  // front-matter, prose, then a rule. Filtering every empty line out of
+  // the array collapsed that structure and, with it, the "Apply when:"
+  // line — a blank string and an omitted line are indistinguishable once
+  // filtered, so the conditional line was being dropped along with the
+  // separators.
   const header = [
-    `# ${fm.name}`,
+    `# ${skillName(ctx)}`,
     "",
-    descriptionOf(fm),
+    oneLine(ctx.frontmatter.description),
     "",
-    signals.length > 0 ? `Apply when: ${signals.join(", ")}.` : "",
+    ...(signals.length > 0 ? [`Apply when: ${signals.join(", ")}.`] : []),
     "",
     "---",
     "",
-  ]
-    .filter((line) => line !== "")
-    .join("\n");
+  ].join("\n");
 
   return `${header}\n${ctx.body.trimEnd()}\n`;
+}
+
+/**
+ * The renderer for each format.
+ *
+ * Dispatch is by map lookup rather than a `switch`, so the set of formats the
+ * server accepts and the set it can actually render are checked against each
+ * other at startup instead of drifting apart. The registry in
+ * `data/harnesses.json` names the formats; this map supplies the code. A
+ * format named in the registry with no renderer here is a build error, not a
+ * runtime surprise on one request.
+ */
+const RENDERERS: Record<string, (ctx: RenderContext) => string> = {
+  "markdown": renderMarkdown,
+  "claude-frontmatter": renderClaudeFrontmatter,
+  "openai-yaml": renderOpenAiYaml,
+  "agentsmd": renderAgentsMd,
+  "cursor-rules": renderCursorRules,
+};
+
+/**
+ * The formats this build can render.
+ *
+ * The registry decides which formats *exist*; this set decides which ones the
+ * code behind them was actually written for. They are checked against each
+ * other below.
+ */
+export function implementedFormats(): string[] {
+  return Object.keys(RENDERERS);
 }
 
 export function renderSkill(
   format: RenderFormat,
   ctx: RenderContext,
 ): string {
-  switch (format) {
-    case "markdown":
-      return renderMarkdown(ctx);
-    case "claude-frontmatter":
-      return renderClaudeFrontmatter(ctx);
-    case "openai-yaml":
-      return renderOpenAiYaml(ctx);
-    case "agentsmd":
-      return renderAgentsMd(ctx);
-    case "cursor-rules":
-      return renderCursorRules(ctx);
-    default:
-      throw new Error(`Unknown render format: ${format}`);
+  const renderer = RENDERERS[format];
+  if (!renderer) {
+    throw new Error(
+      `Unknown render format: ${format}. Known formats: ` +
+        Object.keys(RENDERERS).join(", "),
+    );
   }
+  return renderer(ctx);
 }
 
 /**
@@ -160,6 +222,199 @@ export interface AgentRun {
   suggested_skills: string[];
 }
 
+/**
+ * Reduce a word to its stem, so that "edit", "editing" and "edits" are
+ * one term.
+ *
+ * Without this, an agent whose phrase is "edit a video" does not match a
+ * skill whose phrase is "AI-assisted video editing" — the two name the
+ * same thing but share no whole word, and the skill it should reach for
+ * first ranked below skills that merely happened to mention video.
+ *
+ * The rules are the usual English inflections, minus anything that would
+ * change a word's meaning ("generate" is not a form of "generation").
+ */
+function stem(word: string): string {
+  let w = word;
+  // Whether a *gerund or past-tense* suffix was removed. The "restore the
+  // dropped e" rule below depends on it: it exists to undo a silent-vowel
+  // loss caused by stripping "-ing" or "-ed", not to rewrite words that
+  // never lost a vowel.
+  let lostVowel = false;
+
+  if (w.length > 4 && w.endsWith("ies")) return w.slice(0, -3) + "y";
+  if (w.length > 4 && w.endsWith("ing")) {
+    w = w.slice(0, -3);
+    lostVowel = true;
+  } else if (w.length > 4 && w.endsWith("ed")) {
+    w = w.slice(0, -2);
+    lostVowel = true;
+  } else if (w.length > 4 && w.endsWith("es")) {
+    w = w.slice(0, -2);
+  } else if (w.length > 3 && w.endsWith("s") && !w.endsWith("ss")) {
+    w = w.slice(0, -1);
+  }
+  // "editing" -> "edit", "trimming" -> "trim". A doubled consonant after
+  // the ending is dropped, so "trimmed" -> "trimmed" -> "trim" and
+  // "shipping" -> "ship".
+  if (w.length > 3 && w.endsWith("d") && w[w.length - 2] === w[w.length - 3]) {
+    w = w.slice(0, -1);
+  }
+  // "writing" -> "writ" -> "write", "creating" -> "creat" -> "create".
+  // The dropped "e" is restored when the stem would otherwise end in a
+  // consonant cluster, so that "write" and "writing" agree.
+  //
+  // The restoration is restricted to the two endings that actually drop a
+  // silent vowel. Applied more widely it rewrote words that never lost
+  // one — "model" became "modele", "rather" became "rathere" — and the
+  // plural "-s" case turned "plans" into "plane", which stopped "write a
+  // plan" from matching the skill called "writing-plans". A word that
+  // did not lose a vowel is already its own stem and must be left alone.
+  //
+  // The pattern is deliberately loose. A stricter one that required a
+  // genuine consonant cluster restored the "e" in "writ" and "creat" but
+  // not in "edit", which meant "edit" and "editing" disagreed — the one
+  // disagreement the stemmer exists to remove. A loose pattern cannot
+  // distinguish "edit" from "writ" either, so the alternative forms are
+  // reconciled at comparison time instead; see `sameToken`.
+  if (
+    lostVowel &&
+    w.length > 3 &&
+    !/[aeiou]w$/.test(w) &&
+    /[^aeiou][aeiou][^aeiou]$/.test(w)
+  ) {
+    w += "e";
+  }
+  return w;
+}
+
+/**
+ * The forms a stemmed token may be written as.
+ *
+ * English spells some stems with a silent "e" ("write", "trim") and
+ * others without ("edit", "ship"), and no suffix rule can tell them
+ * apart: "editing" strips to "edit" and "writing" strips to "writ", but
+ * only the second wants its "e" back. Forcing one answer either way
+ * splits a word's forms apart.
+ *
+ * So a token is compared through every form it could plausibly take.
+ * "edit" is compared as "edit" and "edite"; "writ" as "writ" and
+ * "write". Two words match when any of one side's variants equals any
+ * of the other's, which is what lets "edit a video" find the skill
+ * called "video-editing".
+ */
+function tokenVariants(token: string): string[] {
+  const variants = [token];
+  if (token.length > 3) {
+    if (token.endsWith("e")) {
+      variants.push(token.slice(0, -1));
+    } else {
+      variants.push(token + "e");
+    }
+  }
+  return variants;
+}
+
+/** Do two stemmed tokens denote the same term? */
+function sameToken(a: string, b: string): boolean {
+  if (a === b) return true;
+  return tokenVariants(a).some((v) => tokenVariants(b).includes(v));
+}
+
+/**
+ * Split a phrase into stemmed content words.
+ *
+ * A hyphenated or camel-cased slug is split into its parts as well, so
+ * that "image-generation" contributes "image" and "generation". A
+ * client asking for "generate an image" and a skill named "imagegen"
+ * then agree on "image".
+ *
+ * When a vocabulary is supplied, run-together compounds are split too.
+ * That split is only appropriate for the skill-id surface, so it is
+ * opt-in rather than applied to every phrase.
+ */
+function phraseTokens(
+  phrase: string,
+  vocabulary?: Set<string>,
+  splitCompounds = false,
+): string[] {
+  const out: string[] = [];
+  for (const raw of phrase.toLowerCase().split(/[^a-z0-9+#]+/)) {
+    if (!raw) continue;
+    // Split camelCase: "imageGen" -> "image", "gen".
+    const parts = raw.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase().split(" ");
+    for (const part of parts) {
+      if (part.length <= 2) continue;
+      if (splitCompounds && vocabulary) {
+        for (const piece of splitCompound(stem(part), vocabulary)) {
+          out.push(piece);
+        }
+      } else {
+        out.push(stem(part));
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * Split a run-together slug into its parts.
+ *
+ * Some skill ids are compounds with no separator — "imagegen", "iosicon".
+ * Without splitting, "imagegen" is one opaque token that matches nothing,
+ * so an agent asking to "generate an image" never reached the one skill
+ * that generates images.
+ *
+ * The split points are found from the corpus vocabulary rather than a
+ * fixed list: a prefix that is itself a corpus word is a split point.
+ *
+ * The whole token is kept alongside the split, and only the head has to
+ * be a corpus word. Requiring *both* halves to be corpus words excluded
+ * "imagegen", whose tail "gen" is an abbreviation no skill describes —
+ * and that exclusion was exactly what kept the image skills from ever
+ * matching an agent asking to "generate an image". Keeping the whole
+ * token means a split can only ever add a match, never remove one.
+ *
+ * A token that is itself a corpus word is never split. "voiceover" is
+ * one word, and dividing it into "voice" and "over" made it match any
+ * skill that mentioned either half — the script-and-story editor's
+ * "voiceover script" then matched the text-to-speech skill on a token
+ * that was not really shared at all.
+ *
+ * The split is also confined to the skill-id surface. "checkpoint" is a
+ * real word that happens to begin with the corpus word "check", but
+ * splitting it produced two tokens for one word, and the phrase matcher
+ * counted both — so a pair that shared one word looked like it shared
+ * two and earned double the points. Ids are the only place run-together
+ * compounds genuinely appear.
+ */
+function splitCompound(token: string, vocabulary: Set<string>): string[] {
+  if (token.length < 7) return [token];
+  if (vocabulary.has(token)) return [token];
+  for (let cut = 4; cut < token.length - 3; cut++) {
+    const head = token.slice(0, cut);
+    if (vocabulary.has(head) && !head.endsWith("e")) {
+      return [token, head];
+    }
+  }
+  return [token];
+}
+
+/**
+ * Generic action verbs that identify no particular skill.
+ *
+ * Every content skill in the corpus is a request to "generate",
+ * "create" or "make" something. Matching on those words alone made
+ * "generate an image" a match for "generate a video from text", because
+ * the two phrases shared the verb and nothing else.
+ */
+const GENERIC_VERBS = new Set([
+  "generate", "create", "make", "build", "produce", "render", "write",
+  "draft", "edit", "design", "compose", "convert", "run", "apply",
+  "add", "get", "use", "find", "set", "add", "extract", "format",
+  "prepare", "choose", "capture", "lay", "guide", "expert",
+]);
+
 export function runAgent(
   agent: AgentRecord,
   body: string,
@@ -171,22 +426,251 @@ export function runAgent(
     [
       ...agent.description.toLowerCase().split(/\W+/),
       ...agent.name.toLowerCase().split(/[-_]/),
-    ].filter((t) => t.length > 3),
+    ]
+      .filter((t) => t.length > 3)
+      .map(stem),
   );
+
+  // The agent's own trigger phrases are a stronger signal than its prose
+  // description: they are written to name the skills the agent is meant to
+  // reach for.
+  const agentPhrases = (agent.prompt_signals ?? []).map((p) =>
+    p.toLowerCase().trim(),
+  ).filter(Boolean);
+
+  // How rare is each word across the corpus? "video" appears in a third of
+  // the skills and so says little; "remotion" appears in one and says a
+  // great deal. Weighting by rarity is what stops a skill with a long,
+  // keyword-dense description from outranking the one that actually does
+  // the agent's job.
+  const documentFrequency = new Map<string, number>();
+  const skillTokens = new Map<string, Set<string>>();
+  for (const skill of index.skills) {
+    const tokens = new Set(
+      `${skill.name} ${skill.description}`
+        .toLowerCase()
+        .split(/\W+/)
+        .map(stem),
+    );
+    skillTokens.set(skill.id, tokens);
+    for (const token of tokens) {
+      documentFrequency.set(token, (documentFrequency.get(token) ?? 0) + 1);
+    }
+  }
+
+  // The corpus vocabulary, used to split run-together ids like "imagegen".
+  const vocabulary = new Set<string>();
+  for (const tokens of skillTokens.values()) {
+    for (const token of tokens) vocabulary.add(token);
+  }
+
+  const corpusSize = Math.max(index.skills.length, 1);
+  const rarity = (token: string): number =>
+    Math.log(1 + corpusSize / (1 + (documentFrequency.get(token) ?? 0)));
 
   // Suggest skills whose domain matches the agent, ranked by token overlap.
   const suggested = index.skills
     .map((skill) => {
-      let overlap = 0;
-      const haystack = `${skill.name} ${skill.description}`.toLowerCase();
+      let score = 0;
+
+      // Token-boundary matching. A raw substring test matched "video"
+      // inside "videography" and "edit" inside "editor", so a skill whose
+      // name merely contained the substring scored as a full match.
+      //
+      // Each shared token is weighted by its rarity, and the total is
+      // scaled by how much of the agent's vocabulary was matched. An
+      // agent's description is long and names many topics, so a skill
+      // that happens to mention several of them must not outweigh a skill
+      // that matches the agent's actual subject — and the cap alone was
+      // not enough, because every skill in the agent's own domain hit the
+      // cap and the term stopped discriminating between them.
+      const haystackTokens = skillTokens.get(skill.id)!;
+      let descriptionHits = 0;
+      let descriptionScore = 0;
       for (const token of agentTokens) {
-        if (haystack.includes(token)) overlap += 1;
+        // Compared through their variant forms, so that "editing" in a
+        // skill description and "edit" in an agent description are
+        // recognised as the same word.
+        if ([...haystackTokens].some((h) => sameToken(h, token))) {
+          descriptionHits += 1;
+          descriptionScore += rarity(token);
+        }
       }
-      if (skill.content_domain === agent.content_domain) overlap += 2;
-      return { skill, score: overlap };
+      if (descriptionHits > 0) {
+        const coverage = descriptionHits / Math.max(agentTokens.size, 1);
+        score += Math.min(descriptionScore, 12) * coverage;
+      }
+
+      // A skill whose own trigger phrases overlap the agent's phrases is a
+      // direct match, and is weighted far above a description overlap.
+      //
+      // The comparison is on tokens, not on whole phrases: an agent's
+      // "edit a video" and a skill's "video editing" name the same thing
+      // without sharing a single string, and an exact-match test scored
+      // that pair as no match at all. A pair must share most of its
+      // content words to count, so a skill that merely shares the common
+      // word "video" does not match an agent's "edit a video".
+      //
+      // The skill's id is part of the matchable surface. An id is the most
+      // reliable name a skill has — "video-editing", "lip-sync",
+      // "thumbnail-generator" — and it is what a client actually reaches
+      // for.
+      //
+      // The id is tokenized with compound splitting enabled, because
+      // run-together ids are where that applies. The skill's own trigger
+      // phrases are ordinary English and are tokenized without it.
+      const idTokens = phraseTokens(skill.id, vocabulary, true);
+      const skillPhraseTokens = (skill.prompt_signals ?? [])
+        .map((p) => p.toLowerCase().trim())
+        .filter(Boolean)
+        .map((p) => phraseTokens(p, vocabulary));
+      const skillSurfaces: string[][] = [idTokens, ...skillPhraseTokens];
+
+      // The phrase score is the *best* matching pair, not the sum over
+      // every pair.
+      //
+      // Summing let one skill collect the same modest match several times
+      // over: a skill whose phrases contained the single word "plan"
+      // matched three of the planner agent's phrases and scored three
+      // times the points of a skill that shared a rarer word with one
+      // phrase. The number of agent phrases a skill happens to overlap is
+      // not evidence that it is a better match than the skill that
+      // matched on the agent's actual subject.
+      let phraseScore = 0;
+
+      for (const phrase of agentPhrases) {
+        const agentPhraseTokens = phraseTokens(phrase, vocabulary);
+        if (agentPhraseTokens.length === 0) continue;
+
+        for (const skillPhraseTokens of skillSurfaces) {
+          if (skillPhraseTokens.length === 0) continue;
+          // The agent's token counts as shared when any of the skill's
+          // tokens is the same term, allowing for the silent-"e" spelling
+          // difference the stemmer cannot resolve on its own.
+          const shared = agentPhraseTokens.filter(
+            (t, index, all) =>
+              all.indexOf(t) === index &&
+              skillPhraseTokens.some((s) => sameToken(s, t)),
+          );
+          if (shared.length === 0) continue;
+
+          // At least half the agent's phrase must be matched, and the
+          // match must include a word that is rare in the corpus *and* is
+          // not a generic action verb.
+          //
+          // The rarity requirement is what stops a single common word
+          // from standing in for a match. "edit a video" and "generate a
+          // video from text" share only "video", which appears in 24 of
+          // 67 skills — it identifies the domain, not the subject, and
+          // on its own it made every video skill a match for every video
+          // agent.
+          //
+          // The verb requirement is what stops the mirror image of that
+          // problem: "generate an image" and "generate a video from
+          // text" share only "generate", a word every content skill in
+          // the corpus uses. A verb says what kind of operation was
+          // asked for; the noun beside it says what was operated on, and
+          // only the noun identifies the skill.
+          //
+          // Neither filter applies when the two phrases are the same
+          // phrase. The agent's "edit a video" and a skill's "edit a
+          // video" share only a common noun and a generic verb — exactly
+          // the pair the filters reject — but they are the same
+          // request, and no other skill can match them so completely.
+          // Requiring a rare word there meant the video-editing skill,
+          // whose trigger phrase is literally "edit a video", scored
+          // nothing while a skill matching on one incidental word like
+          // "transitions" led the list.
+          const identical =
+            shared.length === agentPhraseTokens.length &&
+            agentPhraseTokens.length === skillPhraseTokens.length;
+
+          // How much of the *skill's* phrase the agent accounted for.
+          //
+          // The agent's coverage measures the same thing from the other
+          // side, and the two are not the same question. A skill whose
+          // phrase is fully covered by the agent's phrase is answering
+          // the agent's request; a skill whose phrase has words the
+          // agent never mentioned is answering a *different* request that
+          // happens to overlap.
+          //
+          // "write a hook" against "write a hook rule" is the case that
+          // made the difference. The hookify skill is about authoring
+          // hook *rules* — its "rule" is the word that makes it a
+          // different job from writing a hook — and the agent never said
+          // "rule". Scoring by the agent's coverage alone ranked it
+          // first, ahead of the skills that serve the agent, because
+          // "write" and "hook" are both there. Measuring the skill's
+          // side as well asks the harder question: does the skill do
+          // what the agent asked for, or only some of it?
+          const skillCoverage = shared.length / skillPhraseTokens.length;
+
+          const significant = shared.filter(
+            (t) => rarity(t) >= 2 && !GENERIC_VERBS.has(t),
+          );
+          if (shared.length < agentPhraseTokens.length / 2) continue;
+          if (significant.length === 0 && !identical) continue;
+
+          // The award is proportional to how rare what actually matched is.
+          //
+          // A flat award gave the same points to a phrase pair that shared
+          // one rare word and a pair that shared most of the phrase, so
+          // "image prompt" matched "video from a prompt" on the single
+          // word "prompt" and beat the skills the agent was written for.
+          // Weighting by the summed rarity of the shared tokens puts the
+          // skill that shares the agent's actual subject — several rare
+          // words — ahead of one that shares a single incidental word.
+          //
+          // An identical pair is the strongest possible match, but it is
+          // not automatically the *best* one: the voice-and-sound agent
+          // declares both "generate music" and "clone a voice", and the
+          // music skill matches the first exactly while the voice-cloning
+          // skill matches the second exactly. Awarding every identical
+          // pair the same maximum left the two tied on their phrases and
+          // decided the order on whatever else the description happened
+          // to share. Scaling the award by the rarity of the shared
+          // words — with a floor, so an exact match on common words
+          // still beats an incidental match — puts the skill that
+          // matched on the rarer subject first.
+          const significantRarity = significant.reduce(
+            (sum, t) => sum + rarity(t),
+            0,
+          );
+          const sharedRarity = shared.reduce(
+            (sum, t) => sum + rarity(t),
+            0,
+          );
+          const coverage = shared.length / agentPhraseTokens.length;
+          const award = identical
+            ? 4 + 2 * Math.min(1, sharedRarity / 6)
+            : 6 *
+              Math.min(1, significantRarity / 6) *
+              // The two coverages are combined as a geometric mean, so a
+              // shortfall on either side costs more than a shortfall on
+              // one alone.
+              //
+              // The skill's own side is what distinguishes "write a hook"
+              // from a skill whose trigger is "write a hook rule". The
+              // hookify skill authors hook *rules* — "rule" is the word
+              // that makes it a different job from writing a hook — and
+              // the agent never said "rule". A linear factor barely
+              // dented it; the geometric mean does, because two-thirds
+              // coverage on the skill's side multiplies against full
+              // coverage on the agent's.
+              Math.sqrt(coverage * skillCoverage);
+          if (award > phraseScore) phraseScore = award;
+        }
+      }
+
+      score += phraseScore;
+
+      if (skill.content_domain === agent.content_domain) score += 2;
+      return { skill, score };
     })
     .filter((entry) => entry.score > 0)
-    .sort((a, b) => b.score - a.score)
+    // Ties are broken by id so the suggestion list is stable across runs
+    // rather than dependent on the corpus order.
+    .sort((a, b) => b.score - a.score || a.skill.id.localeCompare(b.skill.id))
     .slice(0, 5)
     .map((entry) => entry.skill.id);
 

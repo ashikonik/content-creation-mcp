@@ -11,8 +11,19 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
+# setuptools build artifacts — created by `pip wheel .` in mcp/
+mcp/build/lib/
+mcp/build/bdist.*/
 
 # Editors and OS
 .DS_Store
 .idea/
 .vscode/
+
+# Local secrets — the HTTP auth token is read from the environment, never committed
+.env
+.env.*
+*.local
+
+# Local run logs — raw verification output. Summaries live in CHANGELOG.md.
+logs/

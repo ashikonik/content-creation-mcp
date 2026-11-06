@@ -33,6 +33,7 @@ from provenance import (  # noqa: E402
     detect_license_near,
     find_upstream,
     license_from_frontmatter,
+    load_provenance,
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -42,7 +43,38 @@ DATA_DIR = PROJECT_ROOT / "mcp" / "data"
 INDEX_PATH = DATA_DIR / "index.json"
 EXCLUDED_PATH = DATA_DIR / "excluded.json"
 
-INDEX_VERSION = "1.0.0"
+INDEX_VERSION = "1.5.0"
+
+
+def provenance_upstream() -> dict[tuple[str, str], dict]:
+    """The provenance table, keyed by (kind, name).
+
+    The upstream remote is read from here rather than by walking up from the
+    destination directory: the copy lives inside this repository, so that
+    walk finds *this* repository's remote and records every vendored skill
+    as originating from the project that merely redistributed it.
+    """
+    return {
+        (e.get("kind", ""), e.get("name", "")): e
+        for e in load_provenance()
+    }
+
+
+def owner_from_upstream(upstream: str | None) -> str | None:
+    """The owner segment of a repository URL.
+
+    Handles the shapes that actually occur: ``https://host/owner/repo``,
+    ``https://host/owner``, and a bare host.
+    """
+    if not upstream:
+        return None
+    trimmed = upstream.rstrip("/")
+    parts = trimmed.split("/")
+    if len(parts) >= 2:
+        candidate = parts[-2]
+        if candidate and candidate not in ("", "github.com", "gitlab.com", "bitbucket.org"):
+            return candidate
+    return None
 
 
 def load_excluded() -> dict[tuple[str, str], dict]:
@@ -198,6 +230,152 @@ def extract_phrases(frontmatter: dict) -> list[str]:
     return out
 
 
+def _is_boilerplate(phrase: str) -> bool:
+    """Is this phrase instruction boilerplate rather than a trigger?
+
+    Descriptions that begin with "Use this skill when…" or "Use when a…"
+    are telling the client when to reach for the skill. Those words are
+    not a description of what the skill does, and a trigger list built
+    from them would make every such skill trigger on "use when".
+    """
+    lowered = phrase.lower()
+    return lowered.startswith(
+        ("use this skill", "use when", "use for", "use this", "use to")
+    )
+
+
+def derive_phrases(skill_id: str, description: str) -> list[str]:
+    """Derive trigger phrases for a skill that declares none.
+
+    Every authored skill carries hand-written ``metadata.promptSignals``
+    phrases. The 43 vendored skills carry none, which left them with no
+    high-precision trigger: the search ranker's phrase bonus and the
+    agent ranker's phrase overlap both key on this list, so a vendored
+    skill could be outranked by an authored one that merely mentioned the
+    same words.
+
+    A trigger phrase is a short noun phrase a user would type — "video
+    editing", not a sentence. The phrase list is therefore built from the
+    skill's own id (which is already the slug a client addresses it by)
+    plus the leading nouns of its description, capped at a length that
+    keeps it a phrase.
+
+    This is a fallback, not a replacement: a skill with curated phrases
+    keeps them.
+    """
+    phrases: list[str] = [skill_id]
+
+    # The leading clause of the description, up to the first sentence or
+    # em-dash clause boundary.
+    head = description.strip()
+    for separator in (". ", " — ", ", and ", "; ", ", "):
+        idx = head.find(separator)
+        if idx > 12:
+            head = head[:idx]
+            break
+    head = head.strip().rstrip(".")
+
+    # Some descriptions open with instruction boilerplate — "Use this skill
+    # when…", "Use when a…". That text tells the client when to reach for
+    # the skill; it does not name what the skill does, so it is not a
+    # usable trigger.
+    if _is_boilerplate(head):
+        return phrases
+
+    # The useful part of a description is the noun it names — the object of
+    # the leading verb. "Generate or edit raster images when…" names
+    # "raster images"; "Video editor for assembly, pacing…" names "video
+    # editor". Taking the first few words instead produced phrases like
+    # "Generate or edit", which name a verb and not the subject.
+    object_phrase = _object_phrase(head, skill_id)
+    if object_phrase:
+        phrases.append(object_phrase)
+    else:
+        phrases.extend(_leading_nouns(head, skill_id))
+
+    seen: set[str] = set()
+    out: list[str] = []
+    for phrase in phrases:
+        key = phrase.lower()
+        if not phrase or key in seen:
+            continue
+        seen.add(key)
+        out.append(phrase)
+    return out
+
+
+# Verbs that introduce a description's subject. The words after one of
+# these, up to the next clause boundary, name what the skill is for.
+_SUBJECT_VERBS = (
+    "generate", "create", "make", "build", "write", "draft", "edit",
+    "produce", "render", "compose", "design", "convert", "extract",
+    "analyse", "analyze", "plan", "run", "automate", "batch", "format",
+    "translate", "transcribe", "caption", "publish", "source", "research",
+)
+
+
+def _object_phrase(head: str, skill_id: str) -> str | None:
+    """The noun phrase a description is about, if it can be found.
+
+    "Generate or edit raster images when the task…" yields "raster
+    images"; "Video editor for assembly, pacing, transitions" yields
+    "video editor".
+    """
+    words = head.split()
+    lowered = [w.lower().strip(",.;:—-()") for w in words]
+
+    # Find the subject-introducing verb.
+    start = None
+    for index, word in enumerate(lowered):
+        if word in _SUBJECT_VERBS:
+            start = index + 1
+            break
+    if start is None:
+        # No verb — the description may lead with the noun itself
+        # ("Video editor for…"). Take the words before the first
+        # preposition.
+        for index, word in enumerate(lowered):
+            if word in ("for", "of", "in", "with", "on", "to", "that", "which"):
+                start = index
+                break
+        if start is None:
+            start = 0
+
+    # The subject runs until a clause boundary.
+    end = len(words)
+    for index in range(start, len(lowered)):
+        word = lowered[index]
+        if word in ("when", "for", "that", "which", "with", "and", "or", "to"):
+            end = index
+            break
+
+    subject = " ".join(words[start:end]).strip(" ,.—-()")
+    if len(subject) < 4 or len(subject.split()) > 4:
+        return None
+    if "(" in subject or ")" in subject:
+        subject = subject.split("(")[0].strip()
+    if subject.lower() == skill_id.lower():
+        return None
+    return subject
+
+
+def _leading_nouns(head: str, skill_id: str) -> list[str]:
+    """Fallback phrases: the first few words of the description."""
+    words = head.split()
+    if words and words[0].lower() in ("a", "an", "the"):
+        words = words[1:]
+    out: list[str] = []
+    for length in (3, 4, 2):
+        if len(words) >= length:
+            candidate = " ".join(words[:length]).strip(" ,.—-")
+            if candidate.count("(") != candidate.count(")"):
+                candidate = " ".join(words[:length]).split("(")[0].strip()
+            if len(candidate) >= 4 and candidate.lower() != skill_id.lower():
+                out.append(candidate)
+            break
+    return out
+
+
 def supporting_files(skill_dir: Path) -> tuple[list[str], list[str], list[str]]:
     """Return (all, references, scripts) relative to the skill directory."""
     all_files: list[str] = []
@@ -229,6 +407,7 @@ def build_skills() -> tuple[list[dict], list[str]]:
     records: list[dict] = []
     warnings: list[str] = []
     excluded = load_excluded()
+    prov = provenance_upstream()
 
     for skill_dir in sorted(SKILLS_DIR.iterdir()):
         if not skill_dir.is_dir() or skill_dir.name in SKIP_NAMES:
@@ -270,12 +449,18 @@ def build_skills() -> tuple[list[dict], list[str]]:
         upstream = None
         owner = None
         if not authored:
-            upstream = find_upstream(skill_dir)
-            if upstream:
-                owner = upstream.rstrip("/").split("/")[-2] if "/" in upstream else None
+            # The upstream remote comes from the provenance table, which
+            # records where the content was copied from.
+            row = prov.get(("skill", skill_dir.name))
+            upstream = (row or {}).get("upstream")
+            owner = owner_from_upstream(upstream)
 
         body_start = FRONTMATTER_RE.match(text)
         body = text[body_start.end():] if body_start else text
+
+        phrases = extract_phrases(fm)
+        if not phrases:
+            phrases = derive_phrases(skill_dir.name, description)
 
         records.append(
             {
@@ -284,8 +469,11 @@ def build_skills() -> tuple[list[dict], list[str]]:
                 "description": description,
                 "content_domain": domain,
                 "source": "authored" if authored else "vendored",
-                "license": license_value,
-                "prompt_signals": extract_phrases(fm),
+                # Omitted rather than null when there is no licence. The
+                # field is optional; a null would be a value the API
+                # contract does not describe.
+                **({"license": license_value} if license_value else {}),
+                "prompt_signals": phrases,
                 "path": f"skills/{skill_dir.name}/SKILL.md",
                 "files": all_files,
                 "references": references,
@@ -304,6 +492,7 @@ def build_agents() -> tuple[list[dict], list[str]]:
     records: list[dict] = []
     warnings: list[str] = []
     excluded = load_excluded()
+    prov = provenance_upstream()
 
     for agent_file in sorted(AGENTS_DIR.glob("*.md")):
         agent_id = agent_file.stem
@@ -345,9 +534,9 @@ def build_agents() -> tuple[list[dict], list[str]]:
         owner = None
         if not authored:
             license_value, _ = detect_license_near(agent_file.parent)
-            upstream = find_upstream(agent_file.parent)
-            if upstream:
-                owner = upstream.rstrip("/").split("/")[-2] if "/" in upstream else None
+            row = prov.get(("agent", agent_id))
+            upstream = (row or {}).get("upstream")
+            owner = owner_from_upstream(upstream)
 
         body_start = FRONTMATTER_RE.match(text)
         body = text[body_start.end():] if body_start else text
@@ -361,10 +550,12 @@ def build_agents() -> tuple[list[dict], list[str]]:
                 "tools": tools,
                 "model": model or "inherit",
                 "source": "authored" if authored else "vendored",
-                "license": license_value,
+                # Omitted rather than null when there is no licence.
+                **({"license": license_value} if license_value else {}),
                 "path": f"agents/{agent_id}.md",
                 "files": [],
-                "prompt_signals": [],
+                "prompt_signals": extract_phrases(fm)
+                or derive_phrases(agent_id, description),
                 "body_chars": len(body),
                 **({"upstream": upstream} if upstream else {}),
                 **({"upstream_owner": owner} if owner else {}),
@@ -411,7 +602,14 @@ def main() -> int:
 
     index = {
         "version": INDEX_VERSION,
-        "generated_at": "1970-01-01T00:00:00Z",  # fixed for determinism
+        # Pinned to the epoch, deliberately. A wall-clock timestamp would
+        # make every rebuild produce a different file, and `build_index.py
+        # --check` would then fail on a corpus that had not changed at all.
+        # The index has to be byte-reproducible so that CI can prove the
+        # committed artifact matches the tree it describes. The field is
+        # kept because the API contract declares it; its value marks the
+        # index as a build artifact rather than a timestamped record.
+        "generated_at": "1970-01-01T00:00:00Z",
         "project_root": ".",
         "counts": {
             "skills": len(skills),

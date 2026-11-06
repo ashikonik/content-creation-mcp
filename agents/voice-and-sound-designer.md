@@ -3,6 +3,17 @@ name: voice-and-sound-designer
 description: Voice and sound designer — selecting a TTS engine, writing for the ear, cloning and converting voices, designing a soundscape with generated music and SFX, and mixing narration, music and effects to broadcast levels. Use for voiceovers, narration, jingles, sound effects, audio beds, and final audio mixes.
 tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 model: sonnet
+metadata:
+  promptSignals:
+    phrases:
+      - "text to speech"
+      - "clone a voice"
+      - "voice conversion"
+      - "sound design"
+      - "generate music"
+      - "sfx"
+      - "mix narration"
+      - "soundscape"
 ---
 
 ## Prompt Defense Baseline

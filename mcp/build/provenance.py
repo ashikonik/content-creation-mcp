@@ -57,6 +57,17 @@ NEEDS_REVIEW = {"CC-BY-4.0", "NOASSERTION", "CC-BY-NC-4.0", "CC-BY-NC-SA-4.0"}
 
 LICENSE_FILES = ("LICENSE", "LICENSE.txt", "LICENSE.md", "COPYING", "LICENSE.rst")
 
+# A ``license:`` frontmatter field that points at a licence file rather than
+# naming one. These are not licence identifiers and must not be recorded as
+# the licence of an entry.
+LICENSE_POINTER_RE = re.compile(
+    r"\b(?:see|refer to|in|under|per|as|terms\s+in|full\s+terms|"
+    r"complete\s+terms|license\s+file|licence\s+file)\b|"
+    r"license\.(?:txt|md|rst)|licence\.(?:txt|md|rst)|"
+    r"\bLICENSE\b|\bCOPYING\b",
+    re.I,
+)
+
 # Ordered most-specific-first: a specific licence beats a generic one.
 LICENSE_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("AGPL-3.0", re.compile(r"Affero General Public License", re.I)),
@@ -88,8 +99,14 @@ def detect_license_text(text: str) -> str | None:
     return None
 
 
-def detect_license_near(skill_dir: Path) -> tuple[str | None, str]:
+def detect_license_near(skill_dir: Path, stop_at: Path | None = None) -> tuple[str | None, str]:
     """Find the licence governing a skill directory.
+
+    The search walks up from ``skill_dir`` but never past ``stop_at``
+    (defaulting to ``skill_dir`` itself). Without that bound the walk
+    climbs out of the vendored tree and into this repository, where it
+    finds this project's own MIT LICENSE and reports it as the upstream
+    licence — which it is not.
 
     Returns ``(licence, source_description)``.
     """
@@ -104,8 +121,11 @@ def detect_license_near(skill_dir: Path) -> tuple[str | None, str]:
         except (json.JSONDecodeError, OSError):
             pass
 
-    # 2. nearest LICENSE file, walking up
-    current = skill_dir
+    # 2. nearest LICENSE file, walking up — but only within the bounded
+    #    subtree. The bound is what stops this repository's own licence
+    #    from being attributed to the upstream.
+    boundary = (stop_at or skill_dir).resolve()
+    current = skill_dir.resolve()
     for _ in range(8):
         for name in LICENSE_FILES:
             candidate = current / name
@@ -115,9 +135,8 @@ def detect_license_near(skill_dir: Path) -> tuple[str | None, str]:
                 except OSError:
                     found = None
                 if found:
-                    rel = candidate.relative_to(PROJECT_ROOT)
-                    return found, str(rel)
-        if current.parent == current:
+                    return found, _describe_licence_source(candidate)
+        if current == boundary or current.parent == current:
             break
         current = current.parent
 
@@ -135,8 +154,33 @@ def detect_license_near(skill_dir: Path) -> tuple[str | None, str]:
     return None, "none"
 
 
+def _describe_licence_source(candidate: Path) -> str:
+    """Describe where a licence file was found, without losing the path.
+
+    A path inside the project is reported relative to the project root; a
+    path outside it is reported absolutely, so the reader can tell that the
+    licence came from somewhere other than this repository.
+    """
+    try:
+        return str(candidate.relative_to(PROJECT_ROOT))
+    except ValueError:
+        return str(candidate)
+
+
 def license_from_frontmatter(skill_dir: Path) -> str | None:
-    """Read the ``license:`` field from a SKILL.md or agent frontmatter."""
+    """Read the ``license:`` field from a SKILL.md or agent frontmatter.
+
+    Only a recognised licence name is returned. A ``license:`` field is not
+    always a licence: some skills write a pointer instead, such as
+    ``license: Complete terms in LICENSE.txt`` or ``license: See LICENSE``.
+    Recording one of those as the licence puts a sentence where an SPDX
+    identifier belongs, and the entry then fails the known-licence check
+    while looking like it had one.
+
+    A pointer is not discarded here — it says the licence lives in a file
+    that is not next to the skill. It is simply not an answer, so the
+    caller keeps looking.
+    """
     for name in ("SKILL.md",):
         path = skill_dir / name
         if not path.is_file():
@@ -146,8 +190,16 @@ def license_from_frontmatter(skill_dir: Path) -> str | None:
         except OSError:
             continue
         match = re.search(r"^license:\s*(.+?)\s*$", text, re.M)
-        if match:
-            return match.group(1).strip().strip("\"'")
+        if not match:
+            continue
+        value = match.group(1).strip().strip("\"'")
+        if value in KNOWN_LICENCES:
+            return value
+        # A pointer to a licence file, or a licence named in a form this
+        # table does not carry. Neither is an identifier.
+        if LICENSE_POINTER_RE.search(value):
+            continue
+        return value
     return None
 
 

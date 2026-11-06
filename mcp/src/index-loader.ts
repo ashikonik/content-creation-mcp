@@ -42,7 +42,14 @@ export const MCP_ROOT = findMcpRoot();
 
 /**
  * The repository root. Found by walking up from MCP_ROOT until the skills/
- * and agents/ directories appear. Falls back to MCP_ROOT's parent.
+ * and agents/ directories appear.
+ *
+ * The walk used to fall back to MCP_ROOT's parent when it found nothing,
+ * which meant a mis-installed server could serve a *different* project's
+ * `skills/` directory — silently, and with no indication that the corpus
+ * was not the one it shipped with. It now fails loudly instead: a wrong
+ * corpus is a deployment error the operator must see, not something to
+ * paper over.
  */
 function findProjectRoot(): string {
   let dir = MCP_ROOT;
@@ -56,7 +63,12 @@ function findProjectRoot(): string {
     dir = parent;
   }
 
-  return resolve(MCP_ROOT, "..");
+  throw new Error(
+    `Could not locate the project root from ${MCP_ROOT}: no directory " +
+      "within 8 levels up contains both skills/ and agents/. The server " +
+      "refuses to guess, because serving a different project's skills " +
+      "directory would be a silent corruption of the corpus.`,
+  );
 }
 
 export const PROJECT_ROOT = findProjectRoot();

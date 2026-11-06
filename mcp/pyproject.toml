@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "content-creation-mcp"
-version = "1.0.0"
+version = "1.5.0"
 description = "Harness-agnostic MCP server exposing content-creation skills and agents over stdio and Streamable HTTP."
-readme = "../README.md"
+readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "content-creation-mcp contributors" }]
@@ -27,7 +27,8 @@ classifiers = [
 dependencies = ["PyYAML>=6.0"]
 
 [project.urls]
-Homepage = "https://github.com/content-creation-mcp/content-creation-mcp"
+Homepage = "https://github.com/ashikonik/content-creation-mcp"
+Repository = "https://github.com/ashikonik/content-creation-mcp"
 
 [project.scripts]
 content-creation-mcp-build-index = "build.build_index:main"
@@ -39,3 +40,15 @@ packages = ["build"]
 
 [tool.setuptools.package-data]
 build = ["*.py"]
+
+# The generated index, the provenance table, the exclusion list and the
+# harness registry are the build's inputs *and* the MCP server's runtime
+# data. Without this, an installed wheel ships the scripts but none of the
+# JSON they read, and every tool call fails on a missing index.
+[tool.setuptools.data-files]
+"share/content-creation-mcp/data" = [
+  "data/index.json",
+  "data/provenance.json",
+  "data/excluded.json",
+  "data/harnesses.json",
+]

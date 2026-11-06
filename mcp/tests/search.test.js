@@ -42,6 +42,113 @@ test("a direct capability query finds the right skill first", async () => {
   await server.close();
 });
 
+test("a capability query ranks the skill ahead of the agent that consults it", async () => {
+  // A capability query asks "what does this". The skill is what does it;
+  // the agent is the thing that consults the skill. Ranking the agent first
+  // points the client at a coordinator instead of at the instructions.
+  const { client, server } = await connectClient();
+
+  const cases = [
+    ["edit a script", "script-and-story-editing", "script-and-story-editor"],
+    ["generate an image", "imagegen", "image-art-director"],
+    ["make a thumbnail", "thumbnail-generator", "thumbnail-designer"],
+    ["lip sync", "lip-sync", "lip-sync-technician"],
+  ];
+
+  for (const [query, skill, agent] of cases) {
+    const results = await search(client, query, { limit: 10 });
+    const ids = results.map((r) => r.id);
+    const skillAt = ids.indexOf(skill);
+    const agentAt = ids.indexOf(agent);
+
+    assert.ok(skillAt >= 0, `query "${query}" did not return "${skill}"`);
+    assert.ok(agentAt >= 0, `query "${query}" did not return "${agent}"`);
+    assert.ok(
+      skillAt < agentAt,
+      `query "${query}" ranked the agent "${agent}" above the skill "${skill}"`,
+    );
+  }
+
+  await server.close();
+});
+
+test("the prompt-signal phrase bonus is awarded once per document", async () => {
+  // The bonus used to be awarded per matching phrase, so a skill that
+  // declared six trigger phrases collected six times the bonus of a skill
+  // that declared one, for the same single matching word. The image-CDN
+  // skill therefore outranked the image-generation skill on "generate an
+  // image" even though its trigger phrase is not that phrase.
+  const { client, server } = await connectClient();
+
+  const results = await search(client, "generate an image", { limit: 10 });
+  const ids = results.map((r) => r.id);
+
+  assert.equal(ids[0], "imagegen", `expected imagegen first, got: ${ids.join(", ")}`);
+  assert.ok(
+    ids.indexOf("netlify-image-cdn") > ids.indexOf("imagegen"),
+    "a skill with many trigger phrases outranked the one whose phrase matches",
+  );
+
+  await server.close();
+});
+
+test("a filtered search ranks within the filtered corpus", async () => {
+  // The idf table described the whole corpus, but the filters selected a
+  // subset. A token common across all records but rare inside the
+  // filtered set scored as if it were distinctive, so a narrow modality
+  // search was weighted against its own corpus.
+  const { client, server } = await connectClient();
+
+  const results = await search(client, "transcode", {
+    modality: "av_pipeline",
+    limit: 20,
+  });
+
+  assert.ok(results.length > 0, "the av_pipeline filter returned nothing");
+  for (const r of results) {
+    assert.equal(r.content_domain, "av_pipeline");
+  }
+
+  // The narrow filter must still surface the domain's own skills rather
+  // than collapsing to whatever scored well corpus-wide.
+  const ids = results.map((r) => r.id);
+  assert.ok(
+    ids.includes("media-transcode-pipeline"),
+    `expected the transcode skill, got: ${ids.join(", ")}`,
+  );
+
+  await server.close();
+});
+
+test("a filtered search returns the same ordering as an unfiltered one", async () => {
+  // The filter changes which documents compete; it must not change how
+  // they are compared.
+  const { client, server } = await connectClient();
+
+  const unfiltered = await search(client, "video", { limit: 30 });
+  const filtered = await search(client, "video", {
+    modality: "video",
+    limit: 30,
+  });
+
+  const unfilteredIds = unfiltered
+    .filter((r) => r.content_domain === "video")
+    .map((r) => r.id);
+  const filteredIds = filtered.map((r) => r.id);
+
+  // The video-domain results must appear in the same relative order in
+  // both lists.
+  const positions = filteredIds.map((id) => unfilteredIds.indexOf(id));
+  const sorted = [...positions].sort((a, b) => a - b);
+  assert.deepEqual(
+    positions,
+    sorted,
+    "filtering by modality changed the relative order of the results",
+  );
+
+  await server.close();
+});
+
 test("search returns results for a natural-language phrase", async () => {
   const { client, server } = await connectClient();
 

@@ -1,8 +1,19 @@
 ---
 name: marketing-campaign
-description: End-to-end marketing campaign planning and execution. Covers audience research, positioning, campaign angle definition, landing page copy, email sequences, social posts, ad copy, short-form video scripts, and content calendars. Use as the orchestration layer for multi-channel product launches.
+description: End-to-end marketing campaign planning and execution. Covers audience
+  research, positioning, campaign angle definition, landing page copy, email sequences,
+  social posts, ad copy, short-form video scripts, and content calendars. Use as the
+  orchestration layer for multi-channel product launches.
 metadata:
   origin: ECC
+  promptSignals:
+    phrases:
+    - plan a product launch campaign
+    - campaign angle and positioning
+    - write landing page copy
+    - email sequence for a launch
+    - ad copy and social posts
+    - content calendar for a launch
 ---
 
 # Marketing Campaign

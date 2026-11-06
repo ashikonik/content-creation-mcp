@@ -65,6 +65,50 @@ test("get_stats reports the corpus", async () => {
   await server.close();
 });
 
+test("get_stats counts sources and domains over the same records", async () => {
+  // `by_source` counted only skills while its sibling `by_domain` counted
+  // skills and agents, so the two siblings reported totals that disagreed
+  // and neither said which basis it used.
+  const { client, server } = await connectClient();
+  const stats = await callTool(client, "get_stats");
+
+  const bySourceTotal = stats.by_source.authored + stats.by_source.vendored;
+  const byDomainTotal = Object.values(stats.by_domain).reduce(
+    (sum, n) => sum + n,
+    0,
+  );
+  const recordTotal = stats.skills + stats.agents;
+
+  assert.equal(
+    bySourceTotal,
+    recordTotal,
+    `by_source totals ${bySourceTotal}, but the corpus holds ${recordTotal} records`,
+  );
+  assert.equal(
+    byDomainTotal,
+    recordTotal,
+    `by_domain totals ${byDomainTotal}, but the corpus holds ${recordTotal} records`,
+  );
+
+  await server.close();
+});
+
+test("get_skill omits an unknown licence rather than reporting null", async () => {
+  // `license` was emitted as `null` while `prompt_signals` and `files` were
+  // emitted as `[]`. A missing licence is absent, not an empty value.
+  const { client, server } = await connectClient();
+  const payload = await callTool(client, "get_skill", {
+    id: "comfyui-video-workflows",
+  });
+
+  assert.ok(
+    payload.license === undefined || typeof payload.license === "string",
+    `license should be a string or absent, got ${typeof payload.license}`,
+  );
+
+  await server.close();
+});
+
 test("list_modalities returns every domain with counts", async () => {
   const { client, server } = await connectClient();
   const payload = await callTool(client, "list_modalities");

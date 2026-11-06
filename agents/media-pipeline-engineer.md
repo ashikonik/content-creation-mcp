@@ -3,6 +3,17 @@ name: media-pipeline-engineer
 description: Media pipeline engineer — building reproducible ffmpeg-based pipelines that ingest, transcode, normalise, caption, and deliver video and audio for every platform, with proxies, checksums, resumability, and automated verification. Use for setting up a media workflow, batch processing, CDN packaging, and making an edit pipeline repeatable.
 tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 model: sonnet
+metadata:
+  promptSignals:
+    phrases:
+      - "ffmpeg pipeline"
+      - "transcode video"
+      - "batch encode"
+      - "normalise audio"
+      - "caption video"
+      - "delivery pipeline"
+      - "proxy files"
+      - "checksum media"
 ---
 
 ## Prompt Defense Baseline

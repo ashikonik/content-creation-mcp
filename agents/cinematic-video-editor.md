@@ -3,6 +3,18 @@ name: cinematic-video-editor
 description: Video editor for narrative and cinematic work — assembly, pacing, transitions, colour grading, sound design, and final delivery. Use for story edits, explainer videos, documentary cuts, music videos, and any edit where the sequence and the sound matter more than a quick social trim.
 tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 model: sonnet
+metadata:
+  promptSignals:
+    phrases:
+      - "edit a video"
+      - "cinematic edit"
+      - "story edit"
+      - "colour grading"
+      - "transitions"
+      - "documentary edit"
+      - "music video edit"
+      - "pacing"
+      - "assembly edit"
 ---
 
 ## Prompt Defense Baseline

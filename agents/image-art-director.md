@@ -3,6 +3,17 @@ name: image-art-director
 description: Image art director for generating and refining AI images — prompt construction, model and checkpoint selection, style consistency across a set, reference control, upscaling, and final delivery. Use for hero images, concept art, product shots, social graphics, illustration sets, and any visual that must look intentional rather than generated.
 tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 model: sonnet
+metadata:
+  promptSignals:
+    phrases:
+      - "generate an image"
+      - "image prompt"
+      - "style consistency"
+      - "checkpoint selection"
+      - "reference control"
+      - "upscale an image"
+      - "ai image art direction"
+      - "image refinement"
 ---
 
 ## Prompt Defense Baseline

@@ -7,32 +7,62 @@
  * entrypoints.
  */
 import { readFileSync, existsSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve, sep, dirname } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
 import { loadIndex, PROJECT_ROOT } from "./index-loader.js";
 import { parseFrontmatter } from "./frontmatter.js";
 import { search } from "./search.js";
-import { contextFromFile, renderSkill, runAgent } from "./render.js";
+import { contextFromFile, implementedFormats, renderSkill, runAgent } from "./render.js";
 import {
   CONTENT_DOMAINS,
-  RENDER_FORMATS,
   type AgentRecord,
   type ContentDomain,
   type RenderFormat,
+  type SkillFrontmatter,
   type SkillRecord,
 } from "./types.js";
+import { loadRegistry, registryFormats } from "./harness-registry.js";
 
 const SERVER_NAME = "content-creation-mcp";
-const SERVER_VERSION = "1.0.0";
+const SERVER_VERSION = "1.5.0";
+
+/** Maximum number of file paths a single get_skill_bundle call may request. */
+const MAX_BUNDLE_FILES = 200;
 
 /** Read a file, returning null when it is missing rather than throwing. */
 function readIfExists(path: string): string | null {
-  if (!existsSync(path)) return null;
-  const stat = statSync(path);
-  if (!stat.isFile()) return null;
-  return readFileSync(path, "utf8");
+  try {
+    if (!existsSync(path)) return null;
+    const stat = statSync(path);
+    if (!stat.isFile()) return null;
+    return readFileSync(path, "utf8");
+  } catch {
+    // The file may vanish between the stat and the read.
+    return null;
+  }
+}
+
+/**
+ * Resolve `rel` inside `base`, refusing anything that escapes it.
+ *
+ * `join` normalises `..` segments, so containment has to be checked after
+ * resolution — a naive join lets `../../etc/passwd` walk out of the skill
+ * directory. Returns null when the path is not inside `base`.
+ */
+function resolveInside(base: string, rel: string): string | null {
+  // Reject absolute paths and any `..` segment outright, so the refusal is
+  // explicit rather than relying only on the containment check below.
+  if (rel.length === 0) return null;
+  if (rel.startsWith("/") || rel.startsWith("\\")) return null;
+  if (/^[a-zA-Z]:/.test(rel)) return null;
+  const segments = rel.split(/[\\/]+/);
+  if (segments.some((s) => s === "..")) return null;
+
+  const abs = resolve(base, rel);
+  if (abs !== base && !abs.startsWith(base + sep)) return null;
+  return abs;
 }
 
 function skillPath(skill: SkillRecord): string {
@@ -64,6 +94,27 @@ function findAgent(id: string): AgentRecord | undefined {
 }
 
 export function createServer(): McpServer {
+  // The dialect registry is loaded once, at startup. A registry that names a
+  // format the renderer cannot produce fails here, loudly, rather than on the
+  // first request that happens to ask for it.
+  const registry = loadRegistry();
+  const renderFormats = registryFormats();
+
+  // The registry says which formats exist; the renderer says which ones the
+  // code can produce. The two must agree. A format in the registry with no
+  // renderer would otherwise be accepted by `render_skill` and then fail on
+  // every call — a client-visible bug that only appears when that particular
+  // format is requested.
+  const implemented = new Set(implementedFormats());
+  const unimplemented = renderFormats.filter((f) => !implemented.has(f));
+  if (unimplemented.length > 0) {
+    throw new Error(
+      `Harness registry names ${unimplemented.length} format(s) with no ` +
+        `renderer: ${unimplemented.join(", ")}. Implemented formats: ` +
+        `${[...implemented].join(", ")}.`,
+    );
+  }
+
   const server = new McpServer(
     { name: SERVER_NAME, version: SERVER_VERSION },
     {
@@ -148,14 +199,29 @@ export function createServer(): McpServer {
         };
       }
 
-      const { frontmatter, body } = parseFrontmatter(text);
+      let frontmatter: SkillFrontmatter;
+      let body: string;
+      try {
+        ({ frontmatter, body } = parseFrontmatter(text));
+      } catch (err) {
+        return {
+          isError: true,
+          content: [
+            {
+              type: "text" as const,
+              text: `Cannot read ${skill.id}: ${(err as Error).message}`,
+            },
+          ],
+        };
+      }
+
       const payload = {
         id: skill.id,
         name: skill.name,
         description: skill.description,
         content_domain: skill.content_domain,
         source: skill.source,
-        license: skill.license ?? null,
+        license: skill.license,
         prompt_signals: skill.prompt_signals,
         path: skill.path,
         files: skill.files,
@@ -182,7 +248,7 @@ export function createServer(): McpServer {
         "assets. Omit files for the manifest only.",
       inputSchema: {
         id: z.string().describe("Skill id or name"),
-        files: z.array(z.string()).optional().describe("Specific relative file paths to fetch"),
+        files: z.array(z.string()).max(MAX_BUNDLE_FILES).optional().describe("Specific relative file paths to fetch"),
         max_bytes: z.number().int().min(1).max(2_000_000).optional().describe("Total byte cap (default 200000)"),
       },
     },
@@ -195,14 +261,36 @@ export function createServer(): McpServer {
         };
       }
 
-      const dir = join(PROJECT_ROOT, skill.path, "..");
-      const manifest = skill.files.map((f) => {
-        const abs = join(dir, f);
+      if (files && files.length > MAX_BUNDLE_FILES) {
         return {
-          path: f,
-          bytes: existsSync(abs) ? statSync(abs).size : 0,
-          exists: existsSync(abs),
+          isError: true,
+          content: [
+            {
+              type: "text" as const,
+              text: `Too many files requested: ${files.length} (max ${MAX_BUNDLE_FILES})`,
+            },
+          ],
         };
+      }
+
+      // The skill's own directory. `skill.path` points at the SKILL.md file,
+      // so the bundle's root is its parent. Paths are resolved inside that
+      // directory and nowhere else.
+      const dir = dirname(resolve(PROJECT_ROOT, skill.path));
+      const manifest = skill.files.map((f) => {
+        const abs = resolveInside(dir, f);
+        if (abs === null) {
+          return { path: f, bytes: 0, exists: false };
+        }
+        try {
+          // One stat, not an existsSync followed by a statSync: the file
+          // can change between the two, and the second call could throw
+          // for a path the first one just confirmed.
+          const stat = statSync(abs);
+          return { path: f, bytes: stat.size, exists: stat.isFile() };
+        } catch {
+          return { path: f, bytes: 0, exists: false };
+        }
       });
 
       if (!files || files.length === 0) {
@@ -218,10 +306,25 @@ export function createServer(): McpServer {
 
       const cap = max_bytes ?? 200_000;
       let used = 0;
-      const contents: Array<{ path: string; content?: string; truncated: boolean }> = [];
+      const contents: Array<{
+        path: string;
+        content?: string;
+        truncated: boolean;
+        error?: string;
+      }> = [];
 
       for (const rel of files) {
-        const abs = join(dir, rel);
+        const abs = resolveInside(dir, rel);
+        if (abs === null) {
+          // Refuse the path rather than reading it. Reporting it as an error
+          // keeps the caller informed without leaking whether it exists.
+          contents.push({
+            path: rel,
+            truncated: false,
+            error: "path is outside the skill directory",
+          });
+          continue;
+        }
         const text = readIfExists(abs);
         if (text === null) {
           contents.push({ path: rel, truncated: false });
@@ -232,12 +335,18 @@ export function createServer(): McpServer {
           contents.push({ path: rel, truncated: true });
           continue;
         }
-        if (text.length > remaining) {
-          contents.push({ path: rel, content: text.slice(0, remaining), truncated: true });
+        // The cap is in bytes, not UTF-16 code units.
+        const bytes = Buffer.byteLength(text, "utf8");
+        if (bytes > remaining) {
+          contents.push({
+            path: rel,
+            content: Buffer.from(text, "utf8").subarray(0, remaining).toString("utf8"),
+            truncated: true,
+          });
           used += remaining;
         } else {
           contents.push({ path: rel, content: text, truncated: false });
-          used += text.length;
+          used += bytes;
         }
       }
 
@@ -346,13 +455,13 @@ export function createServer(): McpServer {
       title: "Render a skill for a client dialect",
       description:
         "Render a skill into a specific dialect and return it as a string. " +
-        "Formats: markdown, claude-frontmatter, openai-yaml, agentsmd, " +
-        "cursor-rules. This is the harness-agnostic path — a non-Claude " +
+        `Formats: ${renderFormats.join(", ")}. ` +
+        "This is the harness-agnostic path — a non-Claude " +
         "client calls this and receives a usable skill.",
       inputSchema: {
         id: z.string().describe("Skill id or name"),
         format: z
-          .enum(RENDER_FORMATS as [RenderFormat, ...RenderFormat[]])
+          .enum(renderFormats as [string, ...string[]])
           .describe("Target dialect"),
       },
     },
@@ -373,8 +482,27 @@ export function createServer(): McpServer {
         };
       }
 
-      const ctx = contextFromFile(text, skill);
-      const rendered = renderSkill(format, ctx);
+      let rendered: string;
+      try {
+        const ctx = contextFromFile(text, skill);
+        // The format list comes from the registry at runtime, so it is a
+        // plain string here. The startup check above has already proved
+        // every registered format has a renderer, so the cast is safe.
+        rendered = renderSkill(format as RenderFormat, ctx);
+      } catch (err) {
+        // A malformed frontmatter block is a problem with one skill, not
+        // with the request. Reporting it as a tool error keeps the server
+        // running and tells the client which skill needs fixing.
+        return {
+          isError: true,
+          content: [
+            {
+              type: "text" as const,
+              text: `Cannot render ${skill.id}: ${(err as Error).message}`,
+            },
+          ],
+        };
+      }
 
       return {
         content: [{ type: "text" as const, text: rendered }],
@@ -415,7 +543,21 @@ export function createServer(): McpServer {
         };
       }
 
-      const { body } = parseFrontmatter(text);
+      let body: string;
+      try {
+        ({ body } = parseFrontmatter(text));
+      } catch (err) {
+        return {
+          isError: true,
+          content: [
+            {
+              type: "text" as const,
+              text: `Cannot read ${agent.id}: ${(err as Error).message}`,
+            },
+          ],
+        };
+      }
+
       const index = loadIndex();
       const run = runAgent(agent, body, task, context, index);
 
@@ -469,7 +611,23 @@ export function createServer(): McpServer {
           {
             type: "text" as const,
             text: JSON.stringify(
-              { modalities, render_formats: RENDER_FORMATS },
+              {
+                modalities,
+                render_formats: renderFormats,
+                harnesses: Object.fromEntries(
+                  Object.entries(registry.harnesses).map(([name, spec]) => [
+                    name,
+                    {
+                      label: spec.label,
+                      skill_format: spec.skill_format,
+                      agent_format: spec.agent_format,
+                      skill_filename: spec.skill_filename,
+                      agent_filename: spec.agent_filename,
+                      dirs: spec.dirs,
+                    },
+                  ]),
+                ),
+              },
               null,
               2,
             ),
@@ -491,9 +649,15 @@ export function createServer(): McpServer {
     },
     async () => {
       const index = loadIndex();
+
+      // Counted over both kinds, so the total matches `by_domain`, which
+      // also spans skills and agents. Counting skills alone made the two
+      // siblings disagree: `by_source` reported 36 while `by_domain`
+      // reported 48, and neither number was labelled.
+      const records = [...index.skills, ...index.agents];
       const bySource = {
-        authored: index.skills.filter((s) => s.source === "authored").length,
-        vendored: index.skills.filter((s) => s.source === "vendored").length,
+        authored: records.filter((r) => r.source === "authored").length,
+        vendored: records.filter((r) => r.source === "vendored").length,
       };
 
       return {
@@ -503,11 +667,14 @@ export function createServer(): McpServer {
             text: JSON.stringify(
               {
                 version: index.version,
+                // Pinned to the epoch so the index stays byte-reproducible.
+                // See the comment where build_index.py emits it.
                 generated_at: index.generated_at,
                 skills: index.skills.length,
                 agents: index.agents.length,
                 by_domain: index.counts.by_domain,
                 by_source: bySource,
+                by_source_basis: "skills and agents",
               },
               null,
               2,

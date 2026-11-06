@@ -1,14 +1,23 @@
 ---
 name: humanizer
-description: >
-  Rewrites text to sound like a real person wrote it — not an AI. Use this skill
-  any time the user asks to humanize, de-AI, rewrite, make sound natural, remove
-  AI patterns, or fix robotic-sounding text. Also trigger when the user pastes
-  text and says things like "make this mine," "fix this," "this sounds like AI,"
-  or "clean this up." Even if the user doesn't use the word "humanize," if they're
-  handing over a block of text and want it to sound more human or personal, use
-  this skill. Always apply the full banned-patterns list below — never skip it,
-  never explain it to the user unless asked.
+description: Rewrites text to sound like a real person wrote it — not an AI. Use this
+  skill any time the user asks to humanize, de-AI, rewrite, make sound natural, remove
+  AI patterns, or fix robotic-sounding text. Also trigger when the user pastes text
+  and says things like "make this mine," "fix this," "this sounds like AI," or "clean
+  this up." Even if the user doesn't use the word "humanize," if they're handing over
+  a block of text and want it to sound more human or personal, use this skill. Always
+  apply the full banned-patterns list below — never skip it, never explain it to the
+  user unless asked.
+metadata:
+  promptSignals:
+    phrases:
+    - humanize this text
+    - make this sound like a person wrote it
+    - remove ai writing patterns
+    - this sounds like ai
+    - make this mine
+    - de-ai the copy
+    - fix robotic sounding prose
 ---
 
 # Humanizer Skill

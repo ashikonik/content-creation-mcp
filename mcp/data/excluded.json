@@ -6,6 +6,24 @@
       "kind": "skill",
       "reason": "hosted-paid-api",
       "detail": "The skill is a guide to fal.ai's hosted generation endpoints (Veo, Kling, Seedance, Nano Banana) and ElevenLabs. Those are paid, hosted AI generation services, which the corpus excludes: it covers open-source and local-hostable tools only."
+    },
+    {
+      "name": "videodb",
+      "kind": "skill",
+      "reason": "hosted-paid-api",
+      "detail": "VideoDB is a hosted SaaS. The skill documents its cloud API (ingest, index, transcode, generate) and there is no self-hosted or open-source path documented, so following it requires an account and a paid subscription. The local equivalents for the operations it covers live in media-transcode-pipeline, subtitle-generation, video-editing, audio-separation, and local-diffusion-suite."
+    },
+    {
+      "name": "email",
+      "kind": "skill",
+      "reason": "hosted-paid-api",
+      "detail": "The skill documents Resend, a hosted transactional-email service, and its templates, with a workflow specific to Vercel deployments. It teaches one paid SaaS rather than the category, and requires an account and an API key. For sending mail from a local or self-hosted stack, see email-ops."
+    },
+    {
+      "name": "social-publisher",
+      "kind": "skill",
+      "reason": "hosted-paid-api",
+      "detail": "The skill documents SocialClaw, a hosted workspace service reached through a workspace API key, which performs the publishing on SocialClaw's side. It is a hosted dependency rather than a local tool. The corpus's authored social-publish-scheduling skill covers planning and scheduling a campaign without a hosted publisher."
     }
   ]
 }

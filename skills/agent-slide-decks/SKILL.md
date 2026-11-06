@@ -29,7 +29,7 @@ and a title that makes a claim rather than naming a topic.
 | **Slidev** | Web app, PDF, PPTX | Code-heavy decks, Vue components, live animations |
 | **reveal.js** | Web | Embedding in a site, custom themes |
 | **python-pptx** | PPTX | Editing existing corporate templates |
-| **Remotion** | Video | When the "deck" is really a video (see `remotion-video-creation`) |
+| **Remotion** | Video | When the "deck" is really a video (see `remotion-best-practices`) |
 
 **If you must produce a .pptx a colleague will edit, use `python-pptx`.** If the
 deck just has to look good and be shared as a link or PDF, use Marp.
@@ -284,7 +284,7 @@ Remotion (best quality, render farm friendly):
 npx remotion render Deck out/video.mp4
 ```
 
-See `remotion-video-creation`.
+See `remotion-best-practices`.
 
 ## Deck quality rules
 
@@ -331,5 +331,5 @@ GitHub stars — see `references/design-reference-tools.md`.
 ## Related skills
 
 `diagram-generation` · `frontend-slides` · `google-slides` ·
-`remotion-video-creation` · `reports-pdfs-and-slide-automation` ·
+`remotion-best-practices` · `reports-pdfs-and-slide-automation` ·
 `thumbnail-generator`

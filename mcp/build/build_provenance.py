@@ -25,6 +25,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from origins import (  # noqa: E402
+    UNKNOWN_LICENCE,
+    relativise,
+    resolve_licence,
+    resolve_source,
+)
 from provenance import (  # noqa: E402
     DATA_DIR,
     KNOWN_LICENCES,
@@ -35,6 +41,36 @@ from provenance import (  # noqa: E402
     load_provenance,
     save_provenance,
 )
+
+# Vendored entries whose upstream licence could not be determined.
+#
+# These are published with licence "UNKNOWN" and verdict "needs-review".
+# The list below is the explicit human sign-off: an entry may only appear
+# in the published corpus if it is named here. Adding a name here is a
+# deliberate decision to publish an item of unverified licence; removing
+# one withdraws that decision.
+#
+# This gate exists because the previous behaviour silently attributed this
+# repository's MIT licence to 64 rows, including 43 whose upstream had no
+# discoverable licence at all.
+LICENCE_SIGNOFF: set[str] = {
+    "canva-branded-presentation",
+    "draft-brief",
+    "draft-long-form-memo",
+    "geist",
+    "google-slides",
+    "humanizer",
+    "hyperframes",
+    "hyperframes-cli",
+    "hyperframes-registry",
+    "node-link-and-diagram-layout",
+    "remotion-best-practices",
+    "reports-pdfs-and-slide-automation",
+    "sprite-pipeline",
+    "uml-and-software-architecture-visualization",
+    "web-3d-asset-pipeline",
+    "website-to-hyperframes",
+}
 
 # Authored content inherits the repository licence.
 REPO_LICENSE = "MIT"
@@ -69,17 +105,18 @@ def authored_entries(
 ) -> list[dict]:
     """Rows for content written for this project.
 
-    A directory is authored when its provenance row has no filesystem
-    ``source`` — vendored rows always point at the path they were copied
-    from. This keeps the classification stable across reruns without needing
-    a separate manifest file.
+    A directory is authored when its provenance row records no vendored
+    origin. The check is on the ``verdict`` rather than on the truthiness
+    of ``source``: an authored row carries the literal string ``"authored"``
+    as its source, which is truthy, so a truthiness test would classify
+    authored content as vendored.
     """
     rows: list[dict] = []
 
     for skill_dir in sorted(p for p in SKILLS_DIR.iterdir() if p.is_dir()):
         name = skill_dir.name
         prior = existing.get(("skill", name))
-        if prior and prior.get("source"):
+        if prior and prior.get("verdict") != "authored":
             continue
         rows.append(
             {
@@ -101,7 +138,7 @@ def authored_entries(
     for agent_file in sorted(AGENTS_DIR.glob("*.md")):
         name = agent_file.stem
         prior = existing.get(("agent", name))
-        if prior and prior.get("source"):
+        if prior and prior.get("verdict") != "authored":
             continue
         rows.append(
             {
@@ -127,34 +164,30 @@ def vendored_entries(
     domains: dict[tuple[str, str], str],
     existing: dict[tuple[str, str], dict],
 ) -> list[dict]:
-    """Rows for copied content, preserving the recorded upstream details.
+    """Rows for copied content.
 
-    The upstream path and commit information cannot be re-derived from the
-    copied tree, so it is carried over from the previous table. Only the
-    licence is re-detected, because that is what the corpus gate depends on.
+    The licence is resolved from the *origin* of the copy, not from the
+    directory it now lives in. Where no upstream licence can be found the
+    entry is recorded as UNKNOWN with verdict ``needs-review``, rather
+    than inheriting this repository's licence.
     """
     rows: list[dict] = []
 
     for skill_dir in sorted(p for p in SKILLS_DIR.iterdir() if p.is_dir()):
         name = skill_dir.name
         prior = existing.get(("skill", name))
-        if not prior or not prior.get("source"):
+        if not prior or prior.get("verdict") == "authored":
             continue
 
-        license_name, license_source = detect_license_near(skill_dir)
-        if license_name is None:
-            license_name = license_from_frontmatter(skill_dir)
-            license_source = "frontmatter" if license_name else "none"
-        if license_name is None:
-            license_name = prior.get("license")
-            license_source = f"carried-over:{prior.get('license_source', 'unknown')}"
-
-        if license_name in NEEDS_REVIEW:
+        license_name, license_source = resolve_licence(prior)
+        if license_name == UNKNOWN_LICENCE:
+            verdict = "needs-review"
+        elif license_name in NEEDS_REVIEW:
             verdict = "needs-review"
         elif license_name not in KNOWN_LICENCES:
             verdict = "unknown-licence"
         else:
-            verdict = prior.get("verdict") or "publish-default-mit"
+            verdict = "publish"
 
         rows.append(
             {
@@ -163,9 +196,13 @@ def vendored_entries(
                 "owner": prior.get("owner") or "vendored",
                 "license": license_name,
                 "license_source": license_source,
-                "source": prior.get("source"),
+                "source": resolve_source(prior),
                 "upstream": prior.get("upstream"),
-                "upstream_root": prior.get("upstream_root"),
+                "upstream_root": (
+                    relativise(prior["upstream_root"])
+                    if prior.get("upstream_root")
+                    else None
+                ),
                 "path": f"skills/{name}/",
                 "content_domain": domains.get(("skill", name), "")
                 or prior.get("content_domain", ""),
@@ -177,11 +214,18 @@ def vendored_entries(
     for agent_file in sorted(AGENTS_DIR.glob("*.md")):
         name = agent_file.stem
         prior = existing.get(("agent", name))
-        if not prior or not prior.get("source"):
+        if not prior or prior.get("verdict") == "authored":
             continue
 
-        license_name = prior.get("license") or REPO_LICENSE
-        license_source = prior.get("license_source", "defaulted")
+        license_name, license_source = resolve_licence(prior)
+        if license_name == UNKNOWN_LICENCE:
+            verdict = "needs-review"
+        elif license_name in NEEDS_REVIEW:
+            verdict = "needs-review"
+        elif license_name not in KNOWN_LICENCES:
+            verdict = "unknown-licence"
+        else:
+            verdict = "publish"
 
         rows.append(
             {
@@ -190,14 +234,18 @@ def vendored_entries(
                 "owner": prior.get("owner") or "vendored",
                 "license": license_name,
                 "license_source": license_source,
-                "source": prior.get("source"),
+                "source": resolve_source(prior),
                 "upstream": prior.get("upstream"),
-                "upstream_root": prior.get("upstream_root"),
+                "upstream_root": (
+                    relativise(prior["upstream_root"])
+                    if prior.get("upstream_root")
+                    else None
+                ),
                 "path": f"agents/{name}.md",
                 "content_domain": domains.get(("agent", name), "")
                 or prior.get("content_domain", ""),
                 "vendored_on": prior.get("vendored_on", VENDORED_ON),
-                "verdict": prior.get("verdict") or "publish-default-mit",
+                "verdict": verdict,
             }
         )
 
@@ -226,6 +274,24 @@ def build() -> list[dict]:
     return sorted(rows, key=lambda e: (e["kind"], e["name"]))
 
 
+def unlicensed_without_signoff(rows: list[dict]) -> list[str]:
+    """Entries published with an unverified licence but no sign-off.
+
+    An entry whose licence resolved to UNKNOWN may only be published if it
+    is named in ``LICENCE_SIGNOFF``. Anything else is a build failure —
+    the alternative is silently attributing a licence nobody verified.
+    """
+    out = []
+    for row in rows:
+        if row.get("verdict") != "needs-review":
+            continue
+        if (row.get("license") or "") != UNKNOWN_LICENCE:
+            continue
+        if row.get("name") not in LICENCE_SIGNOFF:
+            out.append(f"{row['kind']}:{row['name']}")
+    return sorted(out)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -238,26 +304,52 @@ def main() -> int:
     rows = build()
     path = DATA_DIR / "provenance.json"
 
+    # The gate applies in both modes: --check must fail on a table that
+    # contains an unlicensed entry without sign-off, not just on a stale
+    # table.
+    #
+    # Every failure is reported, not just the first. Removing a licence file
+    # that the corpus ships makes the table stale *and* leaves an entry
+    # without a verified licence, and the person fixing it needs to know
+    # both. Reporting one and stopping would send them to fix a table that
+    # was not the problem.
+    failed = False
+
+    unsigned = unlicensed_without_signoff(rows)
+    if unsigned:
+        failed = True
+        print(
+            "provenance: entries published with an unverified licence and no "
+            "sign-off in LICENCE_SIGNOFF:\n  "
+            + "\n  ".join(unsigned),
+            file=sys.stderr,
+        )
+
     if args.check:
         if not path.is_file():
             print("provenance.json missing", file=sys.stderr)
             return 1
         current = json.loads(path.read_text(encoding="utf-8"))
         if current != rows:
+            failed = True
             print(
                 "provenance.json is stale — run python3 build/build_provenance.py",
                 file=sys.stderr,
             )
-            return 1
-        print(f"provenance.json is up to date ({len(rows)} entries)")
-        return 0
+        if not failed:
+            print(f"provenance.json is up to date ({len(rows)} entries)")
+        return 1 if failed else 0
 
     save_provenance(rows)
     authored = sum(1 for e in rows if e["verdict"] == "authored")
     review = sum(1 for e in rows if e["verdict"] in ("needs-review", "unknown-licence"))
+    unlicensed = sum(
+        1 for e in rows if (e.get("license") or "") == UNKNOWN_LICENCE
+    )
     print(
         f"wrote {path.relative_to(PROJECT_ROOT)}: {len(rows)} entries "
-        f"({authored} authored, {review} needing review)"
+        f"({authored} authored, {review} needing review, "
+        f"{unlicensed} with an unverified licence)"
     )
     return 0
 

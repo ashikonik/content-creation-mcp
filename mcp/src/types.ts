@@ -30,6 +30,16 @@ export const CONTENT_DOMAINS: ContentDomain[] = [
 /** Where a record came from: authored here, or vendored from upstream. */
 export type SkillSource = "authored" | "vendored";
 
+/**
+ * A skill's frontmatter.
+ *
+ * The fields the renderer and the tools actually read are named. Vendored
+ * skills carry additional keys (`metadata.origin`, `metadata.sources`, …)
+ * that no code depends on, so they are allowed through — but only under
+ * `metadata`, where they live. An open index signature at the top level
+ * would defeat the checking on the named fields, since every typo would
+ * still typecheck.
+ */
 export interface SkillFrontmatter {
   name: string;
   description: string;
@@ -43,7 +53,6 @@ export interface SkillFrontmatter {
     };
     [key: string]: unknown;
   };
-  [key: string]: unknown;
 }
 
 export interface SkillRecord {
@@ -101,21 +110,22 @@ export interface LibraryIndex {
   agents: AgentRecord[];
 }
 
-/** Dialect names understood by render_skill. */
+/**
+ * Dialect names understood by render_skill.
+ *
+ * The names are a union so that a typo in a format string is a compile error
+ * rather than a runtime rejection. The *list* of accepted names is not
+ * hardcoded here — it comes from the dialect registry in
+ * `data/harnesses.json`, so adding a format is a JSON edit. The union below
+ * still has to be extended when a new renderer is written, because the type
+ * is what makes `render_skill`'s parameter checkable.
+ */
 export type RenderFormat =
   | "markdown"
   | "claude-frontmatter"
   | "openai-yaml"
   | "agentsmd"
   | "cursor-rules";
-
-export const RENDER_FORMATS: RenderFormat[] = [
-  "markdown",
-  "claude-frontmatter",
-  "openai-yaml",
-  "agentsmd",
-  "cursor-rules",
-];
 
 export interface SearchResult {
   id: string;

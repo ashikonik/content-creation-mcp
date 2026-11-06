@@ -1,6 +1,18 @@
 ---
 name: brand-voice
-description: Build a source-derived writing style profile from real posts, essays, launch notes, docs, or site copy, then reuse that profile across content, outreach, and social workflows. Use when the user wants voice consistency without generic AI writing tropes.
+description: Build a source-derived writing style profile from real posts, essays,
+  launch notes, docs, or site copy, then reuse that profile across content, outreach,
+  and social workflows. Use when the user wants voice consistency without generic
+  AI writing tropes.
+metadata:
+  promptSignals:
+    phrases:
+    - build a voice profile from our posts
+    - write in our brand voice
+    - voice consistency across content
+    - derive a writing style
+    - keep our tone consistent
+    - reuse our style for social
 ---
 
 # Brand Voice

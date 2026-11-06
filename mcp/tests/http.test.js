@@ -21,11 +21,24 @@ const HTTP_ENTRY = join(MCP_DIR, "dist", "http.js");
 const PORT = 18787;
 const BASE = `http://127.0.0.1:${PORT}/mcp`;
 
+/**
+ * A fixed token for the test server. The server refuses to serve without one,
+ * so the tests supply it explicitly rather than relying on the generated
+ * token, which would differ on every run.
+ */
+const AUTH_TOKEN = "test-token-for-http-transport-tests";
+
 let serverProcess = null;
 
-async function startHttpServer() {
+async function startHttpServer(extraEnv = {}) {
   serverProcess = spawn(process.execPath, [HTTP_ENTRY], {
-    env: { ...process.env, PORT: String(PORT), HOST: "127.0.0.1" },
+    env: {
+      ...process.env,
+      PORT: String(PORT),
+      HOST: "127.0.0.1",
+      MCP_AUTH_TOKEN: AUTH_TOKEN,
+      ...extraEnv,
+    },
     stdio: ["ignore", "pipe", "pipe"],
   });
 
@@ -43,6 +56,7 @@ async function startHttpServer() {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json, text/event-stream",
+          Authorization: `Bearer ${AUTH_TOKEN}`,
         },
         body: JSON.stringify({
           jsonrpc: "2.0",
@@ -73,12 +87,14 @@ function stopHttpServer() {
 }
 
 /** A raw JSON-RPC call over HTTP, returning the parsed result. */
-async function httpCall(method, params, id = 1) {
+async function httpCall(method, params, id = 1, extraHeaders = {}) {
   const res = await fetch(BASE, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json, text/event-stream",
+      Authorization: `Bearer ${AUTH_TOKEN}`,
+      ...extraHeaders,
     },
     body: JSON.stringify({ jsonrpc: "2.0", id, method, params }),
   });
@@ -168,6 +184,39 @@ test("an unknown method returns a JSON-RPC error, not a crash", async (t) => {
   assert.ok(result.error.code);
 });
 
+test("the server handles many sequential requests on one shared instance", async (t) => {
+  // The server instance is shared by every request; the transport is
+  // per-request. A client that makes several calls in a row must get a
+  // correct answer each time — no state from an earlier call may leak
+  // into a later one.
+  await startHttpServer();
+  t.after(stopHttpServer);
+
+  const seen = [];
+  for (let i = 0; i < 8; i++) {
+    const result = await httpCall("tools/call", {
+      name: "search_skills",
+      arguments: { query: `query number ${i}`, limit: 3 },
+    });
+    assert.ok(result.result, `request ${i} failed: ${JSON.stringify(result)}`);
+    const payload = JSON.parse(result.result.content[0].text);
+    assert.equal(payload.query, `query number ${i}`);
+    seen.push(payload.count);
+  }
+
+  // The calls must not be accumulating state — an identical query returns
+  // an identical count.
+  const single = await httpCall("tools/call", {
+    name: "search_skills",
+    arguments: { query: "query number 0", limit: 3 },
+  });
+  assert.equal(
+    JSON.parse(single.result.content[0].text).count,
+    seen[0],
+    "a repeated query returned a different count, so state is leaking",
+  );
+});
+
 test("cross-transport parity: the same call returns identical payloads", async (t) => {
   await startHttpServer();
   t.after(stopHttpServer);
@@ -177,6 +226,8 @@ test("cross-transport parity: the same call returns identical payloads", async (
   const calls = [
     ["search_skills", { query: "make a thumbnail", limit: 5 }],
     ["get_skill", { id: "music-generation" }],
+    ["get_skill_bundle", { id: "music-generation", files: ["SKILL.md"] }],
+    ["list_skills", { modality: "video", limit: 3 }],
     ["get_agent", { id: "short-form-producer" }],
     ["list_modalities", {}],
     ["get_stats", {}],
@@ -215,7 +266,10 @@ test("the HTTP server rejects an unknown path", async (t) => {
 
   const res = await fetch(`http://127.0.0.1:${PORT}/not-mcp`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${AUTH_TOKEN}`,
+    },
     body: "{}",
   });
 
@@ -228,18 +282,161 @@ test("the HTTP server rejects a GET on the MCP endpoint", async (t) => {
   await startHttpServer();
   t.after(stopHttpServer);
 
-  const res = await fetch(BASE, { method: "GET" });
+  // Authenticated: an unauthenticated request is rejected at the auth gate
+  // before the method is ever considered, which is the intended order.
+  const res = await fetch(BASE, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
+  });
   assert.equal(res.status, 405);
   const body = await res.json();
   assert.equal(body.error, "method_not_allowed");
 });
 
-test("CORS preflight is answered", async (t) => {
+test("CORS preflight is answered without advertising a wildcard origin", async (t) => {
   await startHttpServer();
   t.after(stopHttpServer);
 
   const res = await fetch(BASE, { method: "OPTIONS" });
   assert.equal(res.status, 204);
-  assert.ok(res.headers.get("access-control-allow-origin"));
   assert.ok(res.headers.get("access-control-allow-methods").includes("POST"));
+  // No origin is allowed by default, so no wildcard is advertised.
+  assert.equal(
+    res.headers.get("access-control-allow-origin"),
+    null,
+    "a wildcard origin was advertised by default",
+  );
+});
+
+// ---------------------------------------------------------- authentication
+
+test("the HTTP server rejects a request with no Authorization header", async (t) => {
+  await startHttpServer();
+  t.after(stopHttpServer);
+
+  const res = await fetch(BASE, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json, text/event-stream",
+    },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} }),
+  });
+
+  assert.equal(res.status, 401);
+  const body = await res.json();
+  assert.equal(body.error, "unauthorized");
+});
+
+test("the HTTP server rejects a request with a wrong token", async (t) => {
+  await startHttpServer();
+  t.after(stopHttpServer);
+
+  const res = await fetch(BASE, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json, text/event-stream",
+      Authorization: "Bearer not-the-right-token",
+    },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} }),
+  });
+
+  assert.equal(res.status, 401);
+  const body = await res.json();
+  assert.equal(body.error, "unauthorized");
+  // The response must not disclose the expected token.
+  assert.ok(
+    !JSON.stringify(body).includes(AUTH_TOKEN),
+    "the 401 response leaked the expected token",
+  );
+});
+
+test("the HTTP server rejects a browser request from an unexpected origin", async (t) => {
+  await startHttpServer();
+  t.after(stopHttpServer);
+
+  const res = await fetch(BASE, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json, text/event-stream",
+      Authorization: `Bearer ${AUTH_TOKEN}`,
+      Origin: "https://evil.example.com",
+    },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} }),
+  });
+
+  assert.equal(res.status, 403);
+  const body = await res.json();
+  assert.equal(body.error, "origin_not_allowed");
+});
+
+test("the HTTP server accepts a browser request from an allowed origin", async (t) => {
+  await startHttpServer({ ALLOW_ORIGIN: "https://trusted.example.com" });
+  t.after(stopHttpServer);
+
+  const res = await fetch(BASE, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json, text/event-stream",
+      Authorization: `Bearer ${AUTH_TOKEN}`,
+      Origin: "https://trusted.example.com",
+    },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} }),
+  });
+
+  assert.equal(res.status, 200);
+  assert.equal(
+    res.headers.get("access-control-allow-origin"),
+    "https://trusted.example.com",
+  );
+});
+
+// ------------------------------------------------------------ body limits
+
+test("the HTTP server rejects a malformed JSON body", async (t) => {
+  await startHttpServer();
+  t.after(stopHttpServer);
+
+  const res = await fetch(BASE, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json, text/event-stream",
+      Authorization: `Bearer ${AUTH_TOKEN}`,
+    },
+    body: "{ not json",
+  });
+
+  assert.equal(res.status, 400);
+  const body = await res.json();
+  assert.equal(body.error, "invalid_json");
+});
+
+test("the HTTP server rejects a body over the size limit", async (t) => {
+  await startHttpServer({ MCP_MAX_BODY_BYTES: "1024" });
+  t.after(stopHttpServer);
+
+  const oversized = JSON.stringify({
+    jsonrpc: "2.0",
+    id: 1,
+    method: "tools/list",
+    params: { padding: "x".repeat(4096) },
+  });
+
+  const res = await fetch(BASE, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json, text/event-stream",
+      Authorization: `Bearer ${AUTH_TOKEN}`,
+    },
+    body: oversized,
+  });
+
+  assert.equal(res.status, 413);
+  const body = await res.json();
+  assert.equal(body.error, "payload_too_large");
 });
