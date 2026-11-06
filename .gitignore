@@ -16,3 +16,11 @@ venv/
 .DS_Store
 .idea/
 .vscode/
+
+# Local secrets — the HTTP auth token is read from the environment, never committed
+.env
+.env.*
+*.local
+
+# Local run logs — raw verification output. Summaries live in CHANGELOG.md.
+logs/

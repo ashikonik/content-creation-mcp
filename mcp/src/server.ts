@@ -25,7 +25,7 @@ import {
 } from "./types.js";
 
 const SERVER_NAME = "content-creation-mcp";
-const SERVER_VERSION = "1.0.0";
+const SERVER_VERSION = "1.0.1";
 
 /** Read a file, returning null when it is missing rather than throwing. */
 function readIfExists(path: string): string | null {

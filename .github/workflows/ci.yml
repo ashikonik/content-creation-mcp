@@ -1,0 +1,13 @@
+# Placeholder — populated in Stage 6 of the remediation plan.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "CI workflow is populated in Stage 6."
