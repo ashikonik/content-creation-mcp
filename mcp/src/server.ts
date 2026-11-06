@@ -21,11 +21,12 @@ import {
   type AgentRecord,
   type ContentDomain,
   type RenderFormat,
+  type SkillFrontmatter,
   type SkillRecord,
 } from "./types.js";
 
 const SERVER_NAME = "content-creation-mcp";
-const SERVER_VERSION = "1.1.0";
+const SERVER_VERSION = "1.2.0";
 
 /** Maximum number of file paths a single get_skill_bundle call may request. */
 const MAX_BUNDLE_FILES = 200;
@@ -177,7 +178,22 @@ export function createServer(): McpServer {
         };
       }
 
-      const { frontmatter, body } = parseFrontmatter(text);
+      let frontmatter: SkillFrontmatter;
+      let body: string;
+      try {
+        ({ frontmatter, body } = parseFrontmatter(text));
+      } catch (err) {
+        return {
+          isError: true,
+          content: [
+            {
+              type: "text" as const,
+              text: `Cannot read ${skill.id}: ${(err as Error).message}`,
+            },
+          ],
+        };
+      }
+
       const payload = {
         id: skill.id,
         name: skill.name,
@@ -445,8 +461,24 @@ export function createServer(): McpServer {
         };
       }
 
-      const ctx = contextFromFile(text, skill);
-      const rendered = renderSkill(format, ctx);
+      let rendered: string;
+      try {
+        const ctx = contextFromFile(text, skill);
+        rendered = renderSkill(format, ctx);
+      } catch (err) {
+        // A malformed frontmatter block is a problem with one skill, not
+        // with the request. Reporting it as a tool error keeps the server
+        // running and tells the client which skill needs fixing.
+        return {
+          isError: true,
+          content: [
+            {
+              type: "text" as const,
+              text: `Cannot render ${skill.id}: ${(err as Error).message}`,
+            },
+          ],
+        };
+      }
 
       return {
         content: [{ type: "text" as const, text: rendered }],
@@ -487,7 +519,21 @@ export function createServer(): McpServer {
         };
       }
 
-      const { body } = parseFrontmatter(text);
+      let body: string;
+      try {
+        ({ body } = parseFrontmatter(text));
+      } catch (err) {
+        return {
+          isError: true,
+          content: [
+            {
+              type: "text" as const,
+              text: `Cannot read ${agent.id}: ${(err as Error).message}`,
+            },
+          ],
+        };
+      }
+
       const index = loadIndex();
       const run = runAgent(agent, body, task, context, index);
 

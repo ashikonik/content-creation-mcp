@@ -3,6 +3,15 @@ name: planner
 description: Expert planning specialist for complex features and refactoring. Use PROACTIVELY when users request feature implementation, architectural changes, or complex refactoring. Automatically activated for planning tasks.
 tools: ["Read", "Grep", "Glob"]
 model: opus
+metadata:
+  promptSignals:
+    phrases:
+      - "plan an implementation"
+      - "write a plan"
+      - "refactoring plan"
+      - "architecture plan"
+      - "break down a feature"
+      - "multi-step task"
 ---
 
 ## Prompt Defense Baseline

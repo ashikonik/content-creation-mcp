@@ -1,43 +1,53 @@
 ---
 name: email
-description: Email sending integration guidance — Resend (native Vercel Marketplace) with React Email templates. Covers API setup, transactional emails, domain verification, and template patterns. Use when sending emails from a Vercel-deployed application.
+description: Email sending integration guidance — Resend (native Vercel Marketplace)
+  with React Email templates. Covers API setup, transactional emails, domain verification,
+  and template patterns. Use when sending emails from a Vercel-deployed application.
 metadata:
   priority: 4
   docs:
-    - "https://resend.com/docs"
-    - "https://react.email/docs/introduction"
-  sitemap: "https://resend.com/sitemap.xml"
+  - https://resend.com/docs
+  - https://react.email/docs/introduction
+  sitemap: https://resend.com/sitemap.xml
   pathPatterns:
-    - 'emails/**'
-    - 'src/emails/**'
-    - 'components/emails/**'
-    - 'src/components/emails/**'
-    - 'app/api/send/**'
-    - 'src/app/api/send/**'
-    - 'app/api/email/**'
-    - 'src/app/api/email/**'
-    - 'app/api/emails/**'
-    - 'src/app/api/emails/**'
-    - 'lib/resend.*'
-    - 'src/lib/resend.*'
-    - 'lib/email.*'
-    - 'src/lib/email.*'
-    - 'lib/email*'
-    - 'src/lib/email*'
-    - '**/email-template*'
+  - emails/**
+  - src/emails/**
+  - components/emails/**
+  - src/components/emails/**
+  - app/api/send/**
+  - src/app/api/send/**
+  - app/api/email/**
+  - src/app/api/email/**
+  - app/api/emails/**
+  - src/app/api/emails/**
+  - lib/resend.*
+  - src/lib/resend.*
+  - lib/email.*
+  - src/lib/email.*
+  - lib/email*
+  - src/lib/email*
+  - '**/email-template*'
   bashPatterns:
-    - '\bnpm\s+(install|i|add)\s+[^\n]*\bresend\b'
-    - '\bpnpm\s+(install|i|add)\s+[^\n]*\bresend\b'
-    - '\bbun\s+(install|i|add)\s+[^\n]*\bresend\b'
-    - '\byarn\s+add\s+[^\n]*\bresend\b'
-    - '\bnpm\s+(install|i|add)\s+[^\n]*@react-email/'
-    - '\bpnpm\s+(install|i|add)\s+[^\n]*@react-email/'
-    - '\bbun\s+(install|i|add)\s+[^\n]*@react-email/'
-    - '\byarn\s+add\s+[^\n]*@react-email/'
-    - '\bnpm\s+(install|i|add)\s+[^\n]*react-email\b'
-    - '\bpnpm\s+(install|i|add)\s+[^\n]*react-email\b'
-    - '\bbun\s+(install|i|add)\s+[^\n]*react-email\b'
-    - '\byarn\s+add\s+[^\n]*react-email\b'
+  - \bnpm\s+(install|i|add)\s+[^\n]*\bresend\b
+  - \bpnpm\s+(install|i|add)\s+[^\n]*\bresend\b
+  - \bbun\s+(install|i|add)\s+[^\n]*\bresend\b
+  - \byarn\s+add\s+[^\n]*\bresend\b
+  - \bnpm\s+(install|i|add)\s+[^\n]*@react-email/
+  - \bpnpm\s+(install|i|add)\s+[^\n]*@react-email/
+  - \bbun\s+(install|i|add)\s+[^\n]*@react-email/
+  - \byarn\s+add\s+[^\n]*@react-email/
+  - \bnpm\s+(install|i|add)\s+[^\n]*react-email\b
+  - \bpnpm\s+(install|i|add)\s+[^\n]*react-email\b
+  - \bbun\s+(install|i|add)\s+[^\n]*react-email\b
+  - \byarn\s+add\s+[^\n]*react-email\b
+  promptSignals:
+    phrases:
+    - send an email from my app
+    - transactional email setup
+    - resend api integration
+    - verify my email domain
+    - react email template
+    - email sending integration
 ---
 
 # Email Integration (Resend + React Email)

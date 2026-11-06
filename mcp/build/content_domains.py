@@ -66,6 +66,7 @@ SKILL_DOMAINS = {
     "social-publisher": "text",
     "social-graph-ranker": "text",
     "article-writing": "writing",
+    "script-and-story-editing": "writing",
     "seo": "text",
     "brand-voice": "writing",
     "brand-discovery": "writing",

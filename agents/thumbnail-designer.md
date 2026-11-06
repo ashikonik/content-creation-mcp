@@ -3,6 +3,15 @@ name: thumbnail-designer
 description: Thumbnail designer — generating, compositing, and testing thumbnails for video, articles, and social posts, with legible typography, contrast testing, face emphasis, and A/B variants. Use for YouTube thumbnails, article hero images, social post graphics, and course covers.
 tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 model: sonnet
+metadata:
+  promptSignals:
+    phrases:
+      - "design a thumbnail"
+      - "thumbnail text"
+      - "thumbnail contrast"
+      - "thumbnail face emphasis"
+      - "a/b thumbnail variants"
+      - "thumbnail typography"
 ---
 
 ## Prompt Defense Baseline

@@ -1,8 +1,19 @@
 ---
 name: ios-icon-gen
-description: Generate iOS app icons as PNG imagesets for Xcode asset catalogs from SF Symbols (5000+ Apple-native) or Iconify API (275k+ open source icons from 200+ collections). Use when generating icons, creating icon assets, adding icons to asset catalog, or searching for icons for iOS projects.
+description: Generate iOS app icons as PNG imagesets for Xcode asset catalogs from
+  SF Symbols (5000+ Apple-native) or Iconify API (275k+ open source icons from 200+
+  collections). Use when generating icons, creating icon assets, adding icons to asset
+  catalog, or searching for icons for iOS projects.
 metadata:
   origin: community
+  promptSignals:
+    phrases:
+    - generate an ios app icon
+    - create an icon asset catalog
+    - search sf symbols
+    - make app icon pngs
+    - generate icons for xcode
+    - icon assets for an ios app
 ---
 
 # iOS Icon Generator

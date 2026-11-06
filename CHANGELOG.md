@@ -11,6 +11,111 @@ state is tagged `v1.0.0`.
 
 Nothing yet.
 
+## [1.2.0] — 2026-11-06
+
+Stage 3 of the remediation: the renderer stops emitting broken output
+silently, and the two rankers — skill search and agent skill-suggestion —
+now answer the question they are asked.
+
+### Fixed
+
+- **Frontmatter that is not a mapping is now an error, not empty output.**
+  `parseYaml(...) ?? {}` cast the result to `SkillFrontmatter` without
+  checking it, so a YAML sequence or a bare scalar produced
+  `## undefined` and reached the client as a broken render. The parser
+  rejects it and the tool handler reports the failure as a tool error.
+- **`agentsmd` renders the index id when the frontmatter has no name.** The
+  marker comment is the documented replace-anchor, so
+  `<!-- skills-library:name:undefined -->` meant a harness keying on that
+  marker would never find the installed skill. The id is used for the
+  marker, the heading, and the end marker.
+- **`cursor-rules` keeps its structural blank lines.** The header was built
+  by filtering every empty line out of the array, which collapsed the
+  deliberate separators and took the conditional "Apply when:" line with
+  them. The line is now omitted when it has no value, and the structural
+  blank lines survive.
+- **An empty `**Triggers:**` line is no longer emitted.** A skill with no
+  trigger phrases rendered `**Triggers:** ` with a trailing space and no
+  value, which reads as a truncation bug. The line is omitted entirely.
+- **Render dialects prefer the curated trigger phrases.** The render paths
+  read the file's own `metadata.promptSignals.phrases` while the index
+  carries the curated `prompt_signals`; for vendored skills the two
+  disagreed and the curated values were ignored. The curated list wins
+  when it is non-empty.
+- **The agent ranker no longer matches inside words.** Ranking used raw
+  substring containment, so `video` matched inside `videography`, and
+  `cinematic-video-editor` was pointed at `taste` — a music-video
+  direction skill — instead of at `video-editing`. Matching is now on
+  token boundaries.
+- **The search phrase bonus is awarded once per document.** It was awarded
+  per matching phrase, so a skill declaring six trigger phrases collected
+  six times the bonus of a skill declaring one, for the same single
+  matching word. "generate an image" ranked the image-CDN skill (six
+  phrases containing "image") above the image-generation skill, whose
+  trigger phrase is literally "generate an image". The bonus is now
+  awarded once, on whole-word matches, scaled by how much of the query
+  the phrase covers.
+- **The authored/vendored bias no longer decides skill-versus-agent
+  rankings.** It was a score component, so an authored agent outranked a
+  vendored skill that matched identically — "edit a script" returned the
+  agent that consults skills rather than the skill that does the work. The
+  bias is now a tiebreak in the sort, where it cannot outrank a genuine
+  difference in match quality.
+
+### Added
+
+- **`script-and-story-editing`** — a new authored skill for editing scripts,
+  storyboards, voiceover copy and narrative structure. The corpus had no
+  skill for it: the `script-and-story-editor` agent was pointed at
+  `article-writing`, whose subject is long-form articles, not material that
+  has to survive being performed or timed. The skill carries two reference
+  files: beat-by-beat format shapes with word budgets, and hook and title
+  patterns with their failure modes.
+- **Curated trigger phrases for all 68 skills.** The vendored skills had
+  trigger phrases derived mechanically from their filenames and
+  descriptions, which matched almost nothing a client would say. Each now
+  declares six or seven phrases written as the things a user would
+  actually type. Both rankers key on this list, so it was the single
+  largest source of bad rankings in the corpus.
+
+### Changed
+
+- **The ranker's stemmer no longer rewrites words that never lost a
+  vowel.** The "restore the dropped e" rule existed to undo a silent-vowel
+  loss caused by stripping `-ing` or `-ed`, but it fired unconditionally
+  and turned `model` into `modele`, `rather` into `rathere`, and `plans`
+  into `plane`. It now applies only where a vowel was actually dropped.
+- **Token comparison tolerates the `-e` variants that no stemmer can
+  distinguish.** `edit` and `writ` are irreducibly different to a stemmer;
+  tokens are now compared through their variant sets, so an agent that
+  says "editing" still reaches the editing skill.
+- **Compound splitting is confined to skill ids.** `imagegen` is reached
+  through its head `gen`, but `checkpoint` was being split into
+  `check` and `point` and double-counted. A token that is itself a corpus
+  word is never split.
+
+### Tests
+
+- New `mcp/tests/agents.test.js` pins the leading skill for all 15 agents.
+  A wrong leading skill is not cosmetic: the client follows the
+  suggestion, so an agent pointed at the wrong instructions is pointed
+  away from its own subject. The table is the reviewable statement of what
+  each agent is for; a reviewer reads it when the corpus or the ranker
+  changes.
+- `mcp/tests/render.test.js` gained assertions that a skill with a
+  non-object frontmatter is an error, that a skill with no name renders the
+  index id, that `cursor-rules` keeps its structural blank lines, that
+  `agentsmd` with no triggers omits the `**Triggers:**` line, that every
+  skill in the corpus has a name and a description, and that every skill
+  declares at least three trigger phrases.
+- `mcp/tests/search.test.js` gained a check that a capability query ranks
+  the skill ahead of the agent that consults it, and a check that the
+  prompt-signal phrase bonus is awarded once per document.
+
+Verification: 89 tests pass, and the full local suite reports 1099 checks
+passing. Both determinism gates pass — `index.json` is byte-identical to a
+fresh build and `provenance.json` is up to date.
+
 ## [1.1.0] — 2026-11-06
 
 Stage 2 of the remediation: makes the attribution record state what is
@@ -205,7 +310,8 @@ Recorded here so the audit trail shows what the remediation addressed.
   no runtime code read the file.
 - **No CI, no changelog, no tags** prior to this file.
 
-[Unreleased]: https://github.com/ashikonik/content-creation-mcp/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/ashikonik/content-creation-mcp/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.2.0
 [1.1.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.1.0
 [1.0.1]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.0.1
 [1.0.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.0.0

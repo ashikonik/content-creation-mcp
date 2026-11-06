@@ -24,7 +24,19 @@ export function parseFrontmatter(text: string): ParsedDoc {
 
   let frontmatter: SkillFrontmatter;
   try {
-    frontmatter = (parseYaml(match[1]) ?? {}) as SkillFrontmatter;
+    const parsed = parseYaml(match[1]);
+    // A frontmatter block that parses to a scalar or a sequence is not a
+    // mapping, and casting it to SkillFrontmatter would silently produce a
+    // record with no name and no description. That renders as
+    // "## undefined" rather than failing, so the breakage reaches the
+    // client instead of being caught here.
+    if (parsed !== null && parsed !== undefined &&
+        (typeof parsed !== "object" || Array.isArray(parsed))) {
+      throw new Error(
+        `Invalid YAML frontmatter: expected a mapping, got ${Array.isArray(parsed) ? "a sequence" : typeof parsed}`,
+      );
+    }
+    frontmatter = (parsed ?? {}) as SkillFrontmatter;
   } catch (err) {
     throw new Error(
       `Invalid YAML frontmatter: ${(err as Error).message}`,

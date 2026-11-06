@@ -3,6 +3,16 @@ name: seo-specialist
 description: SEO specialist for technical SEO audits, on-page optimization, structured data, Core Web Vitals, and content/keyword mapping. Use for site audits, meta tag reviews, schema markup, sitemap and robots issues, and SEO remediation plans.
 tools: ["Read", "Grep", "Glob", "WebSearch", "WebFetch"]
 model: sonnet
+metadata:
+  promptSignals:
+    phrases:
+      - "technical seo audit"
+      - "on-page seo"
+      - "structured data"
+      - "core web vitals"
+      - "meta tags"
+      - "sitemap"
+      - "site audit"
 ---
 
 ## Prompt Defense Baseline

@@ -122,7 +122,6 @@ function scoreDoc(
   queryTokens: string[],
   queryBigrams: string[],
   idf: Map<string, number>,
-  source: Map<string, number>,
 ): { score: number; matched: string[] } {
   if (queryTokens.length === 0) {
     return { score: 0, matched: [] };
@@ -159,15 +158,37 @@ function scoreDoc(
   }
 
   // Prompt-signal phrase hits. These are curated, high-precision triggers.
+  //
+  // The bonus is awarded once per document, on the strength of the best
+  // matching phrase, and a phrase matches on whole words rather than on
+  // a substring.
+  //
+  // Awarding it per phrase let a skill with six trigger phrases collect
+  // six times the bonus of a skill with one, for the same single
+  // matching word: "generate an image" gave the image-CDN skill 15
+  // points — one for each of its six phrases, every one of which
+  // happened to contain the substring "image" — and it outranked the
+  // image-generation skill, whose trigger phrase is literally "generate
+  // an image". Matching on word boundaries and awarding the bonus once
+  // keeps the signal about the quality of the match rather than the
+  // number of phrases a skill happens to declare.
+  let phraseBonus = 0;
   for (const signal of doc.prompt_signals) {
-    const s = signal.toLowerCase();
+    const phraseTokens = tokenize(signal);
+    const phraseTokenSet = new Set(phraseTokens);
     for (const token of queryTokens) {
-      if (s.includes(token) && token.length > 2) {
-        score += 2.5;
+      if (token.length > 2 && phraseTokenSet.has(token)) {
+        // More of the query covered by this phrase is a better match.
+        const covered = queryTokens.filter((t) =>
+          phraseTokenSet.has(t),
+        ).length;
+        const bonus = 2.5 * (covered / queryTokens.length);
+        if (bonus > phraseBonus) phraseBonus = bonus;
         break;
       }
     }
   }
+  score += phraseBonus;
 
   // Name matches are worth more than description matches.
   const nameTokens = new Set(tokenize(doc.name));
@@ -175,8 +196,16 @@ function scoreDoc(
     if (nameTokens.has(token)) score += 2.0;
   }
 
-  // Authored content is the primary corpus; vendored content still ranks.
-  score += source.get(doc.source) ?? 0;
+  // The authored-over-vendored bias is applied in the sort, not in the
+  // score.
+  //
+  // As a score component it decided the ranking between a skill and an
+  // agent that matched identically: the script-editing agent was
+  // authored and the script-editing skill vendored, so "edit a script"
+  // returned the agent — the thing that consults skills — instead of the
+  // skill that does the work. A bias between authored and vendored
+  // content of the same kind belongs where it cannot outrank a genuine
+  // difference in match quality.
 
   return { score, matched: [...new Set(matched)] };
 }
@@ -209,11 +238,6 @@ export function search(
   const queryBigrams = bigrams(queryTokens);
   const idf = buildIdf(docs);
 
-  const sourceBias = new Map<string, number>([
-    ["authored", 0.5],
-    ["vendored", 0.0],
-  ]);
-
   const results: SearchResult[] = [];
   for (const doc of filtered) {
     const { score, matched } = scoreDoc(
@@ -221,7 +245,6 @@ export function search(
       queryTokens,
       queryBigrams,
       idf,
-      sourceBias,
     );
     if (score <= 0) continue;
 
@@ -240,14 +263,17 @@ export function search(
   results.sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score;
     // Stable tiebreak: prefer the more specific domain order, then id.
+    //
+    // A skill is preferred over an agent. A capability query asks "what
+    // does this" and the skill is what does it; the agent is the thing
+    // that consults the skill, and is a better answer to "who would
+    // help me with this".
     if (a.kind !== b.kind) return a.kind === "skill" ? -1 : 1;
+    // Authored content is the primary corpus; vendored content still
+    // ranks, but loses a tie to authored content of the same kind.
+    if (a.source !== b.source) return a.source === "authored" ? -1 : 1;
     return a.id.localeCompare(b.id);
   });
 
   return results.slice(0, limit);
-}
-
-/** Distinctive tokens in a query — used for coverage checks. */
-export function distinctiveTokens(query: string): string[] {
-  return tokenize(query).filter((t) => t.length > 2);
 }

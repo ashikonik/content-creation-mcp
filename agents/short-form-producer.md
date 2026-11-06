@@ -3,6 +3,16 @@ name: short-form-producer
 description: Short-form video producer for vertical clips — finding the hook, writing the script, cutting the footage, reframing to 9:16, adding captions, and batching platform-ready exports. Use for reels, shorts, TikToks, and any vertical clip from longer material.
 tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 model: sonnet
+metadata:
+  promptSignals:
+    phrases:
+      - "make a reel"
+      - "short form video"
+      - "vertical clip"
+      - "find the hook"
+      - "add captions"
+      - "9:16 export"
+      - "batch social exports"
 ---
 
 ## Prompt Defense Baseline

@@ -1,7 +1,23 @@
 ---
 name: taste
-description: A creative-direction (taste) layer for music videos and short-form edits in the angelcore / cloud-trance / hyperpop visual family. Distills a named-genre aesthetic vocabulary, a mood + color + light system, and a beat-synced editing grammar, then chains ECC's video skills (video-editing, local-diffusion-suite, text-to-video-local, remotion-video-creation, motion-*, content-engine) into one production pipeline. Use when the work is not just making a video function but making it feel intentional, when building a music video, a fancam/edit, a moodboard-driven reel, or when choosing a coherent visual direction for AI-generated b-roll.
+description: A creative-direction (taste) layer for music videos and short-form edits
+  in the angelcore / cloud-trance / hyperpop visual family. Distills a named-genre
+  aesthetic vocabulary, a mood + color + light system, and a beat-synced editing grammar,
+  then chains ECC's video skills (video-editing, local-diffusion-suite, text-to-video-local,
+  remotion-video-creation, motion-*, content-engine) into one production pipeline.
+  Use when the work is not just making a video function but making it feel intentional,
+  when building a music video, a fancam/edit, a moodboard-driven reel, or when choosing
+  a coherent visual direction for AI-generated b-roll.
 origin: ECC
+metadata:
+  promptSignals:
+    phrases:
+    - give this edit some taste
+    - music video creative direction
+    - hyperpop visual style
+    - beat synced editing grammar
+    - mood color and light system
+    - short form edit direction
 ---
 
 # Taste

@@ -3,6 +3,16 @@ name: seo-content-strategist
 description: SEO content strategist — keyword research and mapping, content briefs, topical clustering, on-page optimisation, internal linking, and content refresh plans that compound. Use for content calendars, keyword strategy, briefs, pillar pages, and rewriting existing pages to rank.
 tools: ["Read", "Grep", "Glob", "Write", "Edit", "WebSearch", "WebFetch"]
 model: sonnet
+metadata:
+  promptSignals:
+    phrases:
+      - "seo content"
+      - "keyword research"
+      - "content brief"
+      - "topical cluster"
+      - "internal linking"
+      - "content refresh"
+      - "search intent"
 ---
 
 ## Prompt Defense Baseline

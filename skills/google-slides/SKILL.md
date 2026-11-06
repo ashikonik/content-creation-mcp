@@ -1,6 +1,17 @@
 ---
 name: google-slides
-description: Google Slides work for finding, reading, summarizing, creating, importing, template following, visual cleanup, source-deck adaptation, structural repair, and content edits in native Slides decks.
+description: Google Slides work for finding, reading, summarizing, creating, importing,
+  template following, visual cleanup, source-deck adaptation, structural repair, and
+  content edits in native Slides decks.
+metadata:
+  promptSignals:
+    phrases:
+    - read a google slides deck
+    - summarize a google slides file
+    - create a google slides deck
+    - import slides into google slides
+    - clean up a slides layout
+    - edit google slides content
 ---
 
 # Google Slides

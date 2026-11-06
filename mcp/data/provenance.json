@@ -812,6 +812,20 @@
     "verdict": "needs-review"
   },
   {
+    "name": "script-and-story-editing",
+    "kind": "skill",
+    "owner": "content-creation-mcp",
+    "license": "MIT",
+    "license_source": "repository-license",
+    "source": "authored",
+    "upstream": null,
+    "upstream_root": null,
+    "path": "skills/script-and-story-editing/",
+    "content_domain": "writing",
+    "vendored_on": "2026-11-05",
+    "verdict": "authored"
+  },
+  {
     "name": "seo",
     "kind": "skill",
     "owner": "vendored",

@@ -22,7 +22,7 @@ harness assumptions, no registry to enrol in.
 ```
                     ┌──────────────────────────────┐
   Claude Code ────► │                              │
-  Codex ──────────► │   content-creation-mcp       │ ──► 67 skills
+  Codex ──────────► │   content-creation-mcp       │ ──► 68 skills
   Cursor ─────────► │   (stdio + HTTP)             │ ──► 15 agents
   OpenCode ───────► │                              │ ──► 8 content domains
   Anything else ───► │                              │ ──► 5 render dialects

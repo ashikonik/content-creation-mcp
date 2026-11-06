@@ -3,6 +3,16 @@ name: social-publish-manager
 description: Social publish manager — building a content calendar, adapting one idea per platform, writing platform-native copy and hashtag sets, tagging links with UTMs, and scheduling posts through open APIs to Bluesky, Mastodon, and Reddit. Use for posting plans, cross-platform repurposing, and scheduled publishing.
 tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit", "WebSearch"]
 model: sonnet
+metadata:
+  promptSignals:
+    phrases:
+      - "content calendar"
+      - "schedule posts"
+      - "cross platform post"
+      - "hashtag set"
+      - "utm links"
+      - "platform native copy"
+      - "social publishing"
 ---
 
 ## Prompt Defense Baseline

@@ -3,6 +3,17 @@ name: lip-sync-technician
 description: Lip-sync technician for driving mouth movement from a replacement audio track — MuseTalk, LatentSync, Wav2Lip, VideoRetalking, and SadTalker, with audio preprocessing, face detection, per-shot segmentation, and artefact diagnosis. Use when dubbing, lip-syncing a still image, or replacing dialogue in footage where the mouth is visible.
 tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 model: sonnet
+metadata:
+  promptSignals:
+    phrases:
+      - "lip sync"
+      - "sync mouth to audio"
+      - "musetalk"
+      - "latentsync"
+      - "wav2lip"
+      - "videospeak"
+      - "sadtalker"
+      - "face detection"
 ---
 
 ## Prompt Defense Baseline

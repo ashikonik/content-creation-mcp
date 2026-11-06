@@ -3,6 +3,18 @@ name: comfyui-workflow-builder
 description: ComfyUI workflow builder — constructing graph JSON for image and video generation, wiring checkpoints, samplers, ControlNet, IP-Adapter, LoRAs, VAEs, and the headless API. Use when building or debugging a ComfyUI workflow, batching generations, or running ComfyUI without the UI.
 tools: ["Read", "Grep", "Glob", "Bash", "Write", "Edit"]
 model: sonnet
+metadata:
+  promptSignals:
+    phrases:
+      - "comfyui workflow"
+      - "comfyui graph"
+      - "build a comfyui workflow"
+      - "controlnet"
+      - "ip-adapter"
+      - "lora"
+      - "sampler settings"
+      - "headless comfyui"
+      - "workflow json"
 ---
 
 ## Prompt Defense Baseline
