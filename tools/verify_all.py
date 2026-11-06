@@ -384,6 +384,21 @@ def check_provenance(report: Report, index: dict) -> None:
             f"{entry.get('license')!r} but records no licence source",
         )
 
+    # A licence detected in a file the corpus ships is the only licence
+    # evidence that travels with the repository. The file must be present:
+    # without it the entry claims a licence that nothing in the
+    # distribution supports.
+    for entry in vendored:
+        source = str(entry.get("license_source") or "")
+        if not source.startswith("in-repo:"):
+            continue
+        relative = source[len("in-repo:"):]
+        report.check(
+            (PROJECT_ROOT / relative).is_file(),
+            f"vendored entry {entry['name']} records licence {entry.get('license')!r} "
+            f"from {relative!r}, but that file is not in the repository",
+        )
+
     report.ok(
         f"checked {len(entries)} provenance rows "
         f"({sum(1 for e in entries if e.get('source') == 'authored')} authored, "

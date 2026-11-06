@@ -307,15 +307,23 @@ def main() -> int:
     # The gate applies in both modes: --check must fail on a table that
     # contains an unlicensed entry without sign-off, not just on a stale
     # table.
+    #
+    # Every failure is reported, not just the first. Removing a licence file
+    # that the corpus ships makes the table stale *and* leaves an entry
+    # without a verified licence, and the person fixing it needs to know
+    # both. Reporting one and stopping would send them to fix a table that
+    # was not the problem.
+    failed = False
+
     unsigned = unlicensed_without_signoff(rows)
     if unsigned:
+        failed = True
         print(
             "provenance: entries published with an unverified licence and no "
             "sign-off in LICENCE_SIGNOFF:\n  "
             + "\n  ".join(unsigned),
             file=sys.stderr,
         )
-        return 1
 
     if args.check:
         if not path.is_file():
@@ -323,13 +331,14 @@ def main() -> int:
             return 1
         current = json.loads(path.read_text(encoding="utf-8"))
         if current != rows:
+            failed = True
             print(
                 "provenance.json is stale — run python3 build/build_provenance.py",
                 file=sys.stderr,
             )
-            return 1
-        print(f"provenance.json is up to date ({len(rows)} entries)")
-        return 0
+        if not failed:
+            print(f"provenance.json is up to date ({len(rows)} entries)")
+        return 1 if failed else 0
 
     save_provenance(rows)
     authored = sum(1 for e in rows if e["verdict"] == "authored")

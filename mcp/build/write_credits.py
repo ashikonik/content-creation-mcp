@@ -49,6 +49,19 @@ def origin_label(entry: dict) -> str:
     return "local copy (no upstream repository recorded)"
 
 
+def licence_label(entry: dict) -> str:
+    """Where the licence governing an entry was found.
+
+    Most entries are detected at their upstream origin. Three ship a copy
+    of their own licence file, and that file is named — it travels with the
+    corpus, so it is a path a reader can actually check.
+    """
+    source = str(entry.get("license_source") or "")
+    if source.startswith("in-repo:"):
+        return f"licence file shipped in the corpus (`{source[len('in-repo:'):]}`)"
+    return "detected at the upstream origin"
+
+
 def write_credits() -> int:
     entries = load_provenance()
 
@@ -110,7 +123,8 @@ def write_credits() -> int:
     else:
         lines.append(
             "Copied from upstream sources. Each entry keeps the licence of "
-            "its origin, as detected at that origin."
+            "its origin. The licence was detected at the upstream origin, "
+            "or in a licence file the copy ships itself."
         )
         lines.append("")
         for license_name in sorted(by_license):
@@ -122,6 +136,7 @@ def write_credits() -> int:
             for entry in sorted(group, key=lambda e: e["name"]):
                 lines.append(f"- **{entry['name']}** ({entry['kind']})")
                 lines.append(f"  - Source: {origin_label(entry)}")
+                lines.append(f"  - Licence: {licence_label(entry)}")
                 lines.append(f"  - Path: `{entry.get('path', '')}`")
             lines.append("")
 

@@ -178,6 +178,46 @@ def _licence_in(directory: Path) -> tuple[str, str] | None:
     return None
 
 
+def _in_repo_licence(skill_dir: Path) -> tuple[str, str] | None:
+    """Find a licence file shipped inside this repository, next to the skill.
+
+    Some vendored skills carry a copy of their upstream licence in the
+    vendored directory itself — ``skills/imagegen/LICENSE.txt`` and two
+    others. That file travels with the corpus, so it is checkable on any
+    machine, and it is the only licence evidence the repository ships for
+    those entries.
+
+    It is checked before the recorded fallback so that deleting one of
+    these files is detected as drift rather than being papered over by the
+    recorded value.
+
+    The path is reported relative to the repository root. An absolute path
+    would leak the builder's home directory into a published table, and a
+    home-relative one would still name a machine that may not exist.
+    """
+    for name in LICENSE_FILES:
+        candidate = skill_dir / name
+        if not candidate.is_file():
+            continue
+        try:
+            found = detect_license_text(
+                candidate.read_text(encoding="utf-8", errors="replace")
+            )
+        except OSError:
+            continue
+        if found:
+            return found, _repo_relative(candidate)
+    return None
+
+
+def _repo_relative(path: Path) -> str:
+    """Report a path inside this repository relative to its root."""
+    try:
+        return str(path.resolve().relative_to(PROJECT_ROOT))
+    except ValueError:
+        return str(path)
+
+
 def resolve_licence(row: dict) -> tuple[str, str]:
     """Resolve the licence governing a vendored entry.
 
@@ -185,6 +225,32 @@ def resolve_licence(row: dict) -> tuple[str, str]:
     ``UNKNOWN`` when no upstream licence can be found — never this
     repository's own licence.
     """
+    skill_dir = PROJECT_ROOT / str(row.get("path", "")).rstrip("/")
+
+    # A licence file shipped inside the repository, next to the skill.
+    #
+    # This is checked first because it is the only licence evidence that
+    # travels with the corpus. Every other source below depends on the
+    # authoring machine's filesystem, so reading this one first is what
+    # makes the result the same on every machine — and it means removing
+    # one of these files shows up as drift instead of being masked by the
+    # value recorded when it was there.
+    #
+    # A row whose recorded source is ``in-repo:`` is decided here and only
+    # here. Its licence evidence is a file in this repository, so the
+    # upstream origin must not be consulted as a substitute: doing so would
+    # resolve the licence on the authoring machine and report it as unknown
+    # everywhere else, which is the machine-dependent result this whole
+    # fallback exists to prevent.
+    recorded_source = str(row.get("license_source") or "")
+    if skill_dir.is_dir():
+        in_repo = _in_repo_licence(skill_dir)
+        if in_repo:
+            licence, path = in_repo
+            return licence, f"in-repo:{path}"
+    if recorded_source.startswith("in-repo:"):
+        return UNKNOWN_LICENCE, "none"
+
     origin = origin_for(row)
 
     if origin is not None:
@@ -207,11 +273,28 @@ def resolve_licence(row: dict) -> tuple[str, str]:
                     return value.strip(), f"origin:{relativise(candidate)}"
 
     # The skill's own frontmatter is the last resort.
-    skill_dir = PROJECT_ROOT / str(row.get("path", "")).rstrip("/")
     if skill_dir.is_dir():
         frontmatter = license_from_frontmatter(skill_dir)
         if frontmatter:
             return frontmatter, "frontmatter"
+
+    # The origin is not on this machine.
+    #
+    # The origin paths are absolute and belong to the machine that vendored
+    # the content, so they resolve on the authoring machine and nowhere
+    # else. Without this fallback the builder produced a different licence
+    # for every vendored entry on any other machine — a CI runner included
+    # — and `--check` failed on a table that was in fact correct. The
+    # provenance table already records what was resolved and where it came
+    # from; when the origin is unavailable, that recorded answer is the
+    # durable one, and it is what gets carried forward.
+    #
+    # The recorded licence is only trusted when it is not UNKNOWN. An
+    # entry that was already unknown stays unknown, so this can never
+    # manufacture a licence that was not previously resolved.
+    recorded = row.get("license")
+    if isinstance(recorded, str) and recorded.strip() and recorded != UNKNOWN_LICENCE:
+        return recorded, recorded_source or "recorded"
 
     return UNKNOWN_LICENCE, "none"
 
@@ -221,22 +304,24 @@ def resolve_source(row: dict) -> str:
 
     The previous implementation recorded the absolute path of the local
     aggregator the copy passed through, which leaked a machine-specific
-    path into the published CREDITS file. The true origin is preferred; the
-    aggregator path is only used as a last resort.
+    path into the published CREDITS file. The recorded source names the
+    exact directory the entry was copied from and is what gets used; the
+    repository that contained it (``upstream_root``) is the fallback.
+
+    The recorded value is used rather than the resolved origin because the
+    origin only exists on the machine that vendored the content. Deriving
+    the field from the filesystem would make it machine-dependent, and
+    ``--check`` would then fail on every machine but the authoring one.
 
     The home directory prefix is stripped from whichever path is chosen —
     see :func:`relativise`.
     """
-    origin = origin_for(row)
-    if origin is not None:
-        return relativise(origin)
+    source = row.get("source")
+    if isinstance(source, str) and source and source != "authored":
+        return relativise(source)
 
     upstream_root = row.get("upstream_root")
     if upstream_root:
         return relativise(upstream_root)
-
-    source = row.get("source")
-    if isinstance(source, str) and source and source != "authored":
-        return relativise(source)
 
     return "unknown"

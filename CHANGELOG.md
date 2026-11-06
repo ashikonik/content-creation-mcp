@@ -9,7 +9,60 @@ state is tagged `v1.0.0`.
 
 ## [Unreleased]
 
-Nothing yet.
+### Fixed
+
+- **The provenance builder was not reproducible off the machine that
+  vendored the content.** Every vendored entry's licence was resolved by
+  walking to an absolute upstream path — `/home/biloi/Projects/ECC`,
+  `/home/biloi/.codex/.tmp/plugins/...` — and those paths exist on the
+  machine that did the vendoring and nowhere else. On any other machine,
+  including a CI runner, all 42 vendored entries lost their licence and
+  fell back to `UNKNOWN`; `build_provenance.py --check` then failed on a
+  table that was in fact correct, and the sign-off gate reported 24
+  entries as unlicensed. The second CI run failed exactly this way.
+  The builder now falls back to the licence recorded in the provenance
+  table when the origin is unavailable. The fallback refuses to promote an
+  `UNKNOWN` entry to a known licence, so it can never manufacture a
+  licence that was not previously resolved, and the "no silent licence
+  inheritance" guarantee from 1.1.0 still holds.
+- **A licence file shipped in the corpus could be deleted without anyone
+  noticing.** Three vendored skills — `frontend-design`, `imagegen`, and
+  `netlify-image-cdn` — carry their upstream licence as a `LICENSE.txt`
+  inside the vendored directory. That file is the only licence evidence
+  the distribution ships for those entries, and the recorded fallback
+  masked its removal: deleting `skills/imagegen/LICENSE.txt` left the
+  table claiming `Apache-2.0` with nothing behind it. The builder now
+  checks the in-repo file first, before the origin and before the
+  recorded value, so a removal is reported as drift. `verify_all.py`
+  asserts that every `in-repo:` licence source points at a file that is
+  actually present.
+- **A `license:` frontmatter field that points at a licence file was
+  recorded as if it named one.** `skills/frontend-design/SKILL.md` says
+  `license: Complete terms in LICENSE.txt`, which is a pointer, not an
+  SPDX identifier; it was stored in the table as the licence of the entry
+  and then failed the known-licence check while looking like it had one.
+  Pointers are now recognised and skipped, and the search continues.
+- **`resolve_source` read the filesystem to decide a published field.** The
+  `source` in `CREDITS.md` was the resolved origin on the authoring
+  machine and the recorded value everywhere else. It is now always the
+  recorded value, which is the same on every machine.
+- **The provenance builder reported only the first failure.** Removing a
+  licence file made the table stale *and* left an entry without a verified
+  licence; only the sign-off gate was reported, sending a reader to fix a
+  table that was not the problem. Both failures are now reported.
+
+### Changed
+
+- **Licence sources in the provenance table are more precise.** The three
+  entries whose licence ships inside the corpus now record
+  `in-repo:skills/<name>/LICENSE.txt` instead of an `origin:` path that
+  named a directory on the authoring machine, and `CREDITS.md` says where
+  each licence was found. The paths are relative to the repository root,
+  so they are checkable by anyone reading the distribution.
+- **`NOTICE` states the actual counts.** It said 46 vendored entries with
+  29 licensed and 17 not; there are 42, of which 26 are licensed and 16
+  are not. It now also describes the three licence files that ship in the
+  corpus, which it previously did not mention.
 
 ## [1.5.0] — 2026-11-06
 

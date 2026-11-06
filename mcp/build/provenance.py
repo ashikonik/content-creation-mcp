@@ -57,6 +57,17 @@ NEEDS_REVIEW = {"CC-BY-4.0", "NOASSERTION", "CC-BY-NC-4.0", "CC-BY-NC-SA-4.0"}
 
 LICENSE_FILES = ("LICENSE", "LICENSE.txt", "LICENSE.md", "COPYING", "LICENSE.rst")
 
+# A ``license:`` frontmatter field that points at a licence file rather than
+# naming one. These are not licence identifiers and must not be recorded as
+# the licence of an entry.
+LICENSE_POINTER_RE = re.compile(
+    r"\b(?:see|refer to|in|under|per|as|terms\s+in|full\s+terms|"
+    r"complete\s+terms|license\s+file|licence\s+file)\b|"
+    r"license\.(?:txt|md|rst)|licence\.(?:txt|md|rst)|"
+    r"\bLICENSE\b|\bCOPYING\b",
+    re.I,
+)
+
 # Ordered most-specific-first: a specific licence beats a generic one.
 LICENSE_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("AGPL-3.0", re.compile(r"Affero General Public License", re.I)),
@@ -157,7 +168,19 @@ def _describe_licence_source(candidate: Path) -> str:
 
 
 def license_from_frontmatter(skill_dir: Path) -> str | None:
-    """Read the ``license:`` field from a SKILL.md or agent frontmatter."""
+    """Read the ``license:`` field from a SKILL.md or agent frontmatter.
+
+    Only a recognised licence name is returned. A ``license:`` field is not
+    always a licence: some skills write a pointer instead, such as
+    ``license: Complete terms in LICENSE.txt`` or ``license: See LICENSE``.
+    Recording one of those as the licence puts a sentence where an SPDX
+    identifier belongs, and the entry then fails the known-licence check
+    while looking like it had one.
+
+    A pointer is not discarded here — it says the licence lives in a file
+    that is not next to the skill. It is simply not an answer, so the
+    caller keeps looking.
+    """
     for name in ("SKILL.md",):
         path = skill_dir / name
         if not path.is_file():
@@ -167,8 +190,16 @@ def license_from_frontmatter(skill_dir: Path) -> str | None:
         except OSError:
             continue
         match = re.search(r"^license:\s*(.+?)\s*$", text, re.M)
-        if match:
-            return match.group(1).strip().strip("\"'")
+        if not match:
+            continue
+        value = match.group(1).strip().strip("\"'")
+        if value in KNOWN_LICENCES:
+            return value
+        # A pointer to a licence file, or a licence named in a form this
+        # table does not carry. Neither is an identifier.
+        if LICENSE_POINTER_RE.search(value):
+            continue
+        return value
     return None
 
 

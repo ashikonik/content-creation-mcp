@@ -62,135 +62,177 @@ Copied from upstream sources. Each entry keeps the licence of its origin, as det
 
 - **frontend-design** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: licence file shipped in the corpus (`skills/frontend-design/LICENSE.txt`)
   - Path: `skills/frontend-design/`
 - **imagegen** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: licence file shipped in the corpus (`skills/imagegen/LICENSE.txt`)
   - Path: `skills/imagegen/`
 - **netlify-image-cdn** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: licence file shipped in the corpus (`skills/netlify-image-cdn/LICENSE.txt`)
   - Path: `skills/netlify-image-cdn/`
 - **writing-hookify-rules** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/writing-hookify-rules/`
 
 ### MIT
 
 - **article-writing** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/article-writing/`
 - **batch-draft-writer** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/batch-draft-writer/`
 - **blender-motion-state-inspection** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/blender-motion-state-inspection/`
 - **brand-discovery** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/brand-discovery/`
 - **brand-voice** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/brand-voice/`
 - **content-engine** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/content-engine/`
 - **crosspost** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/crosspost/`
 - **design-system** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/design-system/`
 - **email-ops** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/email-ops/`
 - **frontend-slides** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/frontend-slides/`
 - **ios-icon-gen** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/ios-icon-gen/`
 - **manim-video** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/manim-video/`
 - **marketing-agent** (agent)
   - Source: local copy (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `agents/marketing-agent.md`
 - **marketing-campaign** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/marketing-campaign/`
 - **planner** (agent)
   - Source: local copy (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `agents/planner.md`
 - **seo** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/seo/`
 - **seo-specialist** (agent)
   - Source: local copy (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `agents/seo-specialist.md`
 - **social-graph-ranker** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/social-graph-ranker/`
 - **taste** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/taste/`
 - **video-editing** (skill)
   - Source: https://github.com/affaan-m/ECC.git
+  - Licence: detected at the upstream origin
   - Path: `skills/video-editing/`
 - **writing-plans** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/writing-plans/`
 - **writing-skills** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/writing-skills/`
 
 ### UNKNOWN
 
 - **canva-branded-presentation** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/canva-branded-presentation/`
 - **draft-brief** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/draft-brief/`
 - **draft-long-form-memo** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/draft-long-form-memo/`
 - **geist** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/geist/`
 - **google-slides** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/google-slides/`
 - **humanizer** (skill)
   - Source: local skill aggregator (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/humanizer/`
 - **hyperframes** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/hyperframes/`
 - **hyperframes-cli** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/hyperframes-cli/`
 - **hyperframes-registry** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/hyperframes-registry/`
 - **node-link-and-diagram-layout** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/node-link-and-diagram-layout/`
 - **remotion-best-practices** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/remotion-best-practices/`
 - **reports-pdfs-and-slide-automation** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/reports-pdfs-and-slide-automation/`
 - **sprite-pipeline** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/sprite-pipeline/`
 - **uml-and-software-architecture-visualization** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/uml-and-software-architecture-visualization/`
 - **web-3d-asset-pipeline** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/web-3d-asset-pipeline/`
 - **website-to-hyperframes** (skill)
   - Source: local plugin marketplace (no upstream repository recorded)
+  - Licence: detected at the upstream origin
   - Path: `skills/website-to-hyperframes/`
 
 ## Unverified licence
