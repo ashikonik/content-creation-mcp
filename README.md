@@ -146,6 +146,19 @@ renders to any of five formats, each pinned by a test in `mcp/tests/render.test.
 The dialect registry lives in `mcp/data/harnesses.json` — data, not `switch`
 branches, so adding a client is a JSON edit.
 
+That claim is enforced, not just documented. The server reads the registry at
+startup and derives from it the list of formats `render_skill` accepts, the
+file extension each format is written with, and the install convention of
+every harness. The renderer dispatches through a map, and startup fails with a
+message naming the format if the registry names one the renderer has no
+implementation for — so a format can never be accepted and then fail on every
+call. `tools/verify_all.py` checks the two sides against each other in both
+directions.
+
+Adding a *format* still requires a renderer function; there is no way to
+express a new layout in JSON. Adding a *harness* — a client family with its
+own directories and filename pattern — is genuinely a JSON edit.
+
 ## Quick start
 
 ```bash
@@ -168,17 +181,25 @@ skills/          skill directories — SKILL.md + references/ + scripts/ + asset
 agents/          agent definitions, one <name>.md each
 mcp/
   src/           TypeScript server
-    server.ts      tool registration (transport-agnostic core)
-    index.ts       stdio entrypoint
-    http.ts        Streamable HTTP entrypoint
-    search.ts      lexical search
-    render.ts      dialect rendering
-    frontmatter.ts parse + emit
-    index-loader.ts root-relative index loading
+    server.ts        tool registration (transport-agnostic core)
+    index.ts         stdio entrypoint
+    http.ts          Streamable HTTP entrypoint
+    search.ts        lexical search
+    render.ts        dialect rendering
+    frontmatter.ts   parse + emit
+    index-loader.ts  root-relative index loading
+    harness-registry.ts  loads data/harnesses.json at runtime
   build/         index builder, taxonomy, provenance
   data/          generated index, harness registry, provenance, exclusions
-  tests/         protocol, search, render-format, HTTP + parity tests
+  tests/         protocol, search, render-format, registry, HTTP + parity tests
   scripts/       register.sh — emits MCP client config snippets
+tools/           repository tooling, not part of the server
+  verify_all.py        the full verification suite
+  build_survey.py      builds the survey artifacts from a raw sweep
+  refresh_survey.py    recomputes the survey summary in place
+  curate_repos.py      curates the reference tables
+  link_reference_tools.py  points skills at their reference files
+  vendor_skills.py     vendors upstream skills into this corpus
 surveys/         the GitHub survey that seeded the corpus
 ```
 
@@ -188,22 +209,28 @@ surveys/         the GitHub survey that seeded the corpus
 python3 mcp/build/build_index.py        # regenerate mcp/data/index.json
 python3 mcp/build/build_provenance.py   # regenerate mcp/data/provenance.json
 python3 mcp/build/write_credits.py       # regenerate CREDITS.md
-python3 .verify_all.py                   # run the verification suite
+python3 tools/verify_all.py                # run the verification suite
 ```
 
 The index is deterministic — running the builder twice produces a byte-identical
 file, and `--check` fails if the on-disk copy is stale. It stores no absolute
 paths, so the whole directory is portable.
 
+`generated_at` in the index is pinned to `1970-01-01T00:00:00Z` on purpose. A
+wall-clock timestamp would change the file on every rebuild, and the
+`--check` gate could no longer distinguish "the corpus changed" from "the
+clock moved". The field stays because the API contract declares it; its value
+marks the index as a build artifact rather than a timestamped record.
+
 ## Verification
 
-`.verify_all.py` runs 1000+ assertions across the corpus and the server:
+`tools/verify_all.py` runs 1000+ assertions across the corpus and the server:
 
 - every skill and agent has valid frontmatter, and the index matches the tree
 - every referenced file and markdown link resolves
 - every record has a provenance row with a licence, and excluded content is
   documented in `NOTICE`
-- all 24 required capabilities resolve to a skill, through a real search query
+- all 29 required capabilities resolve to a skill, through a real search query
 - no skill depends on a paid hosted service. The check names the services it
   forbids and scans for them; free stock-media APIs are in scope, and a hosted
   path is allowed only where a local default is the primary one and the
@@ -218,7 +245,18 @@ upstream licence — see `NOTICE` and the generated `CREDITS.md`.
 
 ## Survey
 
-`surveys/content_creation_github.jsonl` records a sweep of 43,359 GitHub
+`surveys/content_creation_github.jsonl` records a sweep of 43,362 GitHub
 repositories for content-creation skills, agents, and tooling, sorted by stars,
 with the modality each one fills. `surveys/content_creation_github.md` is the
 readable report. They are the provenance for why these skills exist.
+
+The JSONL is 18 MB — about 96% of the tracked repository — and it is kept
+uncompressed on purpose: four tools read it directly
+(`tools/refresh_survey.py`, `tools/curate_repos.py`, `tools/build_survey.py`,
+and the verification suite), and a `.gz` file would mean every one of them
+grows a decompression branch. It compresses to roughly 3.8 MB, so a
+`git lfs` track or a gzip side-car would cut it to a fifth of the size if
+that trade is ever worth making. The records themselves are not
+regenerable: the raw sweep output they came from no longer exists, and
+`tools/refresh_survey.py` recomputes the summary header and the Markdown
+report from the published JSONL rather than from the sweep.

@@ -11,6 +11,88 @@ state is tagged `v1.0.0`.
 
 Nothing yet.
 
+## [1.5.0] — 2026-11-06
+
+Stage 6 of the remediation: the fixes stay fixed. The documented extension
+point now exists, CI runs the gates, and the repository's own tooling sits
+where a reader will look for it.
+
+### Fixed
+
+- **The dialect registry is now the registry.** `mcp/data/harnesses.json` was
+  described in the README as the extension point such that "adding a client is
+  a JSON edit", but the renderer dispatched through a hardcoded `switch`, the
+  accepted format list was a literal in `types.ts`, and nothing under
+  `mcp/src/` had ever opened the file. The registry was documentation.
+  A new `mcp/src/harness-registry.ts` loads it at startup, and the server
+  derives from it the formats `render_skill` accepts, the file extension
+  each format is written with, and the install convention of every
+  harness. The renderer now dispatches through a map rather than a switch,
+  and the two sides are checked against each other: startup fails with a
+  message naming the format if the registry names one the renderer has no
+  implementation for, so a format can never be accepted and then fail on
+  every call that uses it. `.verify_all.py` checks the same relationship in
+  both directions from the source text, and `mcp/tests/registry.test.js`
+  pins it from the running server.
+- **`list_modalities` now reports the harnesses**, not just the modality
+  counts and a format list. A client asking "how do I install this for
+  Cursor?" had no way to ask.
+- **The README's survey count was stale.** It said 43,359 repositories; the
+  survey holds 43,362. The two had drifted because nothing compared them.
+  The count in the README is now checked against the survey, as is the
+  number of required capabilities (the README said 24 while the suite
+  enforced 29).
+- **The npm lockfile's version had never been kept in sync.** It sat at
+  1.0.0 for the project's entire history while `package.json` moved through
+  four releases — and `npm ci` installs the version the lockfile records.
+  It is now in sync, and the version-consistency check covers it.
+
+### Added
+
+- **CI** (`.github/workflows/ci.yml`). Runs on every push and pull request:
+  `npm ci`, the build, the test suite, both reproducibility gates
+  (`build_index.py --check` and `build_provenance.py --check`), and the
+  full verification suite. The matrix covers Node 20 and 22 against Python
+  3.10 and 3.12, with `fail-fast: false` so a Node-version problem and a
+  Python-version problem are both reported rather than one masking the
+  other. The reproducibility gates are what catch a corpus change that
+  forgets to regenerate the index.
+- **`mcp/tests/registry.test.js`** — seven tests covering the registry
+  wiring, including the case where a format in the registry has no
+  renderer.
+
+### Changed
+
+- **The repository's own tooling moved to `tools/`.** The six Python
+  scripts at the repository root — a dot-prefixed naming convention that
+  hid them from `ls` and from the project layout in the README — now live
+  in `tools/` alongside `vendor_skills.py`, which was already there. Each
+  script's project-root resolution was updated for the new depth, and all
+  four survey scripts were re-run to confirm they still work.
+- **The version is now consistent across five files** — `package.json`,
+  `package-lock.json`, `server.ts`, `index.json`, and `pyproject.toml` —
+  and the check asserts all five agree.
+
+### Not changed, on purpose
+
+- **`surveys/content_creation_github.jsonl` stays uncompressed** at 18 MB,
+  about 96% of the tracked repository. Four tools read it directly, and a
+  `.gz` side-car would mean every one of them grows a decompression
+  branch. It compresses to roughly 3.8 MB, so a `git lfs` track would cut
+  it to a fifth of the size — but LFS is not installed here, and making
+  every consumer of the file install it is a worse trade than the bytes.
+  The size, the reason it is kept this way, and the fact that the records
+  are *not* regenerable from the original sweep are now documented in the
+  README rather than left as an unexplained bulk in the tree.
+
+### Notes
+
+- `mcp/data/index.json`'s `generated_at` remains pinned to
+  `1970-01-01T00:00:00Z`. A wall-clock timestamp would change the file on
+  every rebuild, and the `--check` gate could no longer distinguish "the
+  corpus changed" from "the clock moved". The intent is now documented
+  where the field is emitted, in the builder and in the server.
+
 ## [1.4.0] — 2026-11-06
 
 Stage 5 of the remediation: the corpus matches the project's own stated
@@ -364,7 +446,7 @@ governs it.
 
 ### Tests
 
-- `.verify_all.py` now asserts the new provenance invariants: an
+- `tools/verify_all.py` now asserts the new provenance invariants: an
   unverified-licence entry must be signed off, a `needs-review` entry must not
   claim a licence that was never detected, and a published entry that claims a
   licence must name where it was detected. It also asserts that `CREDITS.md`,
@@ -452,7 +534,7 @@ attribution remediation.
   `claude-frontmatter`, `openai-yaml`, `agentsmd`, `cursor-rules`.
 - Deterministic index build with byte-reproducibility gates
   (`build_index.py --check`, `build_provenance.py --check`).
-- Local verification suite (`.verify_all.py`) running 1061 checks.
+- Local verification suite (`tools/verify_all.py`) running 1061 checks.
 - Node test suite running 49 tests.
 
 ### Known issues at this tag
@@ -488,7 +570,8 @@ Recorded here so the audit trail shows what the remediation addressed.
   no runtime code read the file.
 - **No CI, no changelog, no tags** prior to this file.
 
-[Unreleased]: https://github.com/ashikonik/content-creation-mcp/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/ashikonik/content-creation-mcp/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.5.0
 [1.4.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.4.0
 [1.3.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.3.0
 [1.2.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.2.0

@@ -13,7 +13,7 @@ repository: a JSON record of every repository, and a Markdown report of the
 top of each list plus the capability gap analysis.
 
 Usage:
-    python3 .build_survey.py <raw-dir> [--out-dir surveys]
+    python3 tools/build_survey.py <raw-dir> [--out-dir surveys]
 """
 
 from __future__ import annotations
@@ -255,7 +255,7 @@ def main() -> int:
     parser.add_argument(
         "--out-dir",
         type=Path,
-        default=Path(__file__).resolve().parent / "surveys",
+        default=Path(__file__).resolve().parent.parent / "surveys",
         help="Where to write the survey artifacts",
     )
     args = parser.parse_args()

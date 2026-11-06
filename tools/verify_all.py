@@ -6,7 +6,7 @@ server is broken in a way a client would notice.
 
 Run:
 
-    python3 .verify_all.py
+    python3 tools/verify_all.py
 
 Exits non-zero on the first failing category, after running every check so
 one run reports every problem rather than one at a time.
@@ -21,7 +21,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent
+# This script lives in `tools/`, so the project root is one level up.
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 MCP_DIR = PROJECT_ROOT / "mcp"
 DATA_DIR = MCP_DIR / "data"
 SKILLS_DIR = PROJECT_ROOT / "skills"
@@ -32,7 +33,7 @@ PROVENANCE_PATH = DATA_DIR / "provenance.json"
 HARNESSES_PATH = DATA_DIR / "harnesses.json"
 CREDITS_PATH = PROJECT_ROOT / "CREDITS.md"
 
-# The 24 capabilities the plan requires. Each must resolve to at least one
+# The capabilities the plan requires. Each must resolve to at least one
 # skill in the corpus, and that skill must be searchable by a query that
 # names the capability.
 REQUIRED_CAPABILITIES: list[tuple[str, str, str]] = [
@@ -84,7 +85,6 @@ REQUIRED_AGENTS = {
     "stock-media-researcher",
 }
 
-RENDER_FORMATS = {"markdown", "claude-frontmatter", "openai-yaml", "agentsmd", "cursor-rules"}
 CONTENT_DOMAINS = {
     "video",
     "image",
@@ -459,6 +459,32 @@ def check_harnesses(report: Report) -> None:
     report.category("harness registry")
     registry = load_json(HARNESSES_PATH)
     harnesses = registry.get("harnesses", {})
+    formats = registry.get("formats", {})
+
+    # The registry is the source of truth for the accepted format list, so
+    # the check reads it from there rather than from a second hardcoded set
+    # that could drift. The renderer's own list is read from the built
+    # source, and the two must agree.
+    report.check(
+        isinstance(formats, dict) and len(formats) > 0,
+        "the registry declares no formats",
+    )
+    report.check(
+        isinstance(harnesses, dict) and len(harnesses) > 0,
+        "the registry declares no harnesses",
+    )
+
+    for name, spec in formats.items():
+        report.check(
+            isinstance(spec.get("extension"), str)
+            and spec["extension"].startswith("."),
+            f"format {name} has no valid extension",
+        )
+        report.check(
+            bool(str(spec.get("description", "")).strip()),
+            f"format {name} has no description",
+        )
+
     for name, spec in harnesses.items():
         report.check("dirs" in spec, f"harness {name} has no dirs")
         report.check(
@@ -468,33 +494,68 @@ def check_harnesses(report: Report) -> None:
             "agent_format" in spec, f"harness {name} has no agent_format"
         )
         report.check(
-            spec.get("skill_format") in RENDER_FORMATS,
+            spec.get("skill_format") in formats,
             f"harness {name} names unknown skill_format {spec.get('skill_format')!r}",
         )
         report.check(
-            spec.get("agent_format") in RENDER_FORMATS,
+            spec.get("agent_format") in formats,
             f"harness {name} names unknown agent_format {spec.get('agent_format')!r}",
         )
 
-    # Every dialect the renderer supports must be reachable from the registry.
-    for fmt in RENDER_FORMATS:
-        report.check(
-            fmt in registry.get("formats", {}),
-            f"render format {fmt} has no entry in the harness registry",
-        )
+    # Every format the renderer implements must be reachable from the
+    # registry — otherwise the renderer could produce output the registry
+    # does not describe — and every format the registry names must have a
+    # renderer, or the server would accept a format it cannot produce.
+    rendered = read_render_formats()
+    report.check(
+        rendered is not None,
+        "could not read the renderer's format list from mcp/src/render.ts",
+    )
+    if rendered is not None:
+        for fmt in rendered:
+            report.check(
+                fmt in formats,
+                f"render format {fmt} has no entry in the harness registry",
+            )
+        for fmt in formats:
+            report.check(
+                fmt in rendered,
+                f"registry format {fmt} has no renderer in mcp/src/render.ts",
+            )
 
     report.ok(f"checked {len(harnesses)} harness dialects")
+
+
+def read_render_formats() -> set[str] | None:
+    """The format names the renderer implements, read from its source.
+
+    The renderer dispatches through a map rather than a switch, so the
+    formats it implements are the keys of that map. They are read out of
+    the source text rather than by importing the compiled module, because
+    this check runs before the build in CI.
+    """
+    source = (PROJECT_ROOT / "mcp" / "src" / "render.ts").read_text(
+        encoding="utf-8"
+    )
+    match = re.search(
+        r"const RENDERERS\b[^\n]*=\s*\{(.*?)\n\};", source, re.DOTALL
+    )
+    if not match:
+        return None
+    return set(re.findall(r'"([a-z0-9-]+)"\s*:', match.group(1)))
 
 
 def check_version_consistency(report: Report, index: dict) -> None:
     """The project version must be the same everywhere it is written.
 
-    The version appears in four places: the Node package manifest, the
-    server's ``SERVER_VERSION`` constant, the generated index, and the
-    Python distribution metadata. They were previously allowed to drift —
-    the index said 1.0.0 while the server said 1.0.1 — so a client
-    reporting the server's version had no way to tell which artifact it
-    was talking about.
+    The version appears in five places: the Node package manifest, the
+    npm lockfile, the server's ``SERVER_VERSION`` constant, the generated
+    index, and the Python distribution metadata. They were previously
+    allowed to drift — the index said 1.0.0 while the server said 1.0.1 —
+    so a client reporting the server's version had no way to tell which
+    artifact it was talking about. The lockfile was the worse case: it
+    sat at 1.0.0 for the whole history of the project because nothing
+    checked it, and `npm ci` installs the version the lockfile records.
     """
     report.category("version consistency")
 
@@ -512,6 +573,9 @@ def check_version_consistency(report: Report, index: dict) -> None:
     match = re.search(r'^version\s*=\s*"([^"]+)"', pyproject, re.M)
     versions["mcp/pyproject.toml"] = match.group(1) if match else None
 
+    lock = load_json(MCP_DIR / "package-lock.json")
+    versions["mcp/package-lock.json"] = lock.get("version")
+
     for where, value in versions.items():
         report.check(bool(value), f"no version found in {where}")
 
@@ -523,7 +587,9 @@ def check_version_consistency(report: Report, index: dict) -> None:
     )
 
     if len(distinct) == 1:
-        report.ok(f"version {distinct.pop()} is consistent across all four files")
+        report.ok(
+            f"version {distinct.pop()} is consistent across all {len(versions)} files"
+        )
 
 
 def check_index_determinism(report: Report) -> None:
@@ -823,15 +889,16 @@ def check_exclusions(report: Report, index: dict) -> None:
     report.ok(f"checked {len(entries)} exclusions")
 
 
-def check_survey(report: Report) -> None:
-    """The survey artifact must exist and be well-formed."""
-    report.category("survey")
-    jsonl = PROJECT_ROOT / "surveys" / "content_creation_github.jsonl"
-    md = PROJECT_ROOT / "surveys" / "content_creation_github.md"
+def survey_counts() -> tuple[int, dict | None, int]:
+    """The survey's repository count, its summary record, and any bad lines.
 
-    if not report.check(jsonl.is_file(), "surveys/content_creation_github.jsonl missing"):
-        return
-    report.check(md.is_file(), "surveys/content_creation_github.md missing")
+    Shared so that the README check can compare the number it states against
+    the number the survey actually holds, rather than each check counting
+    independently and disagreeing.
+    """
+    jsonl = PROJECT_ROOT / "surveys" / "content_creation_github.jsonl"
+    if not jsonl.is_file():
+        return 0, None, 0
 
     count = 0
     summary = None
@@ -847,6 +914,20 @@ def check_survey(report: Report) -> None:
                 summary = record["_summary"]
             else:
                 count += 1
+    return count, summary, unparseable
+
+
+def check_survey(report: Report) -> None:
+    """The survey artifact must exist and be well-formed."""
+    report.category("survey")
+    jsonl = PROJECT_ROOT / "surveys" / "content_creation_github.jsonl"
+    md = PROJECT_ROOT / "surveys" / "content_creation_github.md"
+
+    if not report.check(jsonl.is_file(), "surveys/content_creation_github.jsonl missing"):
+        return
+    report.check(md.is_file(), "surveys/content_creation_github.md missing")
+
+    count, summary, unparseable = survey_counts()
 
     report.check(unparseable == 0, f"{unparseable} unparseable lines in the survey")
     report.check(count > 100, f"survey has only {count} repositories")
@@ -874,6 +955,28 @@ def check_readme(report: Report, index: dict) -> None:
     report.check(
         f"{agent_count} agents" in readme,
         f"README does not state the agent count ({agent_count})",
+    )
+
+    # The survey count the README states must be the count the survey holds.
+    # The two drifted apart — the README said 43,359 while the survey held
+    # 43,362 — because nothing compared them.
+    survey_count, _, _ = survey_counts()
+    if survey_count:
+        report.check(
+            f"{survey_count:,}" in readme,
+            f"README does not state the survey repository count "
+            f"({survey_count:,})",
+        )
+
+    # The number of required capabilities the README claims must be the
+    # number the check actually enforces. The list grew when skills were
+    # excluded and their capability folded into a neighbour, and the README
+    # kept the old figure.
+    capability_count = len(REQUIRED_CAPABILITIES)
+    report.check(
+        f"all {capability_count} required capabilities" in readme,
+        f"README does not state the required-capability count "
+        f"({capability_count})",
     )
 
     # Every tool named in the README must actually be registered.

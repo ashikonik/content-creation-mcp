@@ -14,19 +14,19 @@ import { z } from "zod";
 import { loadIndex, PROJECT_ROOT } from "./index-loader.js";
 import { parseFrontmatter } from "./frontmatter.js";
 import { search } from "./search.js";
-import { contextFromFile, renderSkill, runAgent } from "./render.js";
+import { contextFromFile, implementedFormats, renderSkill, runAgent } from "./render.js";
 import {
   CONTENT_DOMAINS,
-  RENDER_FORMATS,
   type AgentRecord,
   type ContentDomain,
   type RenderFormat,
   type SkillFrontmatter,
   type SkillRecord,
 } from "./types.js";
+import { loadRegistry, registryFormats } from "./harness-registry.js";
 
 const SERVER_NAME = "content-creation-mcp";
-const SERVER_VERSION = "1.4.0";
+const SERVER_VERSION = "1.5.0";
 
 /** Maximum number of file paths a single get_skill_bundle call may request. */
 const MAX_BUNDLE_FILES = 200;
@@ -94,6 +94,27 @@ function findAgent(id: string): AgentRecord | undefined {
 }
 
 export function createServer(): McpServer {
+  // The dialect registry is loaded once, at startup. A registry that names a
+  // format the renderer cannot produce fails here, loudly, rather than on the
+  // first request that happens to ask for it.
+  const registry = loadRegistry();
+  const renderFormats = registryFormats();
+
+  // The registry says which formats exist; the renderer says which ones the
+  // code can produce. The two must agree. A format in the registry with no
+  // renderer would otherwise be accepted by `render_skill` and then fail on
+  // every call — a client-visible bug that only appears when that particular
+  // format is requested.
+  const implemented = new Set(implementedFormats());
+  const unimplemented = renderFormats.filter((f) => !implemented.has(f));
+  if (unimplemented.length > 0) {
+    throw new Error(
+      `Harness registry names ${unimplemented.length} format(s) with no ` +
+        `renderer: ${unimplemented.join(", ")}. Implemented formats: ` +
+        `${[...implemented].join(", ")}.`,
+    );
+  }
+
   const server = new McpServer(
     { name: SERVER_NAME, version: SERVER_VERSION },
     {
@@ -434,13 +455,13 @@ export function createServer(): McpServer {
       title: "Render a skill for a client dialect",
       description:
         "Render a skill into a specific dialect and return it as a string. " +
-        "Formats: markdown, claude-frontmatter, openai-yaml, agentsmd, " +
-        "cursor-rules. This is the harness-agnostic path — a non-Claude " +
+        `Formats: ${renderFormats.join(", ")}. ` +
+        "This is the harness-agnostic path — a non-Claude " +
         "client calls this and receives a usable skill.",
       inputSchema: {
         id: z.string().describe("Skill id or name"),
         format: z
-          .enum(RENDER_FORMATS as [RenderFormat, ...RenderFormat[]])
+          .enum(renderFormats as [string, ...string[]])
           .describe("Target dialect"),
       },
     },
@@ -464,7 +485,10 @@ export function createServer(): McpServer {
       let rendered: string;
       try {
         const ctx = contextFromFile(text, skill);
-        rendered = renderSkill(format, ctx);
+        // The format list comes from the registry at runtime, so it is a
+        // plain string here. The startup check above has already proved
+        // every registered format has a renderer, so the cast is safe.
+        rendered = renderSkill(format as RenderFormat, ctx);
       } catch (err) {
         // A malformed frontmatter block is a problem with one skill, not
         // with the request. Reporting it as a tool error keeps the server
@@ -587,7 +611,23 @@ export function createServer(): McpServer {
           {
             type: "text" as const,
             text: JSON.stringify(
-              { modalities, render_formats: RENDER_FORMATS },
+              {
+                modalities,
+                render_formats: renderFormats,
+                harnesses: Object.fromEntries(
+                  Object.entries(registry.harnesses).map(([name, spec]) => [
+                    name,
+                    {
+                      label: spec.label,
+                      skill_format: spec.skill_format,
+                      agent_format: spec.agent_format,
+                      skill_filename: spec.skill_filename,
+                      agent_filename: spec.agent_filename,
+                      dirs: spec.dirs,
+                    },
+                  ]),
+                ),
+              },
               null,
               2,
             ),
@@ -627,6 +667,8 @@ export function createServer(): McpServer {
             text: JSON.stringify(
               {
                 version: index.version,
+                // Pinned to the epoch so the index stays byte-reproducible.
+                // See the comment where build_index.py emits it.
                 generated_at: index.generated_at,
                 skills: index.skills.length,
                 agents: index.agents.length,

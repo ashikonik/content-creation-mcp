@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Recompute the survey summary header and Markdown report in place.
 
-The raw sweep output that `.build_survey.py` consumes no longer exists, but
+The raw sweep output that `build_survey.py` consumes no longer exists, but
 the published JSONL does. This script reads the JSONL back, recomputes the
 counts, and rewrites both artifacts so they stay consistent with the records
 they describe.
 
 Usage:
-    python3 .refresh_survey.py [--check]
+    python3 tools/refresh_survey.py [--check]
 """
 
 from __future__ import annotations
@@ -17,13 +17,15 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+TOOLS_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(TOOLS_DIR))
 
-# `.build_survey.py` is dot-prefixed, so it cannot be imported by name.
+# `build_survey.py` lives beside this script and is not a package module,
+# so it is loaded by path rather than by name.
 import importlib.util  # noqa: E402
 
 _spec = importlib.util.spec_from_file_location(
-    "build_survey", Path(__file__).resolve().parent / ".build_survey.py"
+    "build_survey", TOOLS_DIR / "build_survey.py"
 )
 assert _spec and _spec.loader
 build_survey = importlib.util.module_from_spec(_spec)
@@ -33,13 +35,13 @@ render_report = build_survey.render_report
 star_histogram = build_survey.star_histogram
 
 # `render_report` recomputes the modality split with the keyword classifier
-# in `.build_survey.py`. That classifier was only ever a fallback for records
+# in `build_survey.py`. That classifier was only ever a fallback for records
 # that arrived without a modality — the published JSONL carries the curated
 # value. Replacing it here keeps the Markdown and the JSONL summary header
 # in agreement.
 build_survey.classify_modality = lambda record: record.get("modality") or "other"
 
-ROOT = Path(__file__).resolve().parent
+ROOT = TOOLS_DIR.parent
 SURVEYS = ROOT / "surveys"
 JSONL = SURVEYS / "content_creation_github.jsonl"
 MD = SURVEYS / "content_creation_github.md"

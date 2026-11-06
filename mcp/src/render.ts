@@ -165,24 +165,47 @@ function renderCursorRules(ctx: RenderContext): string {
   return `${header}\n${ctx.body.trimEnd()}\n`;
 }
 
+/**
+ * The renderer for each format.
+ *
+ * Dispatch is by map lookup rather than a `switch`, so the set of formats the
+ * server accepts and the set it can actually render are checked against each
+ * other at startup instead of drifting apart. The registry in
+ * `data/harnesses.json` names the formats; this map supplies the code. A
+ * format named in the registry with no renderer here is a build error, not a
+ * runtime surprise on one request.
+ */
+const RENDERERS: Record<string, (ctx: RenderContext) => string> = {
+  "markdown": renderMarkdown,
+  "claude-frontmatter": renderClaudeFrontmatter,
+  "openai-yaml": renderOpenAiYaml,
+  "agentsmd": renderAgentsMd,
+  "cursor-rules": renderCursorRules,
+};
+
+/**
+ * The formats this build can render.
+ *
+ * The registry decides which formats *exist*; this set decides which ones the
+ * code behind them was actually written for. They are checked against each
+ * other below.
+ */
+export function implementedFormats(): string[] {
+  return Object.keys(RENDERERS);
+}
+
 export function renderSkill(
   format: RenderFormat,
   ctx: RenderContext,
 ): string {
-  switch (format) {
-    case "markdown":
-      return renderMarkdown(ctx);
-    case "claude-frontmatter":
-      return renderClaudeFrontmatter(ctx);
-    case "openai-yaml":
-      return renderOpenAiYaml(ctx);
-    case "agentsmd":
-      return renderAgentsMd(ctx);
-    case "cursor-rules":
-      return renderCursorRules(ctx);
-    default:
-      throw new Error(`Unknown render format: ${format}`);
+  const renderer = RENDERERS[format];
+  if (!renderer) {
+    throw new Error(
+      `Unknown render format: ${format}. Known formats: ` +
+        Object.keys(RENDERERS).join(", "),
+    );
   }
+  return renderer(ctx);
 }
 
 /**

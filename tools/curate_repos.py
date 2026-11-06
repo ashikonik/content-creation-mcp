@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Curate 1000+ star content-creation repositories from the survey.
 
-The survey classifies 43,359 repositories by modality, but the raw lists
+The survey classifies 43,362 repositories by modality, but the raw lists
 contain a lot of noise: general LLM frameworks, agent orchestrators,
 `awesome-*` link collections, and applications that only incidentally
 touch content creation. Shipping those as "content creation tools" would
@@ -12,8 +12,8 @@ markdown reference table for each domain, ready to drop into the
 `references/` folder of the skill that covers that domain.
 
 Usage:
-    python3 .curate_repos.py            # write the reference files
-    python3 .curate_repos.py --check    # verify the allowlist still resolves
+    python3 tools/curate_repos.py            # write the reference files
+    python3 tools/curate_repos.py --check    # verify the allowlist still resolves
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ import json
 import pathlib
 import sys
 
-ROOT = pathlib.Path(__file__).resolve().parent
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 SURVEY = ROOT / "surveys" / "content_creation_github.jsonl"
 
 # --------------------------------------------------------------------------

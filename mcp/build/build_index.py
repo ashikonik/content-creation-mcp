@@ -43,7 +43,7 @@ DATA_DIR = PROJECT_ROOT / "mcp" / "data"
 INDEX_PATH = DATA_DIR / "index.json"
 EXCLUDED_PATH = DATA_DIR / "excluded.json"
 
-INDEX_VERSION = "1.4.0"
+INDEX_VERSION = "1.5.0"
 
 
 def provenance_upstream() -> dict[tuple[str, str], dict]:
@@ -602,7 +602,14 @@ def main() -> int:
 
     index = {
         "version": INDEX_VERSION,
-        "generated_at": "1970-01-01T00:00:00Z",  # fixed for determinism
+        # Pinned to the epoch, deliberately. A wall-clock timestamp would
+        # make every rebuild produce a different file, and `build_index.py
+        # --check` would then fail on a corpus that had not changed at all.
+        # The index has to be byte-reproducible so that CI can prove the
+        # committed artifact matches the tree it describes. The field is
+        # kept because the API contract declares it; its value marks the
+        # index as a build artifact rather than a timestamped record.
+        "generated_at": "1970-01-01T00:00:00Z",
         "project_root": ".",
         "counts": {
             "skills": len(skills),

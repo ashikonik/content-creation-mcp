@@ -8,6 +8,9 @@ find them. This adds a short section above the trailing "Related skills"
 section (or at the end of the file) pointing at the generated table.
 
 Idempotent: running it twice does not duplicate the section.
+
+Usage:
+    python3 tools/link_reference_tools.py
 """
 
 from __future__ import annotations
@@ -16,7 +19,7 @@ import pathlib
 import re
 import sys
 
-ROOT = pathlib.Path(__file__).resolve().parent
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 # skill id -> (domain, human label)
 TARGETS: dict[str, tuple[str, str]] = {

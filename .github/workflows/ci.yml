@@ -1,13 +1,71 @@
-# Placeholder — populated in Stage 6 of the remediation plan.
+# CI for content-creation-mcp.
+#
+# The gates here are the same ones the remediation plan runs by hand, wired so
+# that a regression cannot land unnoticed. Every stage of the plan ended with
+# a verification block; this file is those blocks, automated.
+#
+#   1. Build the server and run the test suite.
+#   2. Rebuild the index and the provenance table, and fail if the committed
+#      artifacts differ from what the tree produces. A corpus change that
+#      forgets to regenerate the index is a stale-index bug, and this is
+#      where it gets caught.
+#   3. Run the full verification suite, which includes the server tests,
+#      the corpus assertions, and the search-ranking checks.
 name: CI
 
 on:
   push:
+    branches: ["**"]
   pull_request:
 
+# Cancel superseded runs on the same ref. A push that lands while a PR's
+# run is still going makes that run irrelevant.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  placeholder:
+  verify:
     runs-on: ubuntu-latest
+
+    strategy:
+      # Report every matrix leg's result rather than stopping at the first
+      # failure — a Node-version problem and a Python-version problem are
+      # different bugs and both are worth seeing.
+      fail-fast: false
+      matrix:
+        node: ["20", "22"]
+        python: ["3.10", "3.12"]
+
     steps:
       - uses: actions/checkout@v4
-      - run: echo "CI workflow is populated in Stage 6."
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: mcp/package-lock.json
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install dependencies
+        working-directory: mcp
+        run: npm ci
+
+      - name: Build the server
+        working-directory: mcp
+        run: npm run build
+
+      - name: Test the server
+        working-directory: mcp
+        run: npm test
+
+      - name: Check the index is reproducible
+        run: |
+          python3 mcp/build/build_index.py --check
+          python3 mcp/build/build_provenance.py --check
+
+      - name: Verify the corpus
+        run: python3 tools/verify_all.py
