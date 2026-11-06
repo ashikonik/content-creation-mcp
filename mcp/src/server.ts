@@ -7,7 +7,7 @@
  * entrypoints.
  */
 import { readFileSync, existsSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve, sep, dirname } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
@@ -27,12 +27,41 @@ import {
 const SERVER_NAME = "content-creation-mcp";
 const SERVER_VERSION = "1.0.1";
 
+/** Maximum number of file paths a single get_skill_bundle call may request. */
+const MAX_BUNDLE_FILES = 200;
+
 /** Read a file, returning null when it is missing rather than throwing. */
 function readIfExists(path: string): string | null {
-  if (!existsSync(path)) return null;
-  const stat = statSync(path);
-  if (!stat.isFile()) return null;
-  return readFileSync(path, "utf8");
+  try {
+    if (!existsSync(path)) return null;
+    const stat = statSync(path);
+    if (!stat.isFile()) return null;
+    return readFileSync(path, "utf8");
+  } catch {
+    // The file may vanish between the stat and the read.
+    return null;
+  }
+}
+
+/**
+ * Resolve `rel` inside `base`, refusing anything that escapes it.
+ *
+ * `join` normalises `..` segments, so containment has to be checked after
+ * resolution — a naive join lets `../../etc/passwd` walk out of the skill
+ * directory. Returns null when the path is not inside `base`.
+ */
+function resolveInside(base: string, rel: string): string | null {
+  // Reject absolute paths and any `..` segment outright, so the refusal is
+  // explicit rather than relying only on the containment check below.
+  if (rel.length === 0) return null;
+  if (rel.startsWith("/") || rel.startsWith("\\")) return null;
+  if (/^[a-zA-Z]:/.test(rel)) return null;
+  const segments = rel.split(/[\\/]+/);
+  if (segments.some((s) => s === "..")) return null;
+
+  const abs = resolve(base, rel);
+  if (abs !== base && !abs.startsWith(base + sep)) return null;
+  return abs;
 }
 
 function skillPath(skill: SkillRecord): string {
@@ -182,7 +211,7 @@ export function createServer(): McpServer {
         "assets. Omit files for the manifest only.",
       inputSchema: {
         id: z.string().describe("Skill id or name"),
-        files: z.array(z.string()).optional().describe("Specific relative file paths to fetch"),
+        files: z.array(z.string()).max(MAX_BUNDLE_FILES).optional().describe("Specific relative file paths to fetch"),
         max_bytes: z.number().int().min(1).max(2_000_000).optional().describe("Total byte cap (default 200000)"),
       },
     },
@@ -195,14 +224,36 @@ export function createServer(): McpServer {
         };
       }
 
-      const dir = join(PROJECT_ROOT, skill.path, "..");
-      const manifest = skill.files.map((f) => {
-        const abs = join(dir, f);
+      if (files && files.length > MAX_BUNDLE_FILES) {
         return {
-          path: f,
-          bytes: existsSync(abs) ? statSync(abs).size : 0,
-          exists: existsSync(abs),
+          isError: true,
+          content: [
+            {
+              type: "text" as const,
+              text: `Too many files requested: ${files.length} (max ${MAX_BUNDLE_FILES})`,
+            },
+          ],
         };
+      }
+
+      // The skill's own directory. `skill.path` points at the SKILL.md file,
+      // so the bundle's root is its parent. Paths are resolved inside that
+      // directory and nowhere else.
+      const dir = dirname(resolve(PROJECT_ROOT, skill.path));
+      const manifest = skill.files.map((f) => {
+        const abs = resolveInside(dir, f);
+        if (abs === null) {
+          return { path: f, bytes: 0, exists: false };
+        }
+        try {
+          return {
+            path: f,
+            bytes: existsSync(abs) ? statSync(abs).size : 0,
+            exists: existsSync(abs),
+          };
+        } catch {
+          return { path: f, bytes: 0, exists: false };
+        }
       });
 
       if (!files || files.length === 0) {
@@ -218,10 +269,25 @@ export function createServer(): McpServer {
 
       const cap = max_bytes ?? 200_000;
       let used = 0;
-      const contents: Array<{ path: string; content?: string; truncated: boolean }> = [];
+      const contents: Array<{
+        path: string;
+        content?: string;
+        truncated: boolean;
+        error?: string;
+      }> = [];
 
       for (const rel of files) {
-        const abs = join(dir, rel);
+        const abs = resolveInside(dir, rel);
+        if (abs === null) {
+          // Refuse the path rather than reading it. Reporting it as an error
+          // keeps the caller informed without leaking whether it exists.
+          contents.push({
+            path: rel,
+            truncated: false,
+            error: "path is outside the skill directory",
+          });
+          continue;
+        }
         const text = readIfExists(abs);
         if (text === null) {
           contents.push({ path: rel, truncated: false });
@@ -232,12 +298,18 @@ export function createServer(): McpServer {
           contents.push({ path: rel, truncated: true });
           continue;
         }
-        if (text.length > remaining) {
-          contents.push({ path: rel, content: text.slice(0, remaining), truncated: true });
+        // The cap is in bytes, not UTF-16 code units.
+        const bytes = Buffer.byteLength(text, "utf8");
+        if (bytes > remaining) {
+          contents.push({
+            path: rel,
+            content: Buffer.from(text, "utf8").subarray(0, remaining).toString("utf8"),
+            truncated: true,
+          });
           used += remaining;
         } else {
           contents.push({ path: rel, content: text, truncated: false });
-          used += text.length;
+          used += bytes;
         }
       }
 

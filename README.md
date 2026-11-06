@@ -40,19 +40,33 @@ Both transports expose an identical tool set and return identical payloads.
 
 ### Connecting
 
-HTTP — add to any MCP client's config:
+HTTP — the transport is authenticated. Set a token, then pass it to your
+client:
+
+```bash
+export MCP_AUTH_TOKEN=$(openssl rand -hex 32)
+node mcp/dist/http.js
+```
+
+The token is printed to stderr on startup if you do not set one (loopback
+only). A server bound to a non-loopback address refuses to start without an
+explicit `MCP_AUTH_TOKEN`.
 
 ```json
 {
   "mcpServers": {
     "content-creation": {
-      "url": "http://localhost:8787/mcp"
+      "url": "http://localhost:8787/mcp",
+      "headers": {
+        "Authorization": "Bearer ${MCP_AUTH_TOKEN}"
+      }
     }
   }
 }
 ```
 
-stdio — for clients that spawn subprocesses:
+stdio — for clients that spawn subprocesses. The subprocess is local, so no
+token is involved:
 
 ```json
 {
@@ -64,6 +78,19 @@ stdio — for clients that spawn subprocesses:
   }
 }
 ```
+
+### HTTP configuration
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `PORT` | `8787` | Listen port |
+| `HOST` | `127.0.0.1` | Bind address. A non-loopback bind requires `MCP_AUTH_TOKEN` |
+| `MCP_AUTH_TOKEN` | generated on loopback | Bearer token required from clients |
+| `ALLOW_ORIGIN` | *(none)* | Comma-separated origins permitted to make browser requests. `*` opts into any origin |
+| `MCP_MAX_BODY_BYTES` | `4194304` | Request body cap |
+
+Browser requests are rejected with 403 unless their `Origin` is allowed, so
+a web page cannot drive this local server on the user's behalf.
 
 Or use the bundled registration helper:
 
