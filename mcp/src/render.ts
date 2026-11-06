@@ -39,11 +39,6 @@ function skillName(ctx: RenderContext): string {
   return ctx.record.id;
 }
 
-/** Description trimmed to a single line for machine-readable headers. */
-function descriptionOf(fm: SkillFrontmatter): string {
-  return oneLine(fm.description);
-}
-
 /**
  * The trigger phrases for a skill.
  *
@@ -77,7 +72,7 @@ function renderClaudeFrontmatter(ctx: RenderContext): string {
   const fm = ctx.frontmatter;
   const header = buildFrontmatter([
     ["name", skillName(ctx)],
-    ["description", descriptionOf(fm)],
+    ["description", oneLine(fm.description)],
     ["allowed-tools", fm.allowed_tools],
     ["license", fm.license],
     ["version", fm.version],
@@ -93,7 +88,7 @@ function renderOpenAiYaml(ctx: RenderContext): string {
   const doc = {
     interface: {
       name: skillName(ctx),
-      description: descriptionOf(fm),
+      description: oneLine(fm.description),
     },
     policy: {
       compatibility: fm.compatibility ?? "openai-compatible-mcp-client",
@@ -136,7 +131,7 @@ function renderAgentsMd(ctx: RenderContext): string {
     // blank line it would occupy is not needed in its place.
     ...(phrases.length > 0 ? [`**Triggers:** ${phrases.join(" · ")}`] : []),
     "",
-    descriptionOf(ctx.frontmatter),
+    oneLine(ctx.frontmatter.description),
     "",
   ].join("\n");
 
@@ -159,7 +154,7 @@ function renderCursorRules(ctx: RenderContext): string {
   const header = [
     `# ${skillName(ctx)}`,
     "",
-    descriptionOf(ctx.frontmatter),
+    oneLine(ctx.frontmatter.description),
     "",
     ...(signals.length > 0 ? [`Apply when: ${signals.join(", ")}.`] : []),
     "",

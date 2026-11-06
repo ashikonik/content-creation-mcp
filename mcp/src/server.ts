@@ -26,7 +26,7 @@ import {
 } from "./types.js";
 
 const SERVER_NAME = "content-creation-mcp";
-const SERVER_VERSION = "1.2.0";
+const SERVER_VERSION = "1.3.0";
 
 /** Maximum number of file paths a single get_skill_bundle call may request. */
 const MAX_BUNDLE_FILES = 200;
@@ -200,7 +200,7 @@ export function createServer(): McpServer {
         description: skill.description,
         content_domain: skill.content_domain,
         source: skill.source,
-        license: skill.license ?? null,
+        license: skill.license,
         prompt_signals: skill.prompt_signals,
         path: skill.path,
         files: skill.files,
@@ -262,11 +262,11 @@ export function createServer(): McpServer {
           return { path: f, bytes: 0, exists: false };
         }
         try {
-          return {
-            path: f,
-            bytes: existsSync(abs) ? statSync(abs).size : 0,
-            exists: existsSync(abs),
-          };
+          // One stat, not an existsSync followed by a statSync: the file
+          // can change between the two, and the second call could throw
+          // for a path the first one just confirmed.
+          const stat = statSync(abs);
+          return { path: f, bytes: stat.size, exists: stat.isFile() };
         } catch {
           return { path: f, bytes: 0, exists: false };
         }
@@ -609,9 +609,15 @@ export function createServer(): McpServer {
     },
     async () => {
       const index = loadIndex();
+
+      // Counted over both kinds, so the total matches `by_domain`, which
+      // also spans skills and agents. Counting skills alone made the two
+      // siblings disagree: `by_source` reported 36 while `by_domain`
+      // reported 48, and neither number was labelled.
+      const records = [...index.skills, ...index.agents];
       const bySource = {
-        authored: index.skills.filter((s) => s.source === "authored").length,
-        vendored: index.skills.filter((s) => s.source === "vendored").length,
+        authored: records.filter((r) => r.source === "authored").length,
+        vendored: records.filter((r) => r.source === "vendored").length,
       };
 
       return {
@@ -626,6 +632,7 @@ export function createServer(): McpServer {
                 agents: index.agents.length,
                 by_domain: index.counts.by_domain,
                 by_source: bySource,
+                by_source_basis: "skills and agents",
               },
               null,
               2,

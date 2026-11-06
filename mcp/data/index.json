@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0",
+  "version": "1.3.0",
   "generated_at": "1970-01-01T00:00:00Z",
   "project_root": ".",
   "counts": {
@@ -23,7 +23,6 @@
       "description": "Build slide decks programmatically — Marp, Slidev, reveal.js, python-pptx and HTML/CSS frameworks — with layouts, speaker notes, images, charts, and export to PDF or video. Use when the user wants a presentation, pitch deck, slide deck, talk slides, or a deck exported to PDF.",
       "content_domain": "design",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "make a slide deck",
         "build a presentation",
@@ -53,7 +52,6 @@
       "description": "Write articles, guides, blog posts, tutorials, newsletter issues, and other long-form content in a distinctive voice derived from supplied examples or brand guidance. Use when the user wants polished written content longer than a paragraph, especially when voice consistency, structure, and credibility matter.",
       "content_domain": "writing",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "write an article",
         "long-form blog post",
@@ -81,7 +79,6 @@
       "description": "Split audio into stems — vocals, drums, bass, other — with local open-source tools like Demucs and Spleeter, for remixing, sample extraction, karaoke tracks, and preparing audio for further processing. Use when the user wants to isolate vocals, extract instruments, make a karaoke version, or separate audio stems.",
       "content_domain": "audio",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "separate vocals",
         "split audio stems",
@@ -110,7 +107,6 @@
       "description": "Remove backgrounds from images and segment subjects using local open-source tools — rembg with BiRefNet and U²-Net models, IOPaint for inpainting, SAM 2 for promptable segmentation, and alpha matting for hair detail. Use when the user wants to remove an image background, cut out an object, make a transparent PNG, or segment a subject from a photo.",
       "content_domain": "image",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "remove image background",
         "background removal",
@@ -141,7 +137,6 @@
       "description": "Drafts multiple email replies or follow-ups in batch using the Superhuman Mail MCP server — processing your inbox in bulk rather than one email at a time. Use this skill whenever someone asks to \"draft replies to my unread emails\", \"respond to all my emails\", \"write follow-ups for my meetings this week\", \"batch draft responses\", \"draft emails for all threads that need a reply\", \"auto-draft my inbox\", \"help me respond to everything\", \"write follow-up emails based on my meetings\", \"process my inbox\", \"draft responses to these threads\", or any variation of wanting multiple emails drafted at once. Also trigger when someone says \"I have a bunch of emails to respond to\", \"help me get through my inbox\", \"draft a mail merge\", \"send personalized emails to these people\", or wants to create multiple drafts from a single prompt. Trigger broadly — if someone wants more than one email drafted, this skill should activate.",
       "content_domain": "writing",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "draft replies to unread emails",
         "batch draft responses",
@@ -162,7 +157,6 @@
       "description": "Create 3D content in Blender headlessly — product renders, animations, scene composition, exports to glTF/FBX/USD, and rendering stills or turntables with Cycles or EEVEE. Use when the user wants a 3D render, a product shot, a 3D asset, a turntable animation, or Blender automation.",
       "content_domain": "3d",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "3d render",
         "blender script",
@@ -192,7 +186,6 @@
       "description": "Use this skill when inspecting Blender characters, rigs, poses, animation retargeting, ground contact, facing direction, or model-vs-motion alignment where screenshots alone are not enough.",
       "content_domain": "3d",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "inspect a blender rig",
         "check animation retargeting",
@@ -215,7 +208,6 @@
       "description": "Use when a brand needs to discover or articulate its identity through structured multi-session interviews. Covers purpose, positioning, audience, personality, voice, narrative, and founder-brand tension across 8 modules using laddering, 5 Whys, and projective techniques. Produces a resumable session with disk-persisted state and a master brandbook (90_SYNTHESIS.md).",
       "content_domain": "writing",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "discover our brand identity",
         "define our positioning",
@@ -256,7 +248,6 @@
       "description": "Build a source-derived writing style profile from real posts, essays, launch notes, docs, or site copy, then reuse that profile across content, outreach, and social workflows. Use when the user wants voice consistency without generic AI writing tropes.",
       "content_domain": "writing",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "build a voice profile from our posts",
         "write in our brand voice",
@@ -283,7 +274,6 @@
       "description": "Create on-brand Canva presentations from a brief, outline, existing Canva doc, or design link. Use when the user wants a branded slide deck, wants to turn notes into a presentation, or needs a presentation generated in Canva with the right brand kit and a clear slide plan.",
       "content_domain": "design",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "create a branded canva deck",
         "turn notes into a presentation",
@@ -307,7 +297,6 @@
       "description": "Build and run ComfyUI workflows for image generation and editing — SDXL, SD 1.5, Flux, ControlNet, IPAdapter, inpainting, upscaling, and IPAdapter Plus — including workflow JSON authoring, model placement, and the headless API for batch generation. Use when the user works with ComfyUI graphs for images, wants to automate image generation, or needs reproducible image pipelines.",
       "content_domain": "image",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "comfyui image workflow",
         "comfyui graph image",
@@ -337,7 +326,6 @@
       "description": "Build and run ComfyUI workflows for video generation and animation, including Wan and LTX-Video model wrappers, graph structure, custom node installation, workflow JSON authoring, and the ComfyUI API for headless batch generation. Use when the user works with ComfyUI graphs, wants to automate ComfyUI, or needs to generate video through a node-based pipeline.",
       "content_domain": "video",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "comfyui workflow",
         "comfyui graph",
@@ -364,7 +352,6 @@
       "description": "Create platform-native content systems for X, LinkedIn, TikTok, YouTube, newsletters, and repurposed multi-platform campaigns. Use when the user wants social posts, threads, scripts, content calendars, or one source asset adapted cleanly across platforms.",
       "content_domain": "text",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "write a linkedin post",
         "write a twitter thread",
@@ -391,7 +378,6 @@
       "description": "Multi-platform content distribution across X, LinkedIn, Threads, and Bluesky. Adapts content per platform using content-engine patterns. Never posts identical content cross-platform. Use when the user wants to distribute content across social platforms.",
       "content_domain": "text",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "post to multiple platforms",
         "distribute content everywhere",
@@ -414,7 +400,6 @@
       "description": "Use this skill to generate or audit design systems, check visual consistency, and review PRs that touch styling.",
       "content_domain": "design",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "build a design system",
         "audit visual consistency",
@@ -437,7 +422,6 @@
       "description": "Generate technical and explanatory diagrams — flowcharts, sequence diagrams, architecture diagrams, ERDs, class diagrams and freeform sketches — with Mermaid, Graphviz, PlantUML, D2, and Excalidraw, exported to SVG or PNG for embedding in docs, slides, or code. Use when the user wants a diagram, flowchart, architecture chart, sequence diagram, or visual explanation of a system.",
       "content_domain": "design",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "make a diagram",
         "flowchart",
@@ -467,7 +451,6 @@
       "description": "Drafts court filings — motions, memoranda of law, appellate briefs — as court-ready .docx, with Midpage research behind every citation. Use to \"draft a motion to dismiss,\" \"write the brief.\"",
       "content_domain": "writing",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "draft a motion to dismiss",
         "write an appellate brief",
@@ -501,7 +484,6 @@
       "description": "Writes a formal objective legal research memo (Questions Presented, Brief Answers, Facts, IRAC Discussion, Conclusion) as a .docx. Use to \"draft a research memo on whether…\" Predicts, never advocates.",
       "content_domain": "writing",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "draft a research memo",
         "write a legal research memo",
@@ -535,7 +517,6 @@
       "description": "Email sending integration guidance — Resend (native Vercel Marketplace) with React Email templates. Covers API setup, transactional emails, domain verification, and template patterns. Use when sending emails from a Vercel-deployed application.",
       "content_domain": "writing",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "send an email from my app",
         "transactional email setup",
@@ -556,7 +537,6 @@
       "description": "Evidence-first mailbox triage, drafting, send verification, and sent-mail-safe follow-up workflow for ECC. Use when the user wants to organize email, draft or send through the real mail surface, or prove what landed in Sent.",
       "content_domain": "text",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "triage my mailbox",
         "organize my inbox",
@@ -602,7 +582,6 @@
       "description": "Create stunning, animation-rich HTML presentations from scratch or by converting PowerPoint files. Use when the user wants to build a presentation, convert a PPT/PPTX to web, or create slides for a talk/pitch. Helps non-designers discover their aesthetic through visual exploration rather than abstract choices.",
       "content_domain": "design",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "build an html presentation",
         "convert powerpoint to web slides",
@@ -630,7 +609,6 @@
       "description": "Expert guidance for Geist, Vercel's default typography system and font family for precise Next.js interfaces. Use when configuring Geist Sans, Geist Mono, or Geist Pixel, setting up font imports, or applying Vercel typography and aesthetic guidance.",
       "content_domain": "design",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "use geist sans",
         "configure geist mono",
@@ -651,7 +629,6 @@
       "description": "Google Slides work for finding, reading, summarizing, creating, importing, template following, visual cleanup, source-deck adaptation, structural repair, and content edits in native Slides decks.",
       "content_domain": "design",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "read a google slides deck",
         "summarize a google slides file",
@@ -706,7 +683,6 @@
       "description": "Rewrites text to sound like a real person wrote it — not an AI. Use this skill any time the user asks to humanize, de-AI, rewrite, make sound natural, remove AI patterns, or fix robotic-sounding text. Also trigger when the user pastes text and says things like \"make this mine,\" \"fix this,\" \"this sounds like AI,\" or \"clean this up.\" Even if the user doesn't use the word \"humanize,\" if they're handing over a block of text and want it to sound more human or personal, use this skill. Always apply the full banned-patterns list below — never skip it, never explain it to the user unless asked.",
       "content_domain": "writing",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "humanize this text",
         "make this sound like a person wrote it",
@@ -734,7 +710,6 @@
       "description": "Create video compositions, animations, title cards, overlays, captions, voiceovers, audio-reactive visuals, and scene transitions in HyperFrames HTML. Use when asked to build any HTML-based video content, add captions or subtitles synced to audio, generate text-to-speech narration, create audio-reactive animation (beat sync, glow, pulse driven by music), add animated text highlighting (marker sweeps, hand-drawn circles, burst lines, scribble, sketchout), or add transitions between scenes (crossfades, wipes, reveals, shader transitions). Covers composition authoring, timing, media, and the full video production workflow. For CLI commands (init, lint, preview, render, transcribe, tts) see the hyperframes-cli skill.",
       "content_domain": "video",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "build an html video",
         "add synced captions",
@@ -821,7 +796,6 @@
       "description": "HyperFrames CLI tool — hyperframes init, lint, inspect, preview, render, transcribe, tts, doctor, browser, info, upgrade, compositions, docs, benchmark. Use when scaffolding a project, linting, validating, inspecting visual layout in compositions, previewing in the studio, rendering to video, transcribing audio, generating TTS, or troubleshooting the HyperFrames environment.",
       "content_domain": "video",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "scaffold a hyperframes project",
         "lint a composition",
@@ -842,7 +816,6 @@
       "description": "Install and wire registry blocks and components into HyperFrames compositions. Use when running hyperframes add, installing a block or component, wiring an installed item into index.html, or working with hyperframes.json. Covers the add command, install locations, block sub-composition wiring, component snippet merging, and registry discovery.",
       "content_domain": "video",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "install a hyperframes block",
         "add a registry component",
@@ -918,7 +891,6 @@
       "description": "Generate iOS app icons as PNG imagesets for Xcode asset catalogs from SF Symbols (5000+ Apple-native) or Iconify API (275k+ open source icons from 200+ collections). Use when generating icons, creating icon assets, adding icons to asset catalog, or searching for icons for iOS projects.",
       "content_domain": "image",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "generate an ios app icon",
         "create an icon asset catalog",
@@ -947,7 +919,6 @@
       "description": "Sync mouth movement to audio in video using local open-source models — MuseTalk, LatentSync, Wav2Lip, and VideoRetalking — with installation, performance comparison, audio preprocessing requirements, and artefact fixes. Use when the user wants lip sync, needs a talking avatar, wants to dub a video, or needs mouth movements to match a voice track.",
       "content_domain": "video",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "lip sync",
         "lipsync",
@@ -977,7 +948,6 @@
       "description": "Choose and run local open-source image generation tools — AUTOMATIC1111 WebUI, Forge, InvokeAI, Fooocus, Diffusers, and Flux — with model selection, SDXL vs SD1.5 vs Flux comparison, VRAM requirements, and the API for scripted generation. Use when the user wants to generate images locally, pick a diffusion model, or set up a local image generation stack.",
       "content_domain": "image",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "local image generation",
         "stable diffusion local",
@@ -1008,7 +978,6 @@
       "description": "Generate speech locally with open-source TTS engines — Piper, Coqui XTTS, Kokoro, Bark, VoxCPM, CosyVoice, Qwen3-TTS, Dia, ChatTTS, and Supertonic — with model comparison, installation, voice cloning support, emotion control, and API usage. Use when the user wants to generate a voiceover, synthesize speech, do text-to-speech locally, or needs a free offline TTS engine.",
       "content_domain": "audio",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "text to speech",
         "generate voiceover",
@@ -1040,7 +1009,6 @@
       "description": "Extract short-form clips from long-form video — detecting highlight moments, scoring for virality, generating vertical reframing with speaker tracking, adding hook captions, and batch producing shorts from a podcast or long video. Use when the user wants to repurpose a long video into shorts, find highlights in a podcast, or make vertical clips from landscape footage.",
       "content_domain": "video",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "repurpose long video",
         "extract highlights",
@@ -1070,7 +1038,6 @@
       "description": "Build reusable Manim explainers for technical concepts, graphs, system diagrams, and product walkthroughs, then hand off to the wider ECC video stack if needed. Use when the user wants a clean animated explainer rather than a generic talking-head script.",
       "content_domain": "video",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "build a manim explainer",
         "animate a technical concept",
@@ -1095,7 +1062,6 @@
       "description": "End-to-end marketing campaign planning and execution. Covers audience research, positioning, campaign angle definition, landing page copy, email sequences, social posts, ad copy, short-form video scripts, and content calendars. Use as the orchestration layer for multi-channel product launches.",
       "content_domain": "text",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "plan a product launch campaign",
         "campaign angle and positioning",
@@ -1118,7 +1084,6 @@
       "description": "Transcode and package video, audio and images for every platform — H.264/H.265/AV1 and VP9 encodes, bitrate ladders, loudness normalisation, resolution ladders, thumbnails, sprite sheets, streaming manifests and ffmpeg presets. Use when the user needs platform-specific exports, to compress video, to build adaptive bitrate ladders, or to normalise audio loudness.",
       "content_domain": "av_pipeline",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "transcode video",
         "compress video",
@@ -1153,7 +1118,6 @@
       "description": "Generate music, sound effects, and ambient audio locally with open-source models — AudioCraft MusicGen and AudioGen, ACE-Step, YuE, Stable Audio Open, and Bark's audio modes — with model comparison, prompting, duration limits, and looping and mixing techniques for video. Use when the user wants background music, a soundtrack, a jingle, sound effects, or AI-generated music for a video.",
       "content_domain": "audio",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "generate music",
         "ai music",
@@ -1212,7 +1176,6 @@
       "description": "Choose and apply automatic layout strategies for node-link diagrams and connected-node visuals. Use when the user asks how to auto-arrange nodes, reduce line crossings, route edges, avoid overlaps, stabilize layout, or choose graph-layout algorithms for network diagrams, dependency graphs, database schema diagrams, ERDs, state machines, decision trees, flow diagrams, box-and-line editors, or other line-connected nodes.",
       "content_domain": "design",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "arrange nodes automatically",
         "reduce line crossings in a graph",
@@ -1241,7 +1204,6 @@
       "description": "Best practices for Remotion - Video creation in React",
       "content_domain": "video",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "remotion video in react",
         "remotion animation rules",
@@ -1301,7 +1263,6 @@
       "description": "Best practices for Remotion - Video creation in React. 29 domain-specific rules covering 3D, animations, audio, captions, charts, transitions, and more.",
       "content_domain": "video",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "create a video with remotion",
         "remotion domain rules",
@@ -1356,7 +1317,6 @@
       "description": "Lay out and export data-rich reports and documents. Use when the user needs report structure, figure packaging, PDFs, PowerPoint or Google Slides automation, or programmatic insertion of visualizations, UML-like diagrams, or architecture diagrams into documents.",
       "content_domain": "design",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "lay out a report",
         "export a pdf report",
@@ -1387,7 +1347,6 @@
       "description": "Edits scripts, storyboards, voiceover copy, and narrative structure — shaping a draft for a specific format and audience without losing its spine. Use when the user brings a script, transcript, voiceover read, story outline, or long-form piece and asks to tighten it, restructure it, cut it to length, write hooks and titles, sharpen the narrative arc, or adapt it to a different runtime or format. Not for generating new video, and not for general long-form articles or blog posts — this skill is for material that has to survive being performed, narrated, or timed.",
       "content_domain": "writing",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "edit a script",
         "tighten this script",
@@ -1418,7 +1377,6 @@
       "description": "Audit, plan, and implement SEO improvements across technical SEO, on-page optimization, structured data, Core Web Vitals, and content strategy. Use when the user wants better search visibility, SEO remediation, schema markup, sitemap/robots work, or keyword mapping.",
       "content_domain": "text",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "audit my seo",
         "improve search visibility",
@@ -1446,7 +1404,6 @@
       "description": "End-to-end pipeline for producing short-form vertical video (YouTube Shorts, TikTok, Instagram Reels) locally and with AI. Covers topic selection, script generation, TTS voiceover, stock or generated B-roll, auto-assembly with MoviePy or FFmpeg, caption burn-in, and multi-platform publishing. Use when the user wants to make a reel, a short, a TikTok, a Shorts video, or any vertical 9:16 social video.",
       "content_domain": "video",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "make a reel",
         "make a short",
@@ -1477,7 +1434,6 @@
       "description": "Weighted social-graph ranking for warm intro discovery, bridge scoring, and network gap analysis across X and LinkedIn. Use when the user wants the reusable graph-ranking engine itself, not the broader outreach or network-maintenance workflow layered on top of it.",
       "content_domain": "text",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "rank warm intro connections",
         "bridge scoring for a network",
@@ -1500,7 +1456,6 @@
       "description": "Plan, schedule, and publish social media content across platforms — content calendars, per-platform formatting, hashtag and metadata sets, UTM tagging, and cross-posting to Mastodon, Bluesky, LinkedIn, Reddit, and self-hosted feeds via open APIs. Use when the user wants a posting schedule, a content calendar, to publish across platforms, or to repurpose one piece of content per network.",
       "content_domain": "text",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "social media schedule",
         "content calendar",
@@ -1530,7 +1485,6 @@
       "description": "Agent-driven scheduling and publishing of social media posts across 13 platforms via SocialClaw. Use when the user wants to publish to X, LinkedIn, Instagram, Facebook Pages, TikTok, Discord, Telegram, YouTube, Reddit, WordPress, or Pinterest — or when managing campaigns, uploading media, or monitoring post delivery status.",
       "content_domain": "text",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "publish to linkedin and instagram",
         "schedule a social campaign",
@@ -1553,7 +1507,6 @@
       "description": "Generate and normalize 2D sprite animations. Use when the user asks for full-strip generation from approved source frames, consistent anchor and scale normalization, or preview assets for browser-game animation.",
       "content_domain": "image",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "generate a sprite animation",
         "full strip sprite sheet",
@@ -1574,7 +1527,6 @@
       "description": "Find and download royalty-free stock photos, video, and music for content production — Pexels, Pixabay, Unsplash, Wikimedia Commons, and Internet Archive — with API usage, licence verification, search query strategies, and attribution requirements. Use when the user needs B-roll, background footage, stock images, or free music for a video or article.",
       "content_domain": "image",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "stock footage",
         "stock photos",
@@ -1603,7 +1555,6 @@
       "description": "Generate, time, and burn-in subtitles and captions using local open-source tools — whisper.cpp and faster-whisper for transcription, pysrt and WebVTT for timing, ffmpeg for burn-in, and ASS styling for word-level animated captions. Use when the user wants subtitles, captions, closed captions, transcript of a video, or accessible captioning.",
       "content_domain": "av_pipeline",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "generate subtitles",
         "add captions to video",
@@ -1636,7 +1587,6 @@
       "description": "A creative-direction (taste) layer for music videos and short-form edits in the angelcore / cloud-trance / hyperpop visual family. Distills a named-genre aesthetic vocabulary, a mood + color + light system, and a beat-synced editing grammar, then chains ECC's video skills (video-editing, local-diffusion-suite, text-to-video-local, remotion-video-creation, motion-*, content-engine) into one production pipeline. Use when the work is not just making a video function but making it feel intentional, when building a music video, a fancam/edit, a moodboard-driven reel, or when choosing a coherent visual direction for AI-generated b-roll.",
       "content_domain": "video",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "give this edit some taste",
         "music video creative direction",
@@ -1663,7 +1613,6 @@
       "description": "Generate video from text or image prompts using local, open-source models — Wan2.2, HunyuanVideo, LTX-Video, CogVideoX, Mochi, and AnimateDiff — with practical guidance on VRAM budgets, model selection, resolution, and frame counts. Use when the user wants to create AI video clips on their own machine, generate a text-to-video shot, turn a prompt into a video, or run a local video generation model.",
       "content_domain": "video",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "generate a video from text",
         "text to video",
@@ -1698,7 +1647,6 @@
       "description": "Generate thumbnails for videos and articles that get clicked — local image generation for the base image, compositing text overlays with Pillow, A/B variants, platform aspect ratios, and the visual rules that make a thumbnail legible at small sizes. Use when the user wants a YouTube thumbnail, article cover image, social preview card, or wants to A/B test thumbnail designs.",
       "content_domain": "image",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "make a thumbnail",
         "youtube thumbnail",
@@ -1725,7 +1673,6 @@
       "description": "Compose a complete video from a script by generating a voiceover with local TTS, timing visuals to the audio, and assembling the result — including script-to-shot planning, forced alignment, audio-driven video length, and background music mixing. Use when the user wants to turn a script or text into a narrated video, make an explainer, or produce a video with a synthetic voice.",
       "content_domain": "video",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "script to video",
         "turn a script into a video",
@@ -1751,7 +1698,6 @@
       "description": "Design, critique, read, write, render, and implement UML and UML-like software diagrams. Use when the user mentions UML, sequence diagrams, class diagrams, activity diagrams, state machines, use case diagrams, component diagrams, deployment diagrams, object diagrams, package diagrams, profile diagrams, timing diagrams, communication diagrams, interaction overview diagrams, composite structure diagrams, ERDs, database schema diagrams, C4, BPMN, swimlanes, flowcharts, network diagrams, application architecture diagrams, software architecture diagrams, diagram-as-code, model-as-code, XMI, UMLDI, PlantUML, Mermaid, Graphviz DOT, D2, Structurizr, DBML, diagrams.net/draw.io, Kroki, or interactive diagram editors and explorers.",
       "content_domain": "design",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "draw a uml diagram",
         "sequence diagram",
@@ -1785,7 +1731,6 @@
       "description": "Remove or replace backgrounds in video footage using local open-source tools — rembg with video support, MediaPipe Selfie Segmentation, Robust Video Matting, and FFmpeg chroma key — for green screen replacement, subject isolation, and compositing over new backgrounds. Use when the user wants to remove a video background, do green screen keying, cut out a subject from footage, or composite a person onto another background.",
       "content_domain": "video",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "remove video background",
         "green screen",
@@ -1812,7 +1757,6 @@
       "description": "AI-assisted video editing workflows for cutting, structuring, and augmenting real footage. Covers the full pipeline from raw capture through FFmpeg, Remotion, local TTS and image generation, and final polish in Descript or CapCut. Use when the user wants to edit video, cut footage, create vlogs, or build video content.",
       "content_domain": "video",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "edit a video",
         "cut footage into a vlog",
@@ -1839,7 +1783,6 @@
       "description": "Translate and dub video — transcribe, translate subtitles and dialogue, synthesize localized speech, align it to the original lip movement, and mix the result with the original audio. Covers Whisper, LLM translation, local TTS, forced alignment, voice cloning for consistent speakers, and lip-sync models like MuseTalk and LatentSync. Use when the user wants a video in another language, dubbed audio, translated subtitles, or a localized version of their content.",
       "content_domain": "av_pipeline",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "dub a video",
         "translate video",
@@ -1869,7 +1812,6 @@
       "description": "Upscale video resolution and increase frame rate using local open-source tools — Real-ESRGAN, video2x, Waifu2x, and RIFE frame interpolation — including tiling for large videos, model selection, batch processing, and artifact avoidance. Use when the user wants to upscale a video, improve resolution, make a video smoother, increase FPS, or convert 24fps to 60fps.",
       "content_domain": "video",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "upscale video",
         "video super resolution",
@@ -1898,7 +1840,6 @@
       "description": "See, Understand, Act on video and audio. See- ingest from local files, URLs, RTSP/live feeds, or live record desktop; return realtime context and playable stream links. Understand- extract frames, build visual/semantic/temporal indexes, and search moments with timestamps and auto-clips. Act- transcode and normalize (codec, fps, resolution, aspect ratio), perform timeline edits (subtitles, text/image overlays, branding, audio overlays, dubbing, translation), generate media assets (image, audio, video), and create real time alerts for events from live streams or desktop capture.",
       "content_domain": "video",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "search my video library",
         "ingest a video file",
@@ -1946,7 +1887,6 @@
       "description": "Clone and convert voices locally with open-source tools — GPT-SoVITS for zero-shot cloning, RVC for voice conversion with training, OpenVoice for instant cloning, and So-VITS-SVC for singing conversion — covering model training, reference audio requirements, and where each fits. Use when the user wants to clone a voice, convert speech to sound like someone, train a voice model, or do AI voice covers.",
       "content_domain": "audio",
       "source": "authored",
-      "license": null,
       "prompt_signals": [
         "clone a voice",
         "voice conversion",
@@ -1977,7 +1917,6 @@
       "description": "Prepare and optimize browser-game 3D assets. Use when the user asks for GLB or glTF shipping work, including Blender cleanup and export, collision or LOD setup, compression, texture packaging, and runtime validation.",
       "content_domain": "3d",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "export a glb for the web",
         "blender cleanup for a game asset",
@@ -2002,7 +1941,6 @@
       "description": "Capture a website and create a HyperFrames video from it. Use when: (1) a user provides a URL and wants a video, (2) someone says \"capture this site\", \"turn this into a video\", \"make a promo from my site\", (3) the user wants a social ad, product tour, or any video based on an existing website, (4) the user shares a link and asks for any kind of video content. Even if the user just pastes a URL — this is the skill to use.",
       "content_domain": "video",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "turn this website into a video",
         "capture this site as a video",
@@ -2041,7 +1979,6 @@
       "description": "This skill should be used when the user asks to \"create a hookify rule\", \"write a hook rule\", \"configure hookify\", \"add a hookify rule\", or needs guidance on hookify rule syntax and patterns.",
       "content_domain": "writing",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "create a hookify rule",
         "write a hook rule",
@@ -2062,7 +1999,6 @@
       "description": "Use when you have a spec or requirements for a multi-step task, before touching code",
       "content_domain": "writing",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "write an implementation plan",
         "plan a multi-step task",
@@ -2085,7 +2021,6 @@
       "description": "Use when creating new skills, editing existing skills, or verifying skills work before deployment",
       "content_domain": "writing",
       "source": "vendored",
-      "license": null,
       "prompt_signals": [
         "create a new skill",
         "write a skill",
@@ -2124,7 +2059,6 @@
       ],
       "model": "sonnet",
       "source": "authored",
-      "license": null,
       "path": "agents/cinematic-video-editor.md",
       "files": [],
       "prompt_signals": [
@@ -2155,7 +2089,6 @@
       ],
       "model": "sonnet",
       "source": "authored",
-      "license": null,
       "path": "agents/comfyui-workflow-builder.md",
       "files": [],
       "prompt_signals": [
@@ -2186,7 +2119,6 @@
       ],
       "model": "sonnet",
       "source": "authored",
-      "license": null,
       "path": "agents/image-art-director.md",
       "files": [],
       "prompt_signals": [
@@ -2216,7 +2148,6 @@
       ],
       "model": "sonnet",
       "source": "authored",
-      "license": null,
       "path": "agents/lip-sync-technician.md",
       "files": [],
       "prompt_signals": [
@@ -2245,7 +2176,6 @@
       ],
       "model": "sonnet",
       "source": "vendored",
-      "license": null,
       "path": "agents/marketing-agent.md",
       "files": [],
       "prompt_signals": [
@@ -2275,7 +2205,6 @@
       ],
       "model": "sonnet",
       "source": "authored",
-      "license": null,
       "path": "agents/media-pipeline-engineer.md",
       "files": [],
       "prompt_signals": [
@@ -2302,7 +2231,6 @@
       ],
       "model": "opus",
       "source": "vendored",
-      "license": null,
       "path": "agents/planner.md",
       "files": [],
       "prompt_signals": [
@@ -2330,7 +2258,6 @@
       ],
       "model": "sonnet",
       "source": "authored",
-      "license": null,
       "path": "agents/script-and-story-editor.md",
       "files": [],
       "prompt_signals": [
@@ -2360,7 +2287,6 @@
       ],
       "model": "sonnet",
       "source": "authored",
-      "license": null,
       "path": "agents/seo-content-strategist.md",
       "files": [],
       "prompt_signals": [
@@ -2388,7 +2314,6 @@
       ],
       "model": "sonnet",
       "source": "vendored",
-      "license": null,
       "path": "agents/seo-specialist.md",
       "files": [],
       "prompt_signals": [
@@ -2417,7 +2342,6 @@
       ],
       "model": "sonnet",
       "source": "authored",
-      "license": null,
       "path": "agents/short-form-producer.md",
       "files": [],
       "prompt_signals": [
@@ -2447,7 +2371,6 @@
       ],
       "model": "sonnet",
       "source": "authored",
-      "license": null,
       "path": "agents/social-publish-manager.md",
       "files": [],
       "prompt_signals": [
@@ -2477,7 +2400,6 @@
       ],
       "model": "sonnet",
       "source": "authored",
-      "license": null,
       "path": "agents/stock-media-researcher.md",
       "files": [],
       "prompt_signals": [
@@ -2507,7 +2429,6 @@
       ],
       "model": "sonnet",
       "source": "authored",
-      "license": null,
       "path": "agents/thumbnail-designer.md",
       "files": [],
       "prompt_signals": [
@@ -2535,7 +2456,6 @@
       ],
       "model": "sonnet",
       "source": "authored",
-      "license": null,
       "path": "agents/voice-and-sound-designer.md",
       "files": [],
       "prompt_signals": [

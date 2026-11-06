@@ -184,6 +184,39 @@ test("an unknown method returns a JSON-RPC error, not a crash", async (t) => {
   assert.ok(result.error.code);
 });
 
+test("the server handles many sequential requests on one shared instance", async (t) => {
+  // The server instance is shared by every request; the transport is
+  // per-request. A client that makes several calls in a row must get a
+  // correct answer each time — no state from an earlier call may leak
+  // into a later one.
+  await startHttpServer();
+  t.after(stopHttpServer);
+
+  const seen = [];
+  for (let i = 0; i < 8; i++) {
+    const result = await httpCall("tools/call", {
+      name: "search_skills",
+      arguments: { query: `query number ${i}`, limit: 3 },
+    });
+    assert.ok(result.result, `request ${i} failed: ${JSON.stringify(result)}`);
+    const payload = JSON.parse(result.result.content[0].text);
+    assert.equal(payload.query, `query number ${i}`);
+    seen.push(payload.count);
+  }
+
+  // The calls must not be accumulating state — an identical query returns
+  // an identical count.
+  const single = await httpCall("tools/call", {
+    name: "search_skills",
+    arguments: { query: "query number 0", limit: 3 },
+  });
+  assert.equal(
+    JSON.parse(single.result.content[0].text).count,
+    seen[0],
+    "a repeated query returned a different count, so state is leaking",
+  );
+});
+
 test("cross-transport parity: the same call returns identical payloads", async (t) => {
   await startHttpServer();
   t.after(stopHttpServer);

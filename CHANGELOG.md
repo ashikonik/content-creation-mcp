@@ -11,6 +11,84 @@ state is tagged `v1.0.0`.
 
 Nothing yet.
 
+## [1.3.0] — 2026-11-06
+
+Stage 4 of the remediation: the search ranker describes the corpus it is
+ranking, the server counts the records it holds, and the transport stops
+rebuilding what it does not need to rebuild.
+
+### Fixed
+
+- **The idf table now describes the corpus being ranked.** It was built
+  from the whole corpus and then used to rank a filtered subset, so a
+  token that was common across all 83 records but rare within, say, the
+  five audio records scored as if it were distinctive — and a narrow
+  modality search was weighted against its own corpus. It is now built
+  from the filtered set.
+- **Bigrams no longer straddle a field boundary.** They were built from
+  the name and the description concatenated, so a skill named `video` with
+  a description beginning "generate images" produced the bigram
+  "video generate". Bigrams are now built per field.
+- **`get_stats.by_source` counts the records the corpus actually holds.**
+  It counted only skills, while its sibling `by_domain` counted skills
+  and agents, so the two reported totals that disagreed — 36 against 48
+  for an 83-record corpus — and neither said which basis it used. Both
+  now count skills and agents, and the payload states the basis
+  explicitly in `by_source_basis`.
+- **An unknown licence is absent, not null.** `get_skill` emitted
+  `license: null` while its neighbours emitted `[]` for absent lists.
+  The field is now omitted from the index when there is no licence, so
+  the API contract describes one convention.
+- **A mis-installed server no longer serves the wrong corpus.** The
+  project-root walk fell back to `MCP_ROOT`'s parent when it found no
+  directory containing both `skills/` and `agents/`, which meant a
+  mis-installed server could silently serve a *different* project's
+  `skills/` directory. It now fails loudly with a message that says what
+  went wrong and why the server refuses to guess.
+- **The bundle manifest no longer stats a file twice.** It called
+  `existsSync` and then `statSync` on the same path; the file can change
+  between the two. It is one `stat` now, and `exists` reports whether
+  the path is a file rather than whether it exists at all.
+
+### Changed
+
+- **The HTTP transport shares one server instance.** It constructed a
+  fresh `McpServer` and re-registered all nine tools on every request,
+  which was pure overhead and made the README's "one shared server"
+  claim inaccurate. The server now holds no per-client state — its tools
+  read the generated index and the filesystem, both shared by every
+  caller — so it is built once. The *transport* is still per-request:
+  that is what keeps the server stateless, and the stateless model is what
+  lets any MCP client connect without a session handshake. Only the
+  transport is closed on abort; closing the server would take down the
+  whole listener.
+- **`SkillFrontmatter` no longer has an open index signature.** The
+  top-level `[key: string]: unknown` defeated the checking on every named
+  field, since any typo would still typecheck. Vendored skills' extra
+  keys (`metadata.origin`, `metadata.sources`) are still allowed, under
+  `metadata`, where they live.
+- **`descriptionOf` is inlined.** A one-line wrapper around `oneLine`
+  that four call sites each spelled out differently.
+
+### Tests
+
+- `mcp/tests/protocol.test.js`: asserts that `by_source` and `by_domain`
+  total to the same number as the corpus, and that an absent licence is
+  reported as absent.
+- `mcp/tests/search.test.js`: asserts that a modality-filtered search
+  ranks within its own corpus and still surfaces the domain's own
+  skills, and that filtering does not change the relative order of the
+  results it returns.
+- `mcp/tests/http.test.js`: eight sequential requests against one shared
+  server instance all return correct answers, and a repeated query
+  returns an identical count — so no state leaks between calls.
+
+Verification: 94 tests pass, and the full local suite reports 1099 checks
+passing. Both determinism gates pass — `index.json` is byte-identical to
+a fresh build and `provenance.json` is up to date. The shared server was
+also exercised live: three sequential `tools/call` requests against a
+running `dist/http.js` returned identical, correct payloads.
+
 ## [1.2.0] — 2026-11-06
 
 Stage 3 of the remediation: the renderer stops emitting broken output
@@ -310,7 +388,8 @@ Recorded here so the audit trail shows what the remediation addressed.
   no runtime code read the file.
 - **No CI, no changelog, no tags** prior to this file.
 
-[Unreleased]: https://github.com/ashikonik/content-creation-mcp/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/ashikonik/content-creation-mcp/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.3.0
 [1.2.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.2.0
 [1.1.0]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.1.0
 [1.0.1]: https://github.com/ashikonik/content-creation-mcp/releases/tag/v1.0.1

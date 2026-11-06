@@ -30,6 +30,16 @@ export const CONTENT_DOMAINS: ContentDomain[] = [
 /** Where a record came from: authored here, or vendored from upstream. */
 export type SkillSource = "authored" | "vendored";
 
+/**
+ * A skill's frontmatter.
+ *
+ * The fields the renderer and the tools actually read are named. Vendored
+ * skills carry additional keys (`metadata.origin`, `metadata.sources`, …)
+ * that no code depends on, so they are allowed through — but only under
+ * `metadata`, where they live. An open index signature at the top level
+ * would defeat the checking on the named fields, since every typo would
+ * still typecheck.
+ */
 export interface SkillFrontmatter {
   name: string;
   description: string;
@@ -43,7 +53,6 @@ export interface SkillFrontmatter {
     };
     [key: string]: unknown;
   };
-  [key: string]: unknown;
 }
 
 export interface SkillRecord {

@@ -144,6 +144,21 @@ function checkOrigin(headers: Record<string, unknown>): string | null {
   return "origin_not_allowed";
 }
 
+/**
+ * The shared MCP server.
+ *
+ * One server instance serves every request. The transport stays per-request
+ * — that is what makes the server stateless, and the stateless model is
+ * what lets any MCP client connect without a session handshake. But the
+ * *server* holds no per-client state: its tools read the generated index
+ * and the filesystem, both of which are shared by every caller anyway.
+ *
+ * Constructing a server per request re-registered all nine tools on every
+ * call, which was pure overhead and made the README's "one shared server"
+ * claim inaccurate.
+ */
+const server = createServer();
+
 /** Each request gets its own transport pair: this is the stateless model. */
 async function createTransport(): Promise<StreamableHTTPServerTransport> {
   const transport = new StreamableHTTPServerTransport({
@@ -223,7 +238,6 @@ const httpServer = createHttpServer(async (req, res) => {
       }
 
       const transport = await createTransport();
-      const server = createServer();
       await server.connect(transport);
 
       // The MCP transport writes the response headers itself, so the CORS
@@ -234,9 +248,11 @@ const httpServer = createHttpServer(async (req, res) => {
 
       // Tear down only when the client aborts. `res.on("close")` also fires on
       // a normal completed response, which would close the server early.
+      //
+      // Only the transport is closed: the server is shared by every request,
+      // so closing it here would take down the whole listener.
       req.on("aborted", () => {
         void transport.close();
-        void server.close();
       });
 
       await transport.handleRequest(req, res, parsed);

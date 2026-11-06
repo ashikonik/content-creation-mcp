@@ -92,6 +92,63 @@ test("the prompt-signal phrase bonus is awarded once per document", async () => 
   await server.close();
 });
 
+test("a filtered search ranks within the filtered corpus", async () => {
+  // The idf table described the whole corpus, but the filters selected a
+  // subset. A token common across all records but rare inside the
+  // filtered set scored as if it were distinctive, so a narrow modality
+  // search was weighted against its own corpus.
+  const { client, server } = await connectClient();
+
+  const results = await search(client, "transcode", {
+    modality: "av_pipeline",
+    limit: 20,
+  });
+
+  assert.ok(results.length > 0, "the av_pipeline filter returned nothing");
+  for (const r of results) {
+    assert.equal(r.content_domain, "av_pipeline");
+  }
+
+  // The narrow filter must still surface the domain's own skills rather
+  // than collapsing to whatever scored well corpus-wide.
+  const ids = results.map((r) => r.id);
+  assert.ok(
+    ids.includes("media-transcode-pipeline"),
+    `expected the transcode skill, got: ${ids.join(", ")}`,
+  );
+
+  await server.close();
+});
+
+test("a filtered search returns the same ordering as an unfiltered one", async () => {
+  // The filter changes which documents compete; it must not change how
+  // they are compared.
+  const { client, server } = await connectClient();
+
+  const unfiltered = await search(client, "video", { limit: 30 });
+  const filtered = await search(client, "video", {
+    modality: "video",
+    limit: 30,
+  });
+
+  const unfilteredIds = unfiltered
+    .filter((r) => r.content_domain === "video")
+    .map((r) => r.id);
+  const filteredIds = filtered.map((r) => r.id);
+
+  // The video-domain results must appear in the same relative order in
+  // both lists.
+  const positions = filteredIds.map((id) => unfilteredIds.indexOf(id));
+  const sorted = [...positions].sort((a, b) => a - b);
+  assert.deepEqual(
+    positions,
+    sorted,
+    "filtering by modality changed the relative order of the results",
+  );
+
+  await server.close();
+});
+
 test("search returns results for a natural-language phrase", async () => {
   const { client, server } = await connectClient();
 

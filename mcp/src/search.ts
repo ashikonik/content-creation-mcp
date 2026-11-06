@@ -70,6 +70,17 @@ function toDoc(
     ...signalTokens,
   ]);
 
+  // Bigrams are built per field. Concatenating name and description first
+  // let a bigram straddle the boundary between them — a skill named
+  // "video" with a description beginning "generate images" produced the
+  // bigram "video generate", which matched nothing in the query but could
+  // match a query that happened to span the same seam.
+  const bigramSet = new Set<string>([
+    ...bigrams(nameTokens),
+    ...bigrams(descTokens),
+    ...bigrams(signalTokens),
+  ]);
+
   return {
     id: record.id,
     kind,
@@ -79,12 +90,12 @@ function toDoc(
     source: record.source,
     prompt_signals: record.prompt_signals,
     tokens,
-    bigram_set: new Set(bigrams([...nameTokens, ...descTokens])),
+    bigram_set: bigramSet,
   };
 }
 
 /**
- * Build the idf table over the whole corpus. Rare tokens carry more weight
+ * Build the idf table over a document set. Rare tokens carry more weight
  * than common ones, which is what makes "lip-sync" rank above "video".
  */
 function buildIdf(docs: Doc[]): Map<string, number> {
@@ -236,7 +247,12 @@ export function search(
 
   const queryTokens = tokenize(query);
   const queryBigrams = bigrams(queryTokens);
-  const idf = buildIdf(docs);
+  // The idf table describes the corpus that is actually being ranked. Built
+  // from the unfiltered set, the weights described a different population
+  // than the one the filters select — a token common across all 83 records
+  // but rare within, say, the five audio records scored as if it were
+  // distinctive.
+  const idf = buildIdf(filtered);
 
   const results: SearchResult[] = [];
   for (const doc of filtered) {

@@ -43,7 +43,7 @@ DATA_DIR = PROJECT_ROOT / "mcp" / "data"
 INDEX_PATH = DATA_DIR / "index.json"
 EXCLUDED_PATH = DATA_DIR / "excluded.json"
 
-INDEX_VERSION = "1.2.0"
+INDEX_VERSION = "1.3.0"
 
 
 def provenance_upstream() -> dict[tuple[str, str], dict]:
@@ -469,7 +469,10 @@ def build_skills() -> tuple[list[dict], list[str]]:
                 "description": description,
                 "content_domain": domain,
                 "source": "authored" if authored else "vendored",
-                "license": license_value,
+                # Omitted rather than null when there is no licence. The
+                # field is optional; a null would be a value the API
+                # contract does not describe.
+                **({"license": license_value} if license_value else {}),
                 "prompt_signals": phrases,
                 "path": f"skills/{skill_dir.name}/SKILL.md",
                 "files": all_files,
@@ -547,7 +550,8 @@ def build_agents() -> tuple[list[dict], list[str]]:
                 "tools": tools,
                 "model": model or "inherit",
                 "source": "authored" if authored else "vendored",
-                "license": license_value,
+                # Omitted rather than null when there is no licence.
+                **({"license": license_value} if license_value else {}),
                 "path": f"agents/{agent_id}.md",
                 "files": [],
                 "prompt_signals": extract_phrases(fm)
